@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use crate::FloatError;
 
 /// Represents a checked floating-point number that ensures it is neither NaN nor infinite.
@@ -18,7 +19,7 @@ use crate::FloatError;
 /// assert_eq!(f64::try_from(checked_f64 % f64::NAN), Err(FloatError));
 /// # }
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub struct CheckedF64(f64);
 
 /// Implementing the ability to convert `CheckedF64` to `f64` safely.
@@ -166,6 +167,24 @@ fn rem(a: f64, b: f64) -> f64 {
     }
 }
 define_operation!(%, Rem, rem, RemAssign, rem_assign, rem);
+
+impl PartialOrd for CheckedF64 {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        match (self.0.is_finite(), other.0.is_finite()) {
+            (true, true) => PartialOrd::partial_cmp(&self.0, &other.0),
+            _ => None,
+        }
+    }
+}
+
+impl PartialEq for CheckedF64 {
+    fn eq(&self, other: &Self) -> bool {
+        match (self.0.is_finite(), other.0.is_finite()) {
+            (true, true) => self.0 == other.0,
+            _ => false,
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -584,6 +603,63 @@ mod tests {
             let mut checked_remainder = CheckedF64(a);
             checked_remainder %= b;
             prop_assert_eq!(f64::try_from(checked_remainder), Err(FloatError));
+        }
+
+        // Ordering
+        #[test]
+        fn test_valid_cmp_valid(a in valid_f64(), b in valid_f64()) {
+            prop_assert_eq!(CheckedF64(a) > CheckedF64(b), a > b);
+            prop_assert_eq!(CheckedF64(a) >= CheckedF64(b), a >= b);
+            prop_assert_eq!(CheckedF64(a) < CheckedF64(b), a < b);
+            prop_assert_eq!(CheckedF64(a) <= CheckedF64(b), a <= b);
+
+            prop_assert_eq!(CheckedF64(a).partial_cmp(&CheckedF64(b)), a.partial_cmp(&b));
+        }
+
+        #[test]
+        fn test_valid_cmp_invalid(a in valid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64(a) > CheckedF64(b), false);
+            prop_assert_eq!(CheckedF64(a) >= CheckedF64(b), false);
+            prop_assert_eq!(CheckedF64(a) < CheckedF64(b), false);
+            prop_assert_eq!(CheckedF64(a) <= CheckedF64(b), false);
+        }
+
+        #[test]
+        fn test_invalid_cmp_valid(a in invalid_f64(), b in valid_f64()) {
+            prop_assert_eq!(CheckedF64(a) > CheckedF64(b), false);
+            prop_assert_eq!(CheckedF64(a) >= CheckedF64(b), false);
+            prop_assert_eq!(CheckedF64(a) < CheckedF64(b), false);
+            prop_assert_eq!(CheckedF64(a) <= CheckedF64(b), false);
+        }
+
+        #[test]
+        fn test_invalid_cmp_invalid(a in invalid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64(a) > CheckedF64(b), false);
+            prop_assert_eq!(CheckedF64(a) >= CheckedF64(b), false);
+            prop_assert_eq!(CheckedF64(a) < CheckedF64(b), false);
+            prop_assert_eq!(CheckedF64(a) <= CheckedF64(b), false);
+        }
+        
+        // Equality Operator
+        #[test]
+        fn test_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
+            prop_assert_eq!(CheckedF64(a) == CheckedF64(b), a.is_finite() && b.is_finite() && a == b);
+            prop_assert_eq!(CheckedF64(a) == CheckedF64(a), true);
+        }
+        
+        #[test]
+        fn test_valid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64(a) == CheckedF64(b), false);
+        }
+        
+        #[test]
+        fn test_invalid_eq_valid(a in invalid_f64(), b in valid_f64()) {
+            prop_assert_eq!(CheckedF64(a) == CheckedF64(b), false);
+        }
+        
+        #[test]
+        fn test_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64(a) == CheckedF64(b), false);
         }
     }
 }
