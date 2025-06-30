@@ -8,7 +8,7 @@ pub struct CheckedF64(f64);
 /// 
 /// This conversion will return an error if the value is NaN or infinite.
 /// 
-/// ## Example
+/// # Example
 /// 
 /// ```rust
 /// use checked_float::{CheckedF64, Error};
@@ -39,7 +39,7 @@ impl TryFrom<CheckedF64> for f64 {
 /// This conversion will create a `CheckedF64` instance, but it does not check for NaN or
 /// infinite values.
 /// 
-/// ## Example
+/// # Example
 /// 
 /// ```rust
 /// use checked_float::{CheckedF64, Error};
@@ -55,7 +55,7 @@ impl TryFrom<CheckedF64> for f64 {
 /// ```
 impl From<f64> for CheckedF64 {
     fn from(value: f64) -> Self {
-        CheckedF64(value)
+        Self(value)
     }
 }
 
@@ -63,7 +63,7 @@ impl From<f64> for CheckedF64 {
 /// 
 /// This allows negation of the `CheckedF64` value, returning a new `CheckedF64` instance.
 /// 
-/// ## Example
+/// # Example
 /// 
 /// ```rust
 /// use checked_float::{CheckedF64, Error};
@@ -84,7 +84,7 @@ impl std::ops::Neg for CheckedF64 {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
-        CheckedF64(-self.0)
+        Self(-self.0)
     }
 }
 
@@ -92,7 +92,7 @@ impl std::ops::Neg for CheckedF64 {
 /// 
 /// This allows the addition of two `CheckedF64` values, returning a new `CheckedF64` instance.
 /// 
-/// ## Example
+/// # Example
 /// 
 /// ```rust
 /// use checked_float::{CheckedF64, Error};
@@ -114,7 +114,7 @@ impl std::ops::Add for CheckedF64 {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        CheckedF64(self.0 + other.0)
+        Self(self.0 + other.0)
     }
 }
 
@@ -122,7 +122,7 @@ impl std::ops::Add for CheckedF64 {
 /// 
 /// This allows the addition of a `CheckedF64` value and an ` f64 ` value, returning a new `CheckedF64` instance.
 /// 
-/// ## Example
+/// # Example
 /// 
 /// ```rust
 /// use checked_float::{CheckedF64, Error};
@@ -143,7 +143,7 @@ impl std::ops::Add<f64> for CheckedF64 {
     type Output = Self;
 
     fn add(self, other: f64) -> Self::Output {
-        CheckedF64(self.0 + other)
+        Self(self.0 + other)
     }
 }
 
@@ -151,7 +151,7 @@ impl std::ops::Add<f64> for CheckedF64 {
 /// 
 /// This allows the addition of an ` f64 ` value and a `CheckedF64` value, returning a new `CheckedF64` instance.
 /// 
-/// ## Example
+/// # Example
 /// 
 /// ```rust
 /// use checked_float::{CheckedF64, Error};
@@ -181,7 +181,7 @@ impl std::ops::Add<CheckedF64> for f64 {
 /// 
 /// This allows the addition of another `CheckedF64` value to the current instance.
 /// 
-/// ## Example
+/// # Example
 /// 
 /// ```rust
 /// use checked_float::{CheckedF64, Error};
@@ -210,7 +210,7 @@ impl std::ops::AddAssign for CheckedF64 {
 /// 
 /// This allows the addition of an `f64` value to the current `CheckedF64` instance.
 /// 
-/// ## Example
+/// # Example
 /// 
 /// ```rust
 /// use checked_float::{CheckedF64, Error};
