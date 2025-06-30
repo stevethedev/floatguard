@@ -22,14 +22,23 @@ prevents invalid values from ever entering your system.
 ```rust
 use checked_float::CheckedF64;
 
-let a = CheckedF64::from(3.0);
-let b = CheckedF64::from(2.0);
-let result = a / b;
+fn main() {
+    let a = CheckedF64::from(1.0);
+    let b = CheckedF64::from(2.0);
 
-assert_eq!(result.to_string(), "Valid(1.5)");
+    // Valid arithmetic
+    let c = a + b; // c is CheckedF64(3.0)
 
-let invalid = CheckedF64::from(std::f64::NAN);
-assert!(invalid.is_invalid());
+    // Invalid arithmetic
+    let d = c / CheckedF64::from(0.0); // d is CheckedF64(NaN)
+    
+    // Check if the result is valid
+    if d.is_valid() {
+        println!("Result: {}", d);
+    } else {
+        println!("Invalid result: {:?}", d);
+    }
+}
 ```
 
 ## Crate Features
