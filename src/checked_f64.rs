@@ -1,22 +1,22 @@
 use crate::FloatError;
 
 /// Represents a checked floating-point number that ensures it is neither NaN nor infinite.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use checked_float::{CheckedF64, FloatError};
-/// 
-/// fn main() {
-///     let checked_f64 = CheckedF64::try_from(1.0).expect("1.0 is a valid f64 value");
-///     assert_eq!((checked_f64 + 1.0).try_into(), Ok(2.0));
-/// 
-///     assert_eq!(f64::try_from(checked_f64 / 0.0), Err(FloatError));
-/// 
-///     assert_eq!(f64::try_from(checked_f64 - f64::INFINITY), Err(FloatError));
-/// 
-///     assert_eq!(f64::try_from(checked_f64 % f64::NAN), Err(FloatError));
-/// }
+///
+/// # fn main() {
+/// let checked_f64 = CheckedF64::try_from(1.0).expect("1.0 is a valid f64 value");
+/// assert_eq!((checked_f64 + 1.0).try_into(), Ok(2.0));
+///
+/// assert_eq!(f64::try_from(checked_f64 / 0.0), Err(FloatError));
+///
+/// assert_eq!(f64::try_from(checked_f64 - f64::INFINITY), Err(FloatError));
+///
+/// assert_eq!(f64::try_from(checked_f64 % f64::NAN), Err(FloatError));
+/// # }
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CheckedF64(f64);
@@ -135,23 +135,37 @@ macro_rules! define_operation {
     };
 }
 
-define_operation!(+, Add, add, AddAssign, add_assign, |a: f64, b: f64| a + b);
-define_operation!(-, Sub, sub, SubAssign, sub_assign, |a: f64, b: f64| a - b);
-define_operation!(*, Mul, mul, MulAssign, mul_assign, |a: f64, b: f64| a * b);
-define_operation!(/, Div, div, DivAssign, div_assign, |a: f64, b: f64| {
+#[inline]
+fn add(a: f64, b: f64) -> f64 { a + b }
+define_operation!(+, Add, add, AddAssign, add_assign, add);
+
+#[inline]
+fn sub(a: f64, b: f64) -> f64 { a - b }
+define_operation!(-, Sub, sub, SubAssign, sub_assign, sub);
+
+#[inline]
+fn mul(a: f64, b: f64) -> f64 { a * b }
+define_operation!(*, Mul, mul, MulAssign, mul_assign, mul);
+
+#[inline]
+fn div(a: f64, b: f64) -> f64 {
     if b.is_infinite() {
         f64::NAN
     } else {
         a / b
     }
-});
-define_operation!(%, Rem, rem, RemAssign, rem_assign, |a: f64, b: f64| {
+}
+define_operation!(/, Div, div, DivAssign, div_assign, div);
+
+#[inline]
+fn rem(a: f64, b: f64) -> f64 {
     if b.is_infinite() {
         f64::NAN
     } else {
         a % b
     }
-});
+}
+define_operation!(%, Rem, rem, RemAssign, rem_assign, rem);
 
 #[cfg(test)]
 mod tests {
