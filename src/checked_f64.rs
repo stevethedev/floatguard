@@ -109,6 +109,16 @@ impl std::ops::Neg for CheckedF64 {
 /// let infinite_value = CheckedF64::from(f64::INFINITY);
 /// let result = infinite_value + CheckedF64::from(58.0);
 /// assert!(matches!(f64::try_from(result), Err(Error::InfiniteValue)));
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let result = invalid_value + infinite_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let result = infinite_value + invalid_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
 /// ```
 impl std::ops::Add for CheckedF64 {
     type Output = Self;
@@ -138,6 +148,16 @@ impl std::ops::Add for CheckedF64 {
 /// let infinite_value = CheckedF64::from(f64::INFINITY);
 /// let result = infinite_value + 58.0;
 /// assert!(matches!(f64::try_from(result), Err(Error::InfiniteValue)));
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let result = invalid_value + infinite_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let result = infinite_value + invalid_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
 /// ```
 impl std::ops::Add<f64> for CheckedF64 {
     type Output = Self;
@@ -168,6 +188,16 @@ impl std::ops::Add<f64> for CheckedF64 {
 /// let infinite_value = CheckedF64::from(f64::INFINITY);
 /// let result = 58.0 + infinite_value;
 /// assert!(matches!(f64::try_from(result), Err(Error::InfiniteValue)));
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let result = invalid_value + infinite_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let result = infinite_value + invalid_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
 /// ```
 impl std::ops::Add<CheckedF64> for f64 {
     type Output = CheckedF64;
@@ -233,6 +263,125 @@ impl std::ops::AddAssign for CheckedF64 {
 impl std::ops::AddAssign<f64> for CheckedF64 {
     fn add_assign(&mut self, other: f64) {
         self.0 += other;
+    }
+}
+
+/// Implementing the binary `-` operator for `CheckedF64`.
+/// 
+/// This allows the subtraction of two `CheckedF64` values, returning a new `CheckedF64` instance.
+/// 
+/// # Example
+/// 
+/// ```rust
+/// use checked_float::{CheckedF64, Error};
+/// 
+/// let value1 = CheckedF64::from(100.0);
+/// let value2 = CheckedF64::from(42.0);
+/// let difference = value1 - value2;
+/// assert_eq!(f64::try_from(difference).unwrap(), 58.0);
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let result = invalid_value - CheckedF64::from(42.0);
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let result = infinite_value - CheckedF64::from(42.0);
+/// assert!(matches!(f64::try_from(result), Err(Error::InfiniteValue)));
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let result = invalid_value - infinite_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let result = infinite_value - invalid_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// ```
+impl std::ops::Sub for CheckedF64 {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self::Output {
+        Self(self.0 - other.0)
+    }
+}
+
+/// Implementing the binary `-` operator for `CheckedF64` and `f64`.
+/// 
+/// This allows the subtraction of a `CheckedF64` value from an `f64` value, returning a new `CheckedF64` instance.
+/// 
+/// # Example
+/// 
+/// ```rust
+/// use checked_float::{CheckedF64, Error};
+/// 
+/// let checked_value = CheckedF64::from(100.0);
+/// let difference = checked_value - 42.0;
+/// assert_eq!(f64::try_from(difference).unwrap(), 58.0);
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let result = invalid_value - 42.0;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let result = infinite_value - 42.0;
+/// assert!(matches!(f64::try_from(result), Err(Error::InfiniteValue)));
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let result = invalid_value - infinite_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let result = infinite_value - invalid_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// ```
+impl std::ops::Sub<f64> for CheckedF64 {
+    type Output = Self;
+
+    fn sub(self, other: f64) -> Self::Output {
+        Self(self.0 - other)
+    }
+}
+
+/// Implementing the binary `-` operator for `f64` and `CheckedF64`.
+/// 
+/// This allows the subtraction of a `CheckedF64` value from an `f64` value, returning a new `CheckedF64` instance.
+/// 
+/// # Example
+/// 
+/// ```rust
+/// use checked_float::{CheckedF64, Error};
+/// 
+/// let value = 100.0;
+/// let checked_value = CheckedF64::from(42.0);
+/// let difference = value - checked_value;
+/// assert_eq!(f64::try_from(difference).unwrap(), 58.0);
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let result = 100.0 - invalid_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let result = 100.0 - infinite_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::InfiniteValue)));
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let result = invalid_value - infinite_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let result = infinite_value - invalid_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// ```
+impl std::ops::Sub<CheckedF64> for f64 {
+    type Output = CheckedF64;
+
+    fn sub(self, other: CheckedF64) -> Self::Output {
+        CheckedF64(self - other.0)
     }
 }
 
