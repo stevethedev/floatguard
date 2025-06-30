@@ -385,6 +385,66 @@ impl std::ops::Sub<CheckedF64> for f64 {
     }
 }
 
+/// Implementing the `SubAssign` trait for `CheckedF64`.
+/// 
+/// This allows the subtraction of another `CheckedF64` value from the current instance.
+/// 
+/// # Example
+/// 
+/// ```rust
+/// use checked_float::{CheckedF64, Error};
+/// 
+/// let mut checked_value = CheckedF64::from(100.0);
+/// let other_value = CheckedF64::from(42.0);
+/// checked_value -= other_value;
+/// assert_eq!(f64::try_from(checked_value).unwrap(), 58.0);
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let mut result = CheckedF64::from(100.0);
+/// result -= invalid_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let mut result = CheckedF64::from(100.0);
+/// result -= infinite_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::InfiniteValue)));
+/// ```
+impl std::ops::SubAssign for CheckedF64 {
+    fn sub_assign(&mut self, other: Self) {
+        self.0 -= other.0;
+    }
+}
+
+/// Implementing the `SubAssign` trait for `CheckedF64` and `f64`.
+/// 
+/// This allows the subtraction of an `f64` value from the current `CheckedF64` instance.
+/// 
+/// # Example
+/// 
+/// ```rust
+/// use checked_float::{CheckedF64, Error};
+/// 
+/// let mut checked_value = CheckedF64::from(100.0);
+/// let other_value = 42.0;
+/// checked_value -= other_value;
+/// assert_eq!(f64::try_from(checked_value).unwrap(), 58.0);
+/// 
+/// let invalid_value = CheckedF64::from(f64::NAN);
+/// let mut result = CheckedF64::from(100.0);
+/// result -= invalid_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::NanValue)));
+/// 
+/// let infinite_value = CheckedF64::from(f64::INFINITY);
+/// let mut result = CheckedF64::from(100.0);
+/// result -= infinite_value;
+/// assert!(matches!(f64::try_from(result), Err(Error::InfiniteValue)));
+/// ```
+impl std::ops::SubAssign<f64> for CheckedF64 {
+    fn sub_assign(&mut self, other: f64) {
+        self.0 -= other;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -423,6 +483,33 @@ mod tests {
             let mut checked_a = CheckedF64::from(a);
             checked_a += b;
             assert_eq!(f64::try_from(checked_a).unwrap(), a + b);
+        }
+        
+        #[test]
+        fn test_checked_f64_subtraction(a in any::<f64>(), b in any::<f64>()) {
+            let checked_a = CheckedF64::from(a);
+            let checked_b = CheckedF64::from(b);
+            
+            let result = checked_a - checked_b;
+            assert_eq!(f64::try_from(result).unwrap(), a - b);
+            
+            let result = checked_a - b;
+            assert_eq!(f64::try_from(result).unwrap(), a - b);
+            
+            let result = a - checked_b;
+            assert_eq!(f64::try_from(result).unwrap(), a - b);
+        }
+        
+        #[test]
+        fn test_checked_f64_sub_assign(a in any::<f64>(), b in any::<f64>()) {
+            let mut checked_a = CheckedF64::from(a);
+            let checked_b = CheckedF64::from(b);
+            checked_a -= checked_b;
+            assert_eq!(f64::try_from(checked_a).unwrap(), a - b);
+            
+            let mut checked_a = CheckedF64::from(a);
+            checked_a -= b;
+            assert_eq!(f64::try_from(checked_a).unwrap(), a - b);
         }
     }
 }
