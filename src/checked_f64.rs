@@ -48,3 +48,25 @@ impl From<f64> for CheckedF64 {
         CheckedF64(value)
     }
 }
+
+/// Implementing the unary `-` operator for `CheckedF64`.
+/// 
+/// This allows negation of the `CheckedF64` value, returning a new `CheckedF64` instance.
+/// 
+/// ## Example
+/// 
+/// ```rust
+/// use checked_float::CheckedF64;
+/// 
+/// let value = CheckedF64::from(42.0);
+/// let negated_value = -value;
+/// 
+/// assert_eq!(f64::try_from(negated_value).unwrap(), -42.0);
+/// ```
+impl std::ops::Neg for CheckedF64 {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        CheckedF64(-self.0)
+    }
+}
