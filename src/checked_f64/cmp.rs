@@ -33,10 +33,7 @@ impl PartialEq<CheckedF64Result> for CheckedF64 {
     ///
     /// Returns `true` if `CheckedF64` is valid (finite) and equal to `CheckedF64Result`, otherwise returns `false`.
     fn eq(&self, other: &CheckedF64Result) -> bool {
-        match other {
-            Ok(value) => self.is_valid() && self.0 == *value,
-            Err(_) => false,
-        }
+        other.as_ref().is_ok_and(|value| self.is_valid() && self.0 == *value)
     }
 }
 
@@ -47,10 +44,7 @@ impl PartialEq<CheckedF64> for CheckedF64Result {
     ///
     /// Returns `true` if `CheckedF64Result` is valid (finite) and equal to `CheckedF64`, otherwise returns `false`.
     fn eq(&self, other: &CheckedF64) -> bool {
-        match self {
-            Ok(value) => other.is_valid() && *value == other.0,
-            Err(_) => false,
-        }
+        self.as_ref().is_ok_and(|value| other.is_valid() && *value == other.0)
     }
 }
 

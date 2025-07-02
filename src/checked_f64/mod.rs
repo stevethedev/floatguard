@@ -1,6 +1,7 @@
 mod consts;
-mod ops;
+mod ops_unary;
 mod cmp;
+mod ops_binary;
 
 use crate::FloatError;
 
@@ -15,7 +16,7 @@ pub type CheckedF64Result = std::result::Result<CheckedF64, FloatError>;
 /// use checked_float::{CheckedF64, FloatError};
 ///
 /// let checked_f64 = CheckedF64::try_from(1.0).expect("1.0 is a valid f64 value");
-/// assert_eq!((checked_f64 + 1.0).get(), Ok(2.0));
+/// assert_eq!((checked_f64 + 1.0).unwrap().get(), Ok(2.0));
 ///
 /// assert_eq!((checked_f64 / 0.0).get(), Err(FloatError));
 ///
@@ -194,13 +195,6 @@ macro_rules! define_operation {
         }
     };
 }
-
-#[allow(clippy::inline_always)]
-#[inline(always)]
-fn add(a: f64, b: f64) -> f64 {
-    a + b
-}
-define_operation!(+, Add, add, AddAssign, add_assign, add);
 
 #[allow(clippy::inline_always)]
 #[inline(always)]
@@ -922,81 +916,6 @@ mod tests {
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
             prop_assert_eq!(CheckedF64(a).get(), Err(FloatError));
-        }
-
-        // Addition Operations
-        #[test]
-        fn test_valid_add_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
-            if (a + b).is_finite() {
-                prop_assert_eq!((CheckedF64(a) + CheckedF64(b)).get(), Ok(a + b));
-                prop_assert_eq!((CheckedF64(a) + b).get(), Ok(a + b));
-                prop_assert_eq!((a + CheckedF64(b)).get(), Ok(a + b));
-
-                let mut checked_sum = CheckedF64(a);
-                checked_sum += CheckedF64(b);
-                prop_assert_eq!(checked_sum.get(), Ok(a + b));
-
-                let mut checked_sum = CheckedF64(a);
-                checked_sum += b;
-                prop_assert_eq!(checked_sum.get(), Ok(a + b));
-            } else {
-                prop_assert_eq!((CheckedF64(a) + CheckedF64(b)).get(), Err(FloatError));
-                prop_assert_eq!((CheckedF64(a) + b).get(), Err(FloatError));
-                prop_assert_eq!((a + CheckedF64(b)).get(), Err(FloatError));
-
-                let mut checked_sum = CheckedF64(a);
-                checked_sum += CheckedF64(b);
-                prop_assert_eq!(checked_sum.get(), Err(FloatError));
-
-                let mut checked_sum = CheckedF64(a);
-                checked_sum += b;
-                prop_assert_eq!(checked_sum.get(), Err(FloatError));
-            }
-        }
-
-        #[test]
-        fn test_valid_add_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(f64::try_from(CheckedF64(a) + CheckedF64(b)), Err(FloatError));
-            prop_assert_eq!(f64::try_from(CheckedF64(a) + b), Err(FloatError));
-            prop_assert_eq!(f64::try_from(a + CheckedF64(b)), Err(FloatError));
-
-            let mut checked_sum = CheckedF64(a);
-            checked_sum += CheckedF64(b);
-            prop_assert_eq!(f64::try_from(checked_sum), Err(FloatError));
-
-            let mut checked_sum = CheckedF64(a);
-            checked_sum += b;
-            prop_assert_eq!(f64::try_from(checked_sum), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_add_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!((CheckedF64(a) + CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) + b).get(), Err(FloatError));
-            prop_assert_eq!((a + CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_sum = CheckedF64(a);
-            checked_sum += CheckedF64(b);
-            prop_assert_eq!(checked_sum.get(), Err(FloatError));
-
-            let mut checked_sum = CheckedF64(a);
-            checked_sum += b;
-            prop_assert_eq!(checked_sum.get(), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_add_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!((CheckedF64(a) + CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) + b).get(), Err(FloatError));
-            prop_assert_eq!((a + CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_sum = CheckedF64(a);
-            checked_sum += CheckedF64(b);
-            prop_assert_eq!(checked_sum.get(), Err(FloatError));
-
-            let mut checked_sum = CheckedF64(a);
-            checked_sum += b;
-            prop_assert_eq!(checked_sum.get(), Err(FloatError));
         }
 
         // Subtraction Operations
