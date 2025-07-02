@@ -18,7 +18,7 @@ pub type CheckedF64Result = std::result::Result<CheckedF64, FloatError>;
 /// let checked_f64 = CheckedF64::try_from(1.0).expect("1.0 is a valid f64 value");
 /// assert_eq!((checked_f64 + 1.0).unwrap().get(), Ok(2.0));
 ///
-/// assert_eq!((checked_f64 / 0.0).get(), Err(FloatError));
+/// assert_eq!(checked_f64 / 0.0, Err(FloatError));
 ///
 /// assert_eq!(checked_f64 - f64::INFINITY, Err(FloatError));
 ///
@@ -195,13 +195,6 @@ macro_rules! define_operation {
         }
     };
 }
-
-#[allow(clippy::inline_always)]
-#[inline(always)]
-fn div(a: f64, b: f64) -> f64 {
-    if b.is_infinite() { f64::NAN } else { a / b }
-}
-define_operation!(/, Div, div, DivAssign, div_assign, div);
 
 #[allow(clippy::inline_always)]
 #[inline(always)]
@@ -900,81 +893,6 @@ mod tests {
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
             prop_assert_eq!(CheckedF64(a).get(), Err(FloatError));
-        }
-
-        // Division Operations
-        #[test]
-        fn test_valid_div_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
-            if b != 0.0 && (a / b).is_finite() {
-                prop_assert_eq!((CheckedF64(a) / CheckedF64(b)).get(), Ok(a / b));
-                prop_assert_eq!((CheckedF64(a) / b).get(), Ok(a / b));
-                prop_assert_eq!((a / CheckedF64(b)).get(), Ok(a / b));
-
-                let mut checked_quotient = CheckedF64(a);
-                checked_quotient /= CheckedF64(b);
-                prop_assert_eq!(checked_quotient.get(), Ok(a / b));
-
-                let mut checked_quotient = CheckedF64(a);
-                checked_quotient /= b;
-                prop_assert_eq!(checked_quotient.get(), Ok(a / b));
-            } else {
-                prop_assert_eq!((CheckedF64(a) / CheckedF64(b)).get(), Err(FloatError));
-                prop_assert_eq!((CheckedF64(a) / b).get(), Err(FloatError));
-                prop_assert_eq!((a / CheckedF64(b)).get(), Err(FloatError));
-
-                let mut checked_quotient = CheckedF64(a);
-                checked_quotient /= CheckedF64(b);
-                prop_assert_eq!(checked_quotient.get(), Err(FloatError));
-
-                let mut checked_quotient = CheckedF64(a);
-                checked_quotient /= b;
-                prop_assert_eq!(checked_quotient.get(), Err(FloatError));
-            }
-        }
-
-        #[test]
-        fn test_valid_div_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!((CheckedF64(a) / CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) / b).get(), Err(FloatError));
-            prop_assert_eq!((a / CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_quotient = CheckedF64(a);
-            checked_quotient /= CheckedF64(b);
-            prop_assert_eq!(checked_quotient.get(), Err(FloatError));
-
-            let mut checked_quotient = CheckedF64(a);
-            checked_quotient /= b;
-            prop_assert_eq!(checked_quotient.get(), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_div_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!((CheckedF64(a) / CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) / b).get(), Err(FloatError));
-            prop_assert_eq!((a / CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_quotient = CheckedF64(a);
-            checked_quotient /= CheckedF64(b);
-            prop_assert_eq!(checked_quotient.get(), Err(FloatError));
-
-            let mut checked_quotient = CheckedF64(a);
-            checked_quotient /= b;
-            prop_assert_eq!(checked_quotient.get(), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_div_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!((CheckedF64(a) / CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) / b).get(), Err(FloatError));
-            prop_assert_eq!((a / CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_quotient = CheckedF64(a);
-            checked_quotient /= CheckedF64(b);
-            prop_assert_eq!(checked_quotient.get(), Err(FloatError));
-
-            let mut checked_quotient = CheckedF64(a);
-            checked_quotient /= b;
-            prop_assert_eq!(checked_quotient.get(), Err(FloatError));
         }
 
         // Remainder Operations
