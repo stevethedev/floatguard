@@ -3,5 +3,5 @@
 mod checked_f64;
 mod error;
 
-pub use error::Error as FloatError;
 pub use checked_f64::CheckedF64;
+pub use error::Error as FloatError;
