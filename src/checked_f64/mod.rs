@@ -20,7 +20,7 @@ pub type CheckedF64Result = std::result::Result<CheckedF64, FloatError>;
 ///
 /// assert_eq!((checked_f64 / 0.0).get(), Err(FloatError));
 ///
-/// assert_eq!((checked_f64 - f64::INFINITY).get(), Err(FloatError));
+/// assert_eq!(checked_f64 - f64::INFINITY, Err(FloatError));
 ///
 /// assert_eq!((checked_f64 % f64::NAN).get(), Err(FloatError));
 /// ```
@@ -195,13 +195,6 @@ macro_rules! define_operation {
         }
     };
 }
-
-#[allow(clippy::inline_always)]
-#[inline(always)]
-fn sub(a: f64, b: f64) -> f64 {
-    a - b
-}
-define_operation!(-, Sub, sub, SubAssign, sub_assign, sub);
 
 #[allow(clippy::inline_always)]
 #[inline(always)]
@@ -447,7 +440,7 @@ impl CheckedF64 {
             use checked_float::CheckedF64;
 
             let x = CheckedF64::new(2.0_f64);
-            let abs_difference = (x.recip() - (1.0 / x)).abs();
+            let abs_difference = (x.recip() - (1.0 / x)).unwrap().abs();
 
             assert!(abs_difference < CheckedF64::EPSILON);
             ```
@@ -472,7 +465,7 @@ impl CheckedF64 {
             let e = one.exp();
 
             // ln(e) - 1 == 0
-            let abs_difference = (e.ln() - 1.0).abs();
+            let abs_difference = (e.ln() - 1.0).unwrap().abs();
 
             assert!(abs_difference < 1e-10);
             ```
@@ -494,7 +487,7 @@ impl CheckedF64 {
             let e = CheckedF64::new(2.718281828459045_f64);
 
             // ln(e) == 1
-            let abs_difference = (e.ln() - 1.0).abs();
+            let abs_difference = (e.ln() - 1.0).unwrap().abs();
 
             assert!(abs_difference < 1e-10);
             ```
@@ -516,7 +509,7 @@ impl CheckedF64 {
             use checked_float::CheckedF64;
 
             let x = CheckedF64::new(2.0_f64);
-            let abs_difference = (x.powi(2) - (x * x)).abs();
+            let abs_difference = (x.powi(2) - (x * x)).unwrap().abs();
             assert!(abs_difference <= CheckedF64::EPSILON);
 
             assert!(CheckedF64::new(f64::NAN).powi(2).is_invalid());
@@ -534,7 +527,7 @@ impl CheckedF64 {
     /// use checked_float::CheckedF64;
     ///
     /// let x = CheckedF64::new(2.0_f64);
-    /// let abs_difference = (x.powf(3.0) - (x * x * x)).abs();
+    /// let abs_difference = (x.powf(3.0) - (x * x * x)).unwrap().abs();
     /// assert!(abs_difference <= CheckedF64::EPSILON);
     ///
     /// let invalid = CheckedF64::new(f64::NAN);
@@ -635,7 +628,7 @@ impl CheckedF64 {
             let x = CheckedF64::new(1.0_f64);
             let f = x.sinh().asinh();
 
-            let abs_difference = (f - x).abs();
+            let abs_difference = (f - x).unwrap().abs();
 
             assert!(abs_difference < 1.0e-10);
             ```
@@ -704,7 +697,7 @@ impl CheckedF64 {
 
             // Solving cosh() at 1 gives this result
             let g = ((e * e) + 1.0) / (2.0 * e);
-            let abs_difference = (f - g).abs();
+            let abs_difference = (f - g).unwrap().abs();
 
             // Same result
             assert!(abs_difference < 1e-10);
@@ -727,7 +720,7 @@ impl CheckedF64 {
             let x = CheckedF64::new(1.0);
             let f = x.cosh().acosh();
 
-            let abs_difference = (f - x).abs();
+            let abs_difference = (f - x).unwrap().abs();
 
             assert!(abs_difference < 1.0e-10);
             ```
@@ -797,7 +790,7 @@ impl CheckedF64 {
             let f = CheckedF64::new(1.0);
 
             // atan(tan(1))
-            let abs_difference = (f.tan().atan() - 1.0).abs();
+            let abs_difference = (f.tan().atan() - 1.0).unwrap().abs();
 
             assert!(abs_difference < 1e-10)
             ```
@@ -820,7 +813,7 @@ impl CheckedF64 {
             let f = x.tanh();
 
             // tanh(1) is approximately 0.7615941559557649
-            let abs_difference = (f - 0.7615941559557649).abs();
+            let abs_difference = (f - 0.7615941559557649).unwrap().abs();
 
             assert!(abs_difference < 1e-10);
             ```
@@ -843,7 +836,7 @@ impl CheckedF64 {
             let x = CheckedF64::new(0.5_f64);
             let f = x.tanh().atanh();
 
-            let abs_difference = (f - x).abs();
+            let abs_difference = (f - x).unwrap().abs();
 
             assert!(abs_difference < 1e-10);
             ```
@@ -916,81 +909,6 @@ mod tests {
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
             prop_assert_eq!(CheckedF64(a).get(), Err(FloatError));
-        }
-
-        // Subtraction Operations
-        #[test]
-        fn test_valid_sub_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
-            if (a - b).is_finite() {
-                prop_assert_eq!((CheckedF64(a) - CheckedF64(b)).get(), Ok(a - b));
-                prop_assert_eq!((CheckedF64(a) - b).get(), Ok(a - b));
-                prop_assert_eq!((a - CheckedF64(b)).get(), Ok(a - b));
-
-                let mut checked_diff = CheckedF64(a);
-                checked_diff -= CheckedF64(b);
-                prop_assert_eq!(checked_diff.get(), Ok(a - b));
-
-                let mut checked_diff = CheckedF64(a);
-                checked_diff -= b;
-                prop_assert_eq!(checked_diff.get(), Ok(a - b));
-            } else {
-                prop_assert_eq!((CheckedF64(a) - CheckedF64(b)).get(), Err(FloatError));
-                prop_assert_eq!((CheckedF64(a) - b).get(), Err(FloatError));
-                prop_assert_eq!((a - CheckedF64(b)).get(), Err(FloatError));
-
-                let mut checked_diff = CheckedF64(a);
-                checked_diff -= CheckedF64(b);
-                prop_assert_eq!(checked_diff.get(), Err(FloatError));
-
-                let mut checked_diff = CheckedF64(a);
-                checked_diff -= b;
-                prop_assert_eq!(checked_diff.get(), Err(FloatError));
-            }
-        }
-
-        #[test]
-        fn test_valid_sub_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!((CheckedF64(a) - CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) - b).get(), Err(FloatError));
-            prop_assert_eq!((a - CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_diff = CheckedF64(a);
-            checked_diff -= CheckedF64(b);
-            prop_assert_eq!(checked_diff.get(), Err(FloatError));
-
-            let mut checked_diff = CheckedF64(a);
-            checked_diff -= b;
-            prop_assert_eq!(checked_diff.get(), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_sub_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!((CheckedF64(a) - CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) - b).get(), Err(FloatError));
-            prop_assert_eq!((a - CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_diff = CheckedF64(a);
-            checked_diff -= CheckedF64(b);
-            prop_assert_eq!(checked_diff.get(), Err(FloatError));
-
-            let mut checked_diff = CheckedF64(a);
-            checked_diff -= b;
-            prop_assert_eq!(checked_diff.get(), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_sub_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!((CheckedF64(a) - CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) - b).get(), Err(FloatError));
-            prop_assert_eq!((a - CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_diff = CheckedF64(a);
-            checked_diff -= CheckedF64(b);
-            prop_assert_eq!(checked_diff.get(), Err(FloatError));
-
-            let mut checked_diff = CheckedF64(a);
-            checked_diff -= b;
-            prop_assert_eq!(checked_diff.get(), Err(FloatError));
         }
 
         // Multiplication Operations

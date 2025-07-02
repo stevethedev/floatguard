@@ -53,11 +53,6 @@ binary_operation!(
     r"
         Adds two `CheckedF64` values or a `CheckedF64` and a `f64`.
 
-        # Returns
-
-        Returns a new `CheckedF64` instance with the sum, or an error if the operation
-        results in an invalid floating-point number (like NaN or Infinity).
-
         # Example
 
         ```rust
@@ -69,6 +64,33 @@ binary_operation!(
 
         let value3 = CheckedF64::new(f64::NAN);
         assert_eq!(value1 + value3, Err(FloatError));
+        ```
+    "
+);
+
+#[allow(clippy::inline_always)]
+#[inline(always)]
+fn sub_impl(a: f64, b: f64) -> f64 {
+    a - b
+}
+binary_operation!(
+    Sub,
+    sub,
+    sub_impl,
+    r"
+        Subtracts one `CheckedF64` value from another or a `f64` from a `CheckedF64`.
+
+        # Example
+
+        ```rust
+        use checked_float::{CheckedF64, FloatError};
+
+        let value1 = CheckedF64::new(5.0);
+        let value2 = CheckedF64::new(3.0);
+        assert_eq!(value1 - value2, Ok(CheckedF64::new(2.0)));
+
+        let value3 = CheckedF64::new(f64::NAN);
+        assert_eq!(value1 - value3, Err(FloatError));
         ```
     "
 );
@@ -112,6 +134,37 @@ mod tests {
             prop_assert_eq!(CheckedF64::new(a) + CheckedF64::new(b), Err(FloatError));
             prop_assert_eq!(CheckedF64::new(a) + b, Err(FloatError));
             prop_assert_eq!(a + CheckedF64::new(b), Err(FloatError));
+        }
+
+        // Subtraction Operations
+        #[test]
+        fn test_valid_sub_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
+            if (a - b).is_finite() {
+                prop_assert_eq!((CheckedF64::new(a) - CheckedF64::new(b))?.get(), Ok(a - b));
+                prop_assert_eq!((CheckedF64::new(a) - b)?.get(), Ok(a - b));
+                prop_assert_eq!((a - CheckedF64::new(b))?.get(), Ok(a - b));
+            }
+        }
+    
+        #[test]
+        fn test_valid_sub_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a) - CheckedF64::new(b), Err(FloatError));
+            prop_assert_eq!(CheckedF64::new(a) - b, Err(FloatError));
+            prop_assert_eq!(a - CheckedF64::new(b), Err(FloatError));
+        }
+    
+        #[test]
+        fn test_invalid_sub_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a) - CheckedF64::new(b), Err(FloatError));
+            prop_assert_eq!(CheckedF64::new(a) - b, Err(FloatError));
+            prop_assert_eq!(a - CheckedF64::new(b), Err(FloatError));
+        }
+    
+        #[test]
+        fn test_invalid_sub_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a) - CheckedF64::new(b), Err(FloatError));
+            prop_assert_eq!(CheckedF64::new(a) - b, Err(FloatError));
+            prop_assert_eq!(a - CheckedF64::new(b), Err(FloatError));
         }
     }
 }
