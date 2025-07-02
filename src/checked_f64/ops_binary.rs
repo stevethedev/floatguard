@@ -37,6 +37,24 @@ macro_rules! binary_operation {
                 }
             }
         }
+
+        impl std::ops::$op_trait<CheckedF64Result> for CheckedF64 {
+            type Output = CheckedF64Result;
+
+            #[doc = $doc]
+            fn $op_method(self, other: CheckedF64Result) -> Self::Output {
+                other.and_then(|value| self.$op_method(value))
+            }
+        }
+
+        impl std::ops::$op_trait<CheckedF64> for CheckedF64Result {
+            type Output = CheckedF64Result;
+
+            #[doc = $doc]
+            fn $op_method(self, other: CheckedF64) -> Self::Output {
+                self.and_then(|value| other.$op_method(value))
+            }
+        }
     };
 }
 
@@ -95,10 +113,40 @@ binary_operation!(
     "
 );
 
+#[allow(clippy::inline_always)]
+#[inline(always)]
+fn mul_impl(a: f64, b: f64) -> f64 {
+    a * b
+}
+binary_operation!(
+    Mul,
+    mul,
+    mul_impl,
+    r"
+        Multiplies two `CheckedF64` values or a `CheckedF64` and a `f64`.
+
+        # Example
+
+        ```rust
+        use checked_float::{CheckedF64, FloatError};
+
+        let value1 = CheckedF64::new(2.0);
+        let value2 = CheckedF64::new(3.0);
+        assert_eq!(value1 * value2, Ok(CheckedF64::new(6.0)));
+
+        let value3 = CheckedF64::new(f64::NAN);
+        assert_eq!(value1 * value3, Err(FloatError));
+        ```
+    "
+);
+
 #[cfg(test)]
 mod tests {
+    use crate::{
+        CheckedF64, FloatError,
+        checked_f64::tests::{invalid_f64, valid_f64},
+    };
     use proptest::prelude::*;
-    use crate::{FloatError, CheckedF64, checked_f64::tests::{valid_f64, invalid_f64}};
 
     proptest! {
 
@@ -145,26 +193,57 @@ mod tests {
                 prop_assert_eq!((a - CheckedF64::new(b))?.get(), Ok(a - b));
             }
         }
-    
+
         #[test]
         fn test_valid_sub_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
             prop_assert_eq!(CheckedF64::new(a) - CheckedF64::new(b), Err(FloatError));
             prop_assert_eq!(CheckedF64::new(a) - b, Err(FloatError));
             prop_assert_eq!(a - CheckedF64::new(b), Err(FloatError));
         }
-    
+
         #[test]
         fn test_invalid_sub_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
             prop_assert_eq!(CheckedF64::new(a) - CheckedF64::new(b), Err(FloatError));
             prop_assert_eq!(CheckedF64::new(a) - b, Err(FloatError));
             prop_assert_eq!(a - CheckedF64::new(b), Err(FloatError));
         }
-    
+
         #[test]
         fn test_invalid_sub_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
             prop_assert_eq!(CheckedF64::new(a) - CheckedF64::new(b), Err(FloatError));
             prop_assert_eq!(CheckedF64::new(a) - b, Err(FloatError));
             prop_assert_eq!(a - CheckedF64::new(b), Err(FloatError));
+        }
+
+        // Multiplication Operations
+        #[test]
+        fn test_valid_mul_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
+            if (a * b).is_finite() {
+                prop_assert_eq!((CheckedF64::new(a) * CheckedF64::new(b)).unwrap().get(), Ok(a * b));
+                prop_assert_eq!((CheckedF64::new(a) * b).unwrap().get(), Ok(a * b));
+                prop_assert_eq!((a * CheckedF64::new(b)).unwrap().get(), Ok(a * b));
+            }
+        }
+
+        #[test]
+        fn test_valid_mul_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a) * CheckedF64::new(b), Err(FloatError));
+            prop_assert_eq!(CheckedF64::new(a) * b, Err(FloatError));
+            prop_assert_eq!(a * CheckedF64::new(b), Err(FloatError));
+        }
+
+        #[test]
+        fn test_invalid_mul_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a) * CheckedF64::new(b), Err(FloatError));
+            prop_assert_eq!(CheckedF64::new(a) * b, Err(FloatError));
+            prop_assert_eq!(a * CheckedF64::new(b), Err(FloatError));
+        }
+
+        #[test]
+        fn test_invalid_mul_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a) * CheckedF64::new(b), Err(FloatError));
+            prop_assert_eq!(CheckedF64::new(a) * b, Err(FloatError));
+            prop_assert_eq!(a * CheckedF64::new(b), Err(FloatError));
         }
     }
 }

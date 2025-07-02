@@ -1,7 +1,7 @@
-mod consts;
-mod ops_unary;
 mod cmp;
+mod consts;
 mod ops_binary;
+mod ops_unary;
 
 use crate::FloatError;
 
@@ -198,13 +198,6 @@ macro_rules! define_operation {
 
 #[allow(clippy::inline_always)]
 #[inline(always)]
-fn mul(a: f64, b: f64) -> f64 {
-    a * b
-}
-define_operation!(*, Mul, mul, MulAssign, mul_assign, mul);
-
-#[allow(clippy::inline_always)]
-#[inline(always)]
 fn div(a: f64, b: f64) -> f64 {
     if b.is_infinite() { f64::NAN } else { a / b }
 }
@@ -216,8 +209,6 @@ fn rem(a: f64, b: f64) -> f64 {
     if b.is_infinite() { f64::NAN } else { a % b }
 }
 define_operation!(%, Rem, rem, RemAssign, rem_assign, rem);
-
-
 
 macro_rules! copy_const_op {
     ($name:ident, $doc:expr) => {
@@ -909,81 +900,6 @@ mod tests {
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
             prop_assert_eq!(CheckedF64(a).get(), Err(FloatError));
-        }
-
-        // Multiplication Operations
-        #[test]
-        fn test_valid_mul_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
-            if (a * b).is_finite() {
-                prop_assert_eq!((CheckedF64(a) * CheckedF64(b)).get(), Ok(a * b));
-                prop_assert_eq!((CheckedF64(a) * b).get(), Ok(a * b));
-                prop_assert_eq!((a * CheckedF64(b)).get(), Ok(a * b));
-
-                let mut checked_product = CheckedF64(a);
-                checked_product *= CheckedF64(b);
-                prop_assert_eq!(checked_product.get(), Ok(a * b));
-
-                let mut checked_product = CheckedF64(a);
-                checked_product *= b;
-                prop_assert_eq!(checked_product.get(), Ok(a * b));
-            } else {
-                prop_assert_eq!((CheckedF64(a) * CheckedF64(b)).get(), Err(FloatError));
-                prop_assert_eq!((CheckedF64(a) * b).get(), Err(FloatError));
-                prop_assert_eq!((a * CheckedF64(b)).get(), Err(FloatError));
-
-                let mut checked_product = CheckedF64(a);
-                checked_product *= CheckedF64(b);
-                prop_assert_eq!(checked_product.get(), Err(FloatError));
-
-                let mut checked_product = CheckedF64(a);
-                checked_product *= b;
-                prop_assert_eq!(checked_product.get(), Err(FloatError));
-            }
-        }
-
-        #[test]
-        fn test_valid_mul_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!((CheckedF64(a) * CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) * b).get(), Err(FloatError));
-            prop_assert_eq!((a * CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_product = CheckedF64(a);
-            checked_product *= CheckedF64(b);
-            prop_assert_eq!(checked_product.get(), Err(FloatError));
-
-            let mut checked_product = CheckedF64(a);
-            checked_product *= b;
-            prop_assert_eq!(checked_product.get(), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_mul_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!((CheckedF64(a) * CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) * b).get(), Err(FloatError));
-            prop_assert_eq!((a * CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_product = CheckedF64(a);
-            checked_product *= CheckedF64(b);
-            prop_assert_eq!(checked_product.get(), Err(FloatError));
-
-            let mut checked_product = CheckedF64(a);
-            checked_product *= b;
-            prop_assert_eq!(checked_product.get(), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_mul_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!((CheckedF64(a) * CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) * b).get(), Err(FloatError));
-            prop_assert_eq!((a * CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_product = CheckedF64(a);
-            checked_product *= CheckedF64(b);
-            prop_assert_eq!(checked_product.get(), Err(FloatError));
-
-            let mut checked_product = CheckedF64(a);
-            checked_product *= b;
-            prop_assert_eq!(checked_product.get(), Err(FloatError));
         }
 
         // Division Operations

@@ -341,13 +341,16 @@ copy_const_value!(
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     macro_rules! assert_type_eq {
         ($value:expr, $t:ty) => {
-            assert_eq!(std::any::type_name_of_val(&$value), std::any::type_name::<$t>());
+            assert_eq!(
+                std::any::type_name_of_val(&$value),
+                std::any::type_name::<$t>()
+            );
         };
     }
-    
+
     #[test]
     fn test_digits() {
         assert_eq!(CheckedF64::DIGITS, f64::DIGITS);
@@ -371,7 +374,7 @@ mod tests {
         assert_eq!(CheckedF64::MIN_POSITIVE, f64::MIN_POSITIVE);
         assert_type_eq!(CheckedF64::MIN_POSITIVE, CheckedF64);
     }
-    
+
     #[test]
     fn test_max() {
         assert_eq!(CheckedF64::MAX, f64::MAX);

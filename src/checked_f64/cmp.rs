@@ -1,5 +1,5 @@
-use std::cmp::Ordering;
 use crate::{CheckedF64, CheckedF64Result};
+use std::cmp::Ordering;
 
 impl PartialEq for CheckedF64 {
     /// Compares two `CheckedF64` values for equality.
@@ -33,7 +33,9 @@ impl PartialEq<CheckedF64Result> for CheckedF64 {
     ///
     /// Returns `true` if `CheckedF64` is valid (finite) and equal to `CheckedF64Result`, otherwise returns `false`.
     fn eq(&self, other: &CheckedF64Result) -> bool {
-        other.as_ref().is_ok_and(|value| self.is_valid() && self.0 == *value)
+        other
+            .as_ref()
+            .is_ok_and(|value| self.is_valid() && self.0 == *value)
     }
 }
 
@@ -44,7 +46,8 @@ impl PartialEq<CheckedF64> for CheckedF64Result {
     ///
     /// Returns `true` if `CheckedF64Result` is valid (finite) and equal to `CheckedF64`, otherwise returns `false`.
     fn eq(&self, other: &CheckedF64) -> bool {
-        self.as_ref().is_ok_and(|value| other.is_valid() && *value == other.0)
+        self.as_ref()
+            .is_ok_and(|value| other.is_valid() && *value == other.0)
     }
 }
 
@@ -226,8 +229,11 @@ impl PartialOrd<CheckedF64> for f64 {
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        CheckedF64, CheckedF64Result,
+        checked_f64::tests::{invalid_f64, valid_f64},
+    };
     use proptest::prelude::*;
-    use crate::{CheckedF64, checked_f64::tests::{valid_f64, invalid_f64}, CheckedF64Result};
 
     proptest! {
         // Ordering

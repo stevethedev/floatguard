@@ -1,10 +1,10 @@
-use crate::{CheckedF64, FloatError, CheckedF64Result};
+use crate::{CheckedF64, CheckedF64Result, FloatError};
 
 macro_rules! unary_operation {
     ($op_trait:ident, $op_method:ident, $doc:literal) => {
         impl std::ops::$op_trait for CheckedF64 {
             type Output = CheckedF64Result;
-            
+
             #[doc = $doc]
             fn $op_method(self) -> Self::Output {
                 let result = self.0.$op_method();
@@ -48,8 +48,11 @@ unary_operation!(
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        CheckedF64, FloatError,
+        checked_f64::tests::{invalid_f64, valid_f64},
+    };
     use proptest::prelude::*;
-    use crate::{FloatError, CheckedF64, checked_f64::tests::{valid_f64, invalid_f64}};
 
     proptest! {
         #[test]
@@ -68,4 +71,3 @@ mod tests {
         }
     }
 }
-
