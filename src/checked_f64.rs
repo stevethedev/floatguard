@@ -8,7 +8,6 @@ use std::cmp::Ordering;
 /// ```rust
 /// use checked_float::{CheckedF64, FloatError};
 ///
-/// # fn main() {
 /// let checked_f64 = CheckedF64::try_from(1.0).expect("1.0 is a valid f64 value");
 /// assert_eq!((checked_f64 + 1.0).get(), Ok(2.0));
 ///
@@ -17,9 +16,8 @@ use std::cmp::Ordering;
 /// assert_eq!((checked_f64 - f64::INFINITY).get(), Err(FloatError));
 ///
 /// assert_eq!((checked_f64 % f64::NAN).get(), Err(FloatError));
-/// # }
 /// ```
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct CheckedF64(f64);
 
 /// Implementing the ability to convert `CheckedF64` to `f64` safely.
@@ -192,31 +190,36 @@ macro_rules! define_operation {
     };
 }
 
-#[inline]
+#[allow(clippy::inline_always)]
+#[inline(always)]
 fn add(a: f64, b: f64) -> f64 {
     a + b
 }
 define_operation!(+, Add, add, AddAssign, add_assign, add);
 
-#[inline]
+#[allow(clippy::inline_always)]
+#[inline(always)]
 fn sub(a: f64, b: f64) -> f64 {
     a - b
 }
 define_operation!(-, Sub, sub, SubAssign, sub_assign, sub);
 
-#[inline]
+#[allow(clippy::inline_always)]
+#[inline(always)]
 fn mul(a: f64, b: f64) -> f64 {
     a * b
 }
 define_operation!(*, Mul, mul, MulAssign, mul_assign, mul);
 
-#[inline]
+#[allow(clippy::inline_always)]
+#[inline(always)]
 fn div(a: f64, b: f64) -> f64 {
     if b.is_infinite() { f64::NAN } else { a / b }
 }
 define_operation!(/, Div, div, DivAssign, div_assign, div);
 
-#[inline]
+#[allow(clippy::inline_always)]
+#[inline(always)]
 fn rem(a: f64, b: f64) -> f64 {
     if b.is_infinite() { f64::NAN } else { a % b }
 }
@@ -427,7 +430,7 @@ macro_rules! copy_const_op {
     ($name:ident, $doc:expr) => {
         #[doc = $doc]
         #[must_use = "method returns a new instance and does not mutate the original value"]
-        #[inline]
+        #[inline(always)]
         pub const fn $name(self) -> Self {
             if self.is_valid() {
                 Self(self.0.$name())
@@ -442,7 +445,7 @@ macro_rules! copy_op {
     ($name:ident, $doc:expr) => {
         #[doc = $doc]
         #[must_use = "method returns a new instance and does not mutate the original value"]
-        #[inline]
+        #[inline(always)]
         pub fn $name(self) -> Self {
             if self.is_valid() {
                 Self(self.0.$name())
@@ -455,7 +458,7 @@ macro_rules! copy_op {
     ($name:ident, $operand:ident, $t:tt, $doc:expr) => {
         #[doc = $doc]
         #[must_use = "method returns a new instance and does not mutate the original value"]
-        #[inline]
+        #[inline(always)]
         pub fn $name(self, $operand: $t) -> Self {
             if self.is_valid() {
                 Self(self.0.$name($operand))
@@ -848,7 +851,8 @@ impl CheckedF64 {
     /// let invalid_value = CheckedF64::new(f64::NAN);
     /// assert_eq!(invalid_value.get(), Err(FloatError));
     /// ```
-    #[inline]
+    #[allow(clippy::inline_always)]
+    #[inline(always)]
     pub fn get(self) -> Result<f64, FloatError> {
         f64::try_from(self)
     }
@@ -871,7 +875,8 @@ impl CheckedF64 {
     /// assert!(invalid_value.is_invalid());
     /// ```
     #[must_use = "this function returns true if the value is invalid, otherwise false"]
-    #[inline]
+    #[allow(clippy::inline_always)]
+    #[inline(always)]
     pub const fn is_invalid(self) -> bool {
         !self.is_valid()
     }
@@ -894,7 +899,8 @@ impl CheckedF64 {
     /// assert!(!invalid_value.is_valid());
     /// ```
     #[must_use = "this function returns true if the value is valid, otherwise false"]
-    #[inline]
+    #[allow(clippy::inline_always)]
+    #[inline(always)]
     pub const fn is_valid(self) -> bool {
         self.0.is_finite()
     }
@@ -1072,7 +1078,8 @@ impl CheckedF64 {
     /// assert!(CheckedF64::new(2.0).powf(f64::NAN).is_invalid());
     /// ```
     #[must_use = "this function returns a new CheckedF64 instance"]
-    #[inline]
+    #[allow(clippy::inline_always)]
+    #[inline(always)]
     pub fn powf(self, power: impl TryInto<Self>) -> Self {
         match power.try_into() {
             Ok(power) if power.is_valid() && self.is_valid() => Self(self.0.powf(power.0)),
@@ -1282,7 +1289,8 @@ impl CheckedF64 {
     /// assert!(abs_difference_1 < 1e-10);
     /// ```
     #[must_use = "this function returns a tuple of two CheckedF64 instances"]
-    #[inline]
+    #[allow(clippy::inline_always)]
+    #[inline(always)]
     pub fn sin_cos(self) -> (Self, Self) {
         match self.0.sin_cos() {
             (sin, cos) if sin.is_finite() && cos.is_finite() => (Self(sin), Self(cos)),
@@ -1406,7 +1414,8 @@ impl CheckedF64 {
     /// assert!(CheckedF64::new(1.0).atan2(CheckedF64::new(f64::INFINITY)).is_invalid());
     /// ```
     #[must_use = "this function returns a new CheckedF64 instance"]
-    #[inline]
+    #[allow(clippy::inline_always)]
+    #[inline(always)]
     pub fn atan2(self, other: impl TryInto<Self>) -> Self {
         match other.try_into() {
             Ok(other) if self.is_valid() && other.is_valid() => Self(self.0.atan2(other.0)),
