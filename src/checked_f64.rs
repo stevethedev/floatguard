@@ -20,6 +20,30 @@ use std::cmp::Ordering;
 #[derive(Debug, Default, Clone, Copy)]
 pub struct CheckedF64(f64);
 
+impl std::fmt::Display for CheckedF64 {
+    /// Formats the `CheckedF64` as a string.
+    ///
+    /// # Returns
+    ///
+    /// Returns a string representation of the inner `f64` value.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use checked_float::CheckedF64;
+    ///
+    /// let value = CheckedF64::new(2.0);
+    /// assert_eq!(value.to_string(), "CheckedF64(2)");
+    /// ```
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.is_valid() {
+            write!(f, "CheckedF64({})", self.0)
+        } else {
+            write!(f, "CheckedF64(invalid)")
+        }
+    }
+}
+
 /// Implementing the ability to convert `CheckedF64` to `f64` safely.
 ///
 /// This conversion will return an error if the value is NaN or infinite.
