@@ -22,7 +22,7 @@ pub type CheckedF64Result = std::result::Result<CheckedF64, FloatError>;
 ///
 /// assert_eq!(checked_f64 - f64::INFINITY, Err(FloatError));
 ///
-/// assert_eq!((checked_f64 % f64::NAN).get(), Err(FloatError));
+/// assert_eq!(checked_f64 % f64::NAN, Err(FloatError));
 /// ```
 #[derive(Debug, Default, Clone, Copy)]
 pub struct CheckedF64(f64);
@@ -123,85 +123,6 @@ impl TryFrom<f64> for CheckedF64 {
         }
     }
 }
-
-macro_rules! define_operation {
-    ($op:tt, $op_trait:ident, $op_method:ident, $assign_trait:ident, $assign_method:ident, $implementation:expr) => {
-        #[doc = concat!(
-            "Implementing the binary [`", stringify!($op_trait), "`](core::ops::", stringify!($op_trait), ") operator for `CheckedF64`.\n",
-            "\n",
-            "This allows the ", stringify!($op), " operation between two `CheckedF64` values, returning a new `CheckedF64` instance.\n",
-            "\n",
-            "The operation will return an error if either value is NaN or infinite.\n",
-        )]
-        impl std::ops::$op_trait for CheckedF64 {
-            type Output = Self;
-
-            fn $op_method(self, other: Self) -> Self::Output {
-                let result = ($implementation)(self.0, other.0);
-                Self(result)
-            }
-        }
-
-        #[doc = concat!(
-            "Implementing the binary [`", stringify!($op_trait), "`](core::ops::", stringify!($op_trait), ") operator for `CheckedF64`.\n",
-            "\n",
-            "This allows the ", stringify!($op), " operation between an `f64` and a `CheckedF64`, returning a new `CheckedF64` instance.\n",
-        )]
-        impl std::ops::$op_trait<f64> for CheckedF64 {
-            type Output = Self;
-
-            fn $op_method(self, other: f64) -> Self::Output {
-                let result = ($implementation)(self.0, other);
-                Self(result)
-            }
-        }
-
-        #[doc = concat!(
-            "Implementing the binary [`", stringify!($op_trait), "`](core::ops::", stringify!($op_trait), ") operator for `CheckedF64`.\n",
-            "\n",
-            "This allows the ", stringify!($op), " operation between a `CheckedF64` and an `f64`, returning a new `CheckedF64` instance.\n",
-        )]
-        impl std::ops::$op_trait<CheckedF64> for f64 {
-            type Output = CheckedF64;
-
-            fn $op_method(self, other: CheckedF64) -> Self::Output {
-                let result = ($implementation)(self, other.0);
-                CheckedF64(result)
-            }
-        }
-
-        #[doc = concat!(
-            "Implementing the [`", stringify!($assign_trait), "`](std::ops::", stringify!($assign_trait), ") trait for `CheckedF64`.\n",
-            "\n",
-            "This allows `", stringify!($assign), "` to be used between two `CheckedF64` values.\n",
-        )]
-        impl std::ops::$assign_trait for CheckedF64 {
-            fn $assign_method(&mut self, other: Self) {
-                let result = ($implementation)(self.0, other.0);
-                self.0 = result;
-            }
-        }
-
-        #[doc = concat!(
-            "Implementing the [`", stringify!($assign_trait), "`](std::ops::", stringify!($assign_trait), ") trait for `CheckedF64`.\n",
-            "\n",
-            "This allows `", stringify!($assign), "` to be used between a `CheckedF64` and an `f64`.\n",
-        )]
-        impl std::ops::$assign_trait<f64> for CheckedF64 {
-            fn $assign_method(&mut self, other: f64) {
-                let result = ($implementation)(self.0, other);
-                self.0 = result;
-            }
-        }
-    };
-}
-
-#[allow(clippy::inline_always)]
-#[inline(always)]
-fn rem(a: f64, b: f64) -> f64 {
-    if b.is_infinite() { f64::NAN } else { a % b }
-}
-define_operation!(%, Rem, rem, RemAssign, rem_assign, rem);
 
 macro_rules! copy_const_op {
     ($name:ident, $doc:expr) => {
@@ -893,81 +814,6 @@ mod tests {
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
             prop_assert_eq!(CheckedF64(a).get(), Err(FloatError));
-        }
-
-        // Remainder Operations
-        #[test]
-        fn test_valid_rem_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
-            if b != 0.0 && (a % b).is_finite() {
-                prop_assert_eq!((CheckedF64(a) % CheckedF64(b)).get(), Ok(a % b));
-                prop_assert_eq!((CheckedF64(a) % b).get(), Ok(a % b));
-                prop_assert_eq!((a % CheckedF64(b)).get(), Ok(a % b));
-
-                let mut checked_remainder = CheckedF64(a);
-                checked_remainder %= CheckedF64(b);
-                prop_assert_eq!(checked_remainder.get(), Ok(a % b));
-
-                let mut checked_remainder = CheckedF64(a);
-                checked_remainder %= b;
-                prop_assert_eq!(checked_remainder.get(), Ok(a % b));
-            } else {
-                prop_assert_eq!((CheckedF64(a) % CheckedF64(b)).get(), Err(FloatError));
-                prop_assert_eq!((CheckedF64(a) % b).get(), Err(FloatError));
-                prop_assert_eq!((a % CheckedF64(b)).get(), Err(FloatError));
-
-                let mut checked_remainder = CheckedF64(a);
-                checked_remainder %= CheckedF64(b);
-                prop_assert_eq!(checked_remainder.get(), Err(FloatError));
-
-                let mut checked_remainder = CheckedF64(a);
-                checked_remainder %= b;
-                prop_assert_eq!(checked_remainder.get(), Err(FloatError));
-            }
-        }
-
-        #[test]
-        fn test_valid_rem_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!((CheckedF64(a) % CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) % b).get(), Err(FloatError));
-            prop_assert_eq!((a % CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_remainder = CheckedF64(a);
-            checked_remainder %= CheckedF64(b);
-            prop_assert_eq!(checked_remainder.get(), Err(FloatError));
-
-            let mut checked_remainder = CheckedF64(a);
-            checked_remainder %= b;
-            prop_assert_eq!(checked_remainder.get(), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_rem_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!((CheckedF64(a) % CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) % b).get(), Err(FloatError));
-            prop_assert_eq!((a % CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_remainder = CheckedF64(a);
-            checked_remainder %= CheckedF64(b);
-            prop_assert_eq!(checked_remainder.get(), Err(FloatError));
-
-            let mut checked_remainder = CheckedF64(a);
-            checked_remainder %= b;
-            prop_assert_eq!(checked_remainder.get(), Err(FloatError));
-        }
-
-        #[test]
-        fn test_invalid_rem_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!((CheckedF64(a) % CheckedF64(b)).get(), Err(FloatError));
-            prop_assert_eq!((CheckedF64(a) % b).get(), Err(FloatError));
-            prop_assert_eq!((a % CheckedF64(b)).get(), Err(FloatError));
-
-            let mut checked_remainder = CheckedF64(a);
-            checked_remainder %= CheckedF64(b);
-            prop_assert_eq!(checked_remainder.get(), Err(FloatError));
-
-            let mut checked_remainder = CheckedF64(a);
-            checked_remainder %= b;
-            prop_assert_eq!(checked_remainder.get(), Err(FloatError));
         }
 
         // Absolute value

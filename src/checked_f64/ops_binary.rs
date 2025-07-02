@@ -167,6 +167,34 @@ binary_operation!(
     "
 );
 
+#[allow(clippy::inline_always)]
+#[inline(always)]
+fn rem_impl(a: f64, b: f64) -> f64 {
+    if b.is_infinite() { f64::NAN } else { a % b }
+}
+binary_operation!(
+    Rem,
+    rem,
+    rem_impl,
+    r"
+        Computes the remainder of division between two `CheckedF64` values or a `CheckedF64` and
+        a `f64`.
+
+        # Example
+
+        ```rust
+        use checked_float::{CheckedF64, FloatError};
+
+        let value1 = CheckedF64::new(5.0);
+        let value2 = CheckedF64::new(3.0);
+        assert_eq!(value1 % value2, Ok(CheckedF64::new(2.0)));
+
+        let value3 = CheckedF64::new(f64::NAN);
+        assert_eq!(value1 % value3, Err(FloatError));
+        ```
+    "
+);
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -302,6 +330,37 @@ mod tests {
             prop_assert_eq!(CheckedF64::new(a) / CheckedF64::new(b), Err(FloatError));
             prop_assert_eq!(CheckedF64::new(a) / b, Err(FloatError));
             prop_assert_eq!(a / CheckedF64::new(b), Err(FloatError));
+        }
+
+        // Remainder Operations
+        #[test]
+        fn test_valid_rem_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
+            if b != 0.0 && (a % b).is_finite() {
+                prop_assert_eq!((CheckedF64::new(a) % CheckedF64::new(b)).unwrap().get(), Ok(a % b));
+                prop_assert_eq!((CheckedF64::new(a) % b).unwrap().get(), Ok(a % b));
+                prop_assert_eq!((a % CheckedF64::new(b)).unwrap().get(), Ok(a % b));
+            }
+        }
+
+        #[test]
+        fn test_valid_rem_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a) % CheckedF64::new(b), Err(FloatError));
+            prop_assert_eq!(CheckedF64::new(a) % b, Err(FloatError));
+            prop_assert_eq!(a % CheckedF64::new(b), Err(FloatError));
+        }
+
+        #[test]
+        fn test_invalid_rem_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a) % CheckedF64::new(b), Err(FloatError));
+            prop_assert_eq!(CheckedF64::new(a) % b, Err(FloatError));
+            prop_assert_eq!(a % CheckedF64::new(b), Err(FloatError));
+        }
+
+        #[test]
+        fn test_invalid_rem_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a) % CheckedF64::new(b), Err(FloatError));
+            prop_assert_eq!(CheckedF64::new(a) % b, Err(FloatError));
+            prop_assert_eq!(a % CheckedF64::new(b), Err(FloatError));
         }
     }
 }
