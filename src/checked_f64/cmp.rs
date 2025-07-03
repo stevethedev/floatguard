@@ -1,4 +1,4 @@
-use crate::{CheckedF64, CheckedF64Result};
+use crate::{CheckedF64, CheckedF64Result, FloatError};
 use std::cmp::Ordering;
 
 impl PartialEq for CheckedF64 {
@@ -13,8 +13,8 @@ impl PartialEq for CheckedF64 {
     /// ```rust
     /// use checked_float::CheckedF64;
     ///
-    /// let a = CheckedF64::new(2.0);
-    /// let b = CheckedF64::new(2.0);
+    /// let a = CheckedF64::new(2.0).unwrap();
+    /// let b = CheckedF64::new(2.0).unwrap();
     /// assert_eq!(a, b);
     ///
     /// let a_invalid = CheckedF64::new(2.0);
@@ -22,7 +22,7 @@ impl PartialEq for CheckedF64 {
     /// assert_ne!(a_invalid, b_invalid);
     /// ```
     fn eq(&self, other: &Self) -> bool {
-        self.is_valid() && other.is_valid() && self.0 == other.0
+        self.0 == other.0
     }
 }
 
@@ -35,7 +35,7 @@ impl PartialEq<CheckedF64Result> for CheckedF64 {
     fn eq(&self, other: &CheckedF64Result) -> bool {
         other
             .as_ref()
-            .is_ok_and(|value| self.is_valid() && self.0 == *value)
+            .is_ok_and(|value| self.0 == *value)
     }
 }
 
@@ -47,7 +47,7 @@ impl PartialEq<CheckedF64> for CheckedF64Result {
     /// Returns `true` if `CheckedF64Result` is valid (finite) and equal to `CheckedF64`, otherwise returns `false`.
     fn eq(&self, other: &CheckedF64) -> bool {
         self.as_ref()
-            .is_ok_and(|value| other.is_valid() && *value == other.0)
+            .is_ok_and(|value| *value == other.0)
     }
 }
 
@@ -80,7 +80,7 @@ impl PartialEq<f64> for CheckedF64 {
     /// assert_ne!(nan, b);
     /// ```
     fn eq(&self, other: &f64) -> bool {
-        self.is_valid() && other.is_finite() && self.0 == *other
+        other.is_finite() && self.0 == *other
     }
 }
 
@@ -113,7 +113,51 @@ impl PartialEq<CheckedF64> for f64 {
     /// assert_ne!(nan, b_nan);
     /// ```
     fn eq(&self, other: &CheckedF64) -> bool {
-        self.is_finite() && other.is_valid() && *self == other.0
+        self.is_finite() && *self == other.0
+    }
+}
+
+impl PartialEq<Result<f64, FloatError>> for CheckedF64Result {
+    /// Compares `CheckedF64` with `Result<CheckedF64, FloatError>` for equality.
+    ///
+    /// # Returns
+    ///
+    /// Returns `true` if `CheckedF64` is valid (finite) and equal to the `Ok` variant of the result, otherwise returns `false`.
+    fn eq(&self, other: &Result<f64, FloatError>) -> bool {
+        other.as_ref().is_ok_and(|value| self.as_ref().is_ok_and(|checked| *value == checked.0))
+    }
+}
+
+impl PartialEq<CheckedF64Result> for Result<f64, FloatError> {
+    /// Compares `Result<CheckedF64, FloatError>` with `CheckedF64` for equality.
+    ///
+    /// # Returns
+    ///
+    /// Returns `true` if the result is `Ok` and the value is valid (finite) and equal to `CheckedF64`, otherwise returns `false`.
+    fn eq(&self, other: &CheckedF64Result) -> bool {
+        self.as_ref().is_ok_and(|value| other.as_ref().is_ok_and(|checked| *value == checked.0))
+    }
+}
+
+impl PartialEq<f64> for CheckedF64Result {
+    /// Compares `CheckedF64Result` with `f64` for equality.
+    ///
+    /// # Returns
+    ///
+    /// Returns `true` if the result is `Ok` and the value is valid (finite) and equal to `f64`, otherwise returns `false`.
+    fn eq(&self, other: &f64) -> bool {
+        self.as_ref().is_ok_and(|value| *value == *other)
+    }
+}
+
+impl PartialEq<CheckedF64Result> for f64 {
+    /// Compares `f64` with `CheckedF64Result` for equality.
+    ///
+    /// # Returns
+    ///
+    /// Returns `true` if the result is `Ok` and the value is valid (finite) and equal to `f64`, otherwise returns `false`.
+    fn eq(&self, other: &CheckedF64Result) -> bool {
+        other.as_ref().is_ok_and(|value| *value == *self)
     }
 }
 
@@ -147,10 +191,7 @@ impl PartialOrd for CheckedF64 {
     /// assert_eq!(a_invalid.partial_cmp(&b_invalid), None);
     /// ```
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        match (self.is_valid(), other.is_valid()) {
-            (true, true) => PartialOrd::partial_cmp(&self.0, &other.0),
-            _ => None,
-        }
+        PartialOrd::partial_cmp(&self.0, &other.0)
     }
 }
 
@@ -184,7 +225,7 @@ impl PartialOrd<f64> for CheckedF64 {
     /// assert_eq!(a_invalid.partial_cmp(&b_invalid), None);
     /// ```
     fn partial_cmp(&self, other: &f64) -> Option<Ordering> {
-        if self.is_valid() && other.is_finite() {
+        if other.is_finite() {
             self.0.partial_cmp(other)
         } else {
             None
@@ -219,8 +260,88 @@ impl PartialOrd<CheckedF64> for f64 {
     /// assert_eq!(inf.partial_cmp(&b), None);
     /// ```
     fn partial_cmp(&self, other: &CheckedF64) -> Option<Ordering> {
-        if self.is_finite() && other.is_valid() {
+        if self.is_finite() {
             self.partial_cmp(&other.0)
+        } else {
+            None
+        }
+    }
+}
+
+impl PartialOrd for CheckedF64Result {
+    /// Compares `CheckedF64Result` with `CheckedF64Result`.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Some(Ordering)` if both values are valid (finite), otherwise returns `None`.
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        match (self.as_ref(), other.as_ref()) {
+            (Ok(a), Ok(b)) => a.partial_cmp(b),
+            _ => None,
+        }
+    }
+}
+
+impl PartialOrd<CheckedF64Result> for CheckedF64 {
+    /// Compares `CheckedF64` with `CheckedF64Result`.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Some(Ordering)` if both values are valid (finite), otherwise returns `None`.
+    fn partial_cmp(&self, other: &CheckedF64Result) -> Option<Ordering> {
+        other.as_ref().ok().and_then(|value| self.0.partial_cmp(value))
+    }
+}
+
+impl PartialOrd<CheckedF64> for CheckedF64Result {
+    /// Compares `CheckedF64Result` with `CheckedF64`.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Some(Ordering)` if both values are valid (finite), otherwise returns `None`.
+    fn partial_cmp(&self, other: &CheckedF64) -> Option<Ordering> {
+        self.as_ref().ok().and_then(|value| value.partial_cmp(&other.0))
+    }
+}
+
+impl PartialOrd<Result<f64, FloatError>> for CheckedF64Result {
+    /// Compares `CheckedF64Result` with `Result<f64, FloatError>`.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Some(Ordering)` if the result is `Ok` and the value is valid (finite), otherwise returns `None`.
+    fn partial_cmp(&self, other: &Result<f64, FloatError>) -> Option<Ordering> {
+        match other {
+            Ok(value) if value.is_finite() => self.as_ref().ok().and_then(|checked| checked.0.partial_cmp(value)),
+            _ => None,
+        }
+    }
+}
+
+impl PartialOrd<f64> for CheckedF64Result {
+    /// Compares `CheckedF64Result` with `f64`.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Some(Ordering)` if the result is `Ok` and the value is valid (finite), otherwise returns `None`.
+    fn partial_cmp(&self, other: &f64) -> Option<Ordering> {
+        if other.is_finite() {
+            self.as_ref().ok().and_then(|checked| checked.0.partial_cmp(other))
+        } else {
+            None
+        }
+    }
+}
+
+impl PartialOrd<CheckedF64Result> for f64 {
+    /// Compares `f64` with `CheckedF64`.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Some(Ordering)` if the value is valid (finite), otherwise returns `None`.
+    fn partial_cmp(&self, other: &CheckedF64Result) -> Option<Ordering> {
+        if self.is_finite() {
+            other.as_ref().ok().and_then(|checked| checked.0.partial_cmp(self))
         } else {
             None
         }
@@ -239,13 +360,16 @@ mod tests {
         // Ordering
         #[test]
         fn test_valid_cmp_valid(a in valid_f64(), b in valid_f64()) {
-            prop_assert_eq!(CheckedF64::new(a) > CheckedF64::new(b), a > b);
-            prop_assert_eq!(CheckedF64::new(a) > b, a > b);
-            prop_assert_eq!(a > CheckedF64::new(b), a > b);
-            prop_assert_eq!(CheckedF64::new(a) >= CheckedF64::new(b), a >= b);
-            prop_assert_eq!(CheckedF64::new(a) < CheckedF64::new(b), a < b);
-            prop_assert_eq!(CheckedF64::new(a) <= CheckedF64::new(b), a <= b);
-            prop_assert_eq!(CheckedF64::new(a).partial_cmp(&CheckedF64::new(b)), a.partial_cmp(&b));
+            let checked_a = CheckedF64::new(a).unwrap();
+            let checked_b = CheckedF64::new(b).unwrap();
+
+            prop_assert_eq!(checked_a > checked_b, a > b);
+            prop_assert_eq!(checked_a > b, a > b);
+            prop_assert_eq!(a > checked_b, a > b);
+            prop_assert_eq!(checked_a >= checked_b, a >= b);
+            prop_assert_eq!(checked_a < checked_b, a < b);
+            prop_assert_eq!(checked_a <= checked_b, a <= b);
+            prop_assert_eq!(checked_a.partial_cmp(&checked_b), a.partial_cmp(&b));
         }
 
         #[test]
@@ -275,30 +399,30 @@ mod tests {
         // Equality Operator
         #[test]
         fn test_valid_eq_valid(a in valid_f64()) {
-            let checked_a = CheckedF64::new(a);
+            let checked_a = CheckedF64::new(a).unwrap();
 
             prop_assert_eq!(checked_a, a);
             prop_assert_eq!(a, checked_a);
             prop_assert_eq!(checked_a, checked_a);
 
-            prop_assert_eq!(Ok(checked_a), checked_a);
-            prop_assert_eq!(checked_a, Ok(checked_a));
-            prop_assert_eq!(CheckedF64Result::Ok(checked_a), CheckedF64Result::Ok(checked_a));
+            prop_assert_eq!(CheckedF64::new(a), checked_a);
+            prop_assert_eq!(checked_a, CheckedF64::new(a));
+            prop_assert_eq!(CheckedF64::new(a), CheckedF64::new(a));
         }
 
         #[test]
         fn test_valid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(CheckedF64::new(a) == CheckedF64::new(b), false);
+            prop_assert_ne!(CheckedF64::new(a), CheckedF64::new(b));
         }
 
         #[test]
         fn test_invalid_eq_valid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!(CheckedF64::new(a) == CheckedF64::new(b), false);
+            prop_assert_ne!(CheckedF64::new(a), CheckedF64::new(b));
         }
 
         #[test]
         fn test_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(CheckedF64::new(a) == CheckedF64::new(b), false);
+            prop_assert_ne!(CheckedF64::new(a), CheckedF64::new(b));
         }
 
     }
