@@ -1,13 +1,16 @@
 use crate::{CheckedF64, CheckedF64Result};
 
 macro_rules! unary_operation {
-    ($op_trait:ident :: $op_method:ident, $doc:literal) => {
+    (
+        $op_trait:ident :: $op_method:ident,
+        $doc:literal
+    ) => {
         unary_operation!(
             $op_trait :: $op_method,
             fn (lhs: CheckedF64) -> f64 { -lhs.0 },
             $doc
         );
-        
+
         unary_operation!(
             $op_trait :: $op_method,
             fn (lhs: CheckedF64Result) -> f64 {

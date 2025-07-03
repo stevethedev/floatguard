@@ -1,7 +1,10 @@
 use crate::{CheckedF64, CheckedF64Result};
 
 macro_rules! binary_operation {
-    ($op_trait:ident :: $op_method:ident, $doc:literal) => {
+    (
+        $op_trait:ident :: $op_method:ident,
+        $doc:literal
+    ) => {
         binary_operation!(
             $op_trait :: $op_method,
             fn (lhs: f64, rhs: f64) -> f64 {
@@ -11,7 +14,11 @@ macro_rules! binary_operation {
         );
     };
 
-    ($op_trait:ident::$op_method:ident, fn ($lhs:ident : f64, $rhs:ident : f64) -> f64 $implementation:block, $doc:literal) => {
+    (
+        $op_trait:ident::$op_method:ident,
+        fn ($lhs:ident : f64, $rhs:ident : f64) -> f64 $implementation:block,
+        $doc:literal
+    ) => {
         // | X |  LHS                | RHS                 | Result Type        | Note                |
         // |---|---------------------|---------------------|--------------------|---------------------|
         // | X | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
