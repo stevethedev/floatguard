@@ -1,4 +1,4 @@
-use crate::{CheckedF64Result, CheckedF64};
+use crate::{CheckedF64, CheckedF64Result};
 
 macro_rules! const_math {
     ($name:ident, $doc:expr) => {
@@ -69,7 +69,7 @@ macro_rules! math {
     ($name:ident, $operand:ident : $t:tt, $doc:expr) => {
         math!($name, fn (base: f64, $operand: $t) -> f64 { base.$name($operand) }, $doc);
     };
-    
+
     ($name:ident, fn ($base:ident : f64, $operand:ident : $t:tt) -> f64 $implementation:block, $doc:expr) => {
         impl CheckedF64 {
             #[doc = $doc]
@@ -254,18 +254,18 @@ math!(
 //     power: impl TryInto<Self>
 //     r"
 //         Raises a number to a floating-point power.
-// 
+//
 //         See: [`f64::powf`]
-// 
+//
 //         # Examples
-// 
+//
 //         ```rust
 //         use checked_float::CheckedF64;
-// 
+//
 //         let x = CheckedF64::new(2.0_f64);
 //         let abs_difference = (x.powf(3.0) - (x * x * x)).unwrap().abs();
 //         assert!(abs_difference.unwrap() <= CheckedF64::EPSILON);
-// 
+//
 //         let invalid = CheckedF64::new(f64::NAN);
 //         assert!(invalid.powf(2.0).is_err());
 //         assert!(CheckedF64::new(2.0).powf(f64::NAN).is_err());

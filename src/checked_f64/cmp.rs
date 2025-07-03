@@ -33,9 +33,7 @@ impl PartialEq<CheckedF64Result> for CheckedF64 {
     ///
     /// Returns `true` if `CheckedF64` is valid (finite) and equal to `CheckedF64Result`, otherwise returns `false`.
     fn eq(&self, other: &CheckedF64Result) -> bool {
-        other
-            .as_ref()
-            .is_ok_and(|value| self.0 == *value)
+        other.as_ref().is_ok_and(|value| self.0 == *value)
     }
 }
 
@@ -46,8 +44,7 @@ impl PartialEq for CheckedF64Result {
     ///
     /// Returns `true` if `CheckedF64Result` is valid (finite) and equal to `CheckedF64`, otherwise returns `false`.
     fn eq(&self, other: &Self) -> bool {
-        self.as_ref()
-            .is_ok_and(|value| *value == *other)
+        self.as_ref().is_ok_and(|value| *value == *other)
     }
 }
 
@@ -58,8 +55,7 @@ impl PartialEq<CheckedF64> for CheckedF64Result {
     ///
     /// Returns `true` if `CheckedF64Result` is valid (finite) and equal to `CheckedF64`, otherwise returns `false`.
     fn eq(&self, other: &CheckedF64) -> bool {
-        self.as_ref()
-            .is_ok_and(|value| *value == other.0)
+        self.as_ref().is_ok_and(|value| *value == other.0)
     }
 }
 
@@ -136,7 +132,9 @@ impl PartialEq<Result<f64, FloatError>> for CheckedF64Result {
     ///
     /// Returns `true` if `CheckedF64` is valid (finite) and equal to the `Ok` variant of the result, otherwise returns `false`.
     fn eq(&self, other: &Result<f64, FloatError>) -> bool {
-        other.as_ref().is_ok_and(|value| self.as_ref().is_ok_and(|checked| *value == checked.0))
+        other
+            .as_ref()
+            .is_ok_and(|value| self.as_ref().is_ok_and(|checked| *value == checked.0))
     }
 }
 
@@ -147,7 +145,8 @@ impl PartialEq<CheckedF64Result> for Result<f64, FloatError> {
     ///
     /// Returns `true` if the result is `Ok` and the value is valid (finite) and equal to `CheckedF64`, otherwise returns `false`.
     fn eq(&self, other: &CheckedF64Result) -> bool {
-        self.as_ref().is_ok_and(|value| other.as_ref().is_ok_and(|checked| *value == checked.0))
+        self.as_ref()
+            .is_ok_and(|value| other.as_ref().is_ok_and(|checked| *value == checked.0))
     }
 }
 
@@ -301,7 +300,10 @@ impl PartialOrd<CheckedF64Result> for CheckedF64 {
     ///
     /// Returns `Some(Ordering)` if both values are valid (finite), otherwise returns `None`.
     fn partial_cmp(&self, other: &CheckedF64Result) -> Option<Ordering> {
-        other.as_ref().ok().and_then(|value| self.0.partial_cmp(value))
+        other
+            .as_ref()
+            .ok()
+            .and_then(|value| self.0.partial_cmp(value))
     }
 }
 
@@ -312,7 +314,9 @@ impl PartialOrd<CheckedF64> for CheckedF64Result {
     ///
     /// Returns `Some(Ordering)` if both values are valid (finite), otherwise returns `None`.
     fn partial_cmp(&self, other: &CheckedF64) -> Option<Ordering> {
-        self.as_ref().ok().and_then(|value| value.partial_cmp(&other.0))
+        self.as_ref()
+            .ok()
+            .and_then(|value| value.partial_cmp(&other.0))
     }
 }
 
@@ -324,7 +328,10 @@ impl PartialOrd<Result<f64, FloatError>> for CheckedF64Result {
     /// Returns `Some(Ordering)` if the result is `Ok` and the value is valid (finite), otherwise returns `None`.
     fn partial_cmp(&self, other: &Result<f64, FloatError>) -> Option<Ordering> {
         match other {
-            Ok(value) if value.is_finite() => self.as_ref().ok().and_then(|checked| checked.0.partial_cmp(value)),
+            Ok(value) if value.is_finite() => self
+                .as_ref()
+                .ok()
+                .and_then(|checked| checked.0.partial_cmp(value)),
             _ => None,
         }
     }
@@ -338,7 +345,9 @@ impl PartialOrd<f64> for CheckedF64Result {
     /// Returns `Some(Ordering)` if the result is `Ok` and the value is valid (finite), otherwise returns `None`.
     fn partial_cmp(&self, other: &f64) -> Option<Ordering> {
         if other.is_finite() {
-            self.as_ref().ok().and_then(|checked| checked.0.partial_cmp(other))
+            self.as_ref()
+                .ok()
+                .and_then(|checked| checked.0.partial_cmp(other))
         } else {
             None
         }
@@ -353,7 +362,10 @@ impl PartialOrd<CheckedF64Result> for f64 {
     /// Returns `Some(Ordering)` if the value is valid (finite), otherwise returns `None`.
     fn partial_cmp(&self, other: &CheckedF64Result) -> Option<Ordering> {
         if self.is_finite() {
-            other.as_ref().ok().and_then(|checked| checked.0.partial_cmp(self))
+            other
+                .as_ref()
+                .ok()
+                .and_then(|checked| checked.0.partial_cmp(self))
         } else {
             None
         }

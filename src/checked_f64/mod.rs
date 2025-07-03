@@ -1,8 +1,8 @@
 mod cmp;
 mod consts;
+mod math;
 mod ops_binary;
 mod ops_unary;
-mod math;
 
 use crate::FloatError;
 

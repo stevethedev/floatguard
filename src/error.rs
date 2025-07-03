@@ -1,6 +1,5 @@
 /// An error occurred while processing a floating-point value, indicating that
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd)]
 pub struct Error;
 
 impl std::error::Error for Error {}
@@ -26,13 +25,19 @@ impl<T> Result<T> {
     }
 }
 
-impl<T> std::fmt::Debug for Result<T> where T: std::fmt::Debug {
+impl<T> std::fmt::Debug for Result<T>
+where
+    T: std::fmt::Debug,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self.0)
     }
 }
 
-impl<T> PartialEq<std::result::Result<T, Error>> for Result<T> where T: PartialEq {
+impl<T> PartialEq<std::result::Result<T, Error>> for Result<T>
+where
+    T: PartialEq,
+{
     fn eq(&self, other: &std::result::Result<T, Error>) -> bool {
         self.0 == *other
     }

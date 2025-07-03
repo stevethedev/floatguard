@@ -5,20 +5,13 @@ macro_rules! binary_operation {
         binary_operation!(
             $op_trait,
             $op_method,
-            fn (lhs: f64, rhs: f64) -> f64 { lhs.$op_method(rhs) },
+            fn (lhs: f64, rhs: f64) -> f64 {
+                std::ops::$op_trait::<f64>::$op_method(lhs, rhs)
+            },
             $doc
-        )
+        );
     };
 
-    ($op_trait:ident, $op_method:ident, $implementation:block, $doc:literal) => {
-        binary_operation!(
-            $op_trait,
-            $op_method,
-            fn (lhs: f64, rhs: f64) -> f64 $implementation,
-            $doc
-        )
-    };
-    
     ($op_trait:ident, $op_method:ident, fn ($lhs:ident : f64, $rhs:ident : f64) -> f64 $implementation:block, $doc:literal) => {
         impl std::ops::$op_trait for CheckedF64 {
             type Output = CheckedF64Result;
@@ -35,7 +28,7 @@ macro_rules! binary_operation {
 
         impl std::ops::$op_trait<&CheckedF64> for CheckedF64 {
             type Output = CheckedF64Result;
-        
+
             #[doc = $doc]
             #[inline(always)]
             fn $op_method(self, $rhs: &CheckedF64) -> Self::Output {
@@ -46,10 +39,10 @@ macro_rules! binary_operation {
                 })
             }
         }
-        
+
         impl std::ops::$op_trait<f64> for CheckedF64 {
             type Output = CheckedF64Result;
-        
+
             #[doc = $doc]
             fn $op_method(self, $rhs: f64) -> Self::Output {
                 Self::new({
@@ -58,10 +51,10 @@ macro_rules! binary_operation {
                 })
             }
         }
-        
+
         impl std::ops::$op_trait<CheckedF64> for f64 {
             type Output = CheckedF64Result;
-        
+
             #[doc = $doc]
             fn $op_method(self, $rhs: CheckedF64) -> Self::Output {
                 CheckedF64::new({
@@ -71,10 +64,10 @@ macro_rules! binary_operation {
                 })
             }
         }
-        
+
         impl std::ops::$op_trait<CheckedF64Result> for CheckedF64 {
             type Output = CheckedF64Result;
-        
+
             #[doc = $doc]
             fn $op_method(self, $rhs: CheckedF64Result) -> Self::Output {
                 match $rhs.as_inner() {
@@ -87,10 +80,10 @@ macro_rules! binary_operation {
                 }
             }
         }
-        
+
         impl std::ops::$op_trait for CheckedF64Result {
             type Output = CheckedF64Result;
-        
+
             #[doc = $doc]
             fn $op_method(self, $rhs: Self) -> Self::Output {
                 match (self.as_inner(), $rhs.as_inner()) {
@@ -99,10 +92,10 @@ macro_rules! binary_operation {
                 }
             }
         }
-        
+
         impl std::ops::$op_trait<CheckedF64> for CheckedF64Result {
             type Output = CheckedF64Result;
-        
+
             #[doc = $doc]
             fn $op_method(self, $rhs: CheckedF64) -> Self::Output {
                 match self.as_inner() {
@@ -115,10 +108,10 @@ macro_rules! binary_operation {
                 }
             }
         }
-        
+
         impl std::ops::$op_trait<f64> for CheckedF64Result {
             type Output = CheckedF64Result;
-        
+
             #[doc = $doc]
             fn $op_method(self, $rhs: f64) -> Self::Output {
                 match self.as_inner() {
@@ -130,10 +123,10 @@ macro_rules! binary_operation {
                 }
             }
         }
-        
+
         impl std::ops::$op_trait<CheckedF64Result> for f64 {
             type Output = CheckedF64Result;
-        
+
             #[doc = $doc]
             fn $op_method(self, $rhs: CheckedF64Result) -> Self::Output {
                 match $rhs.as_inner() {
@@ -152,7 +145,6 @@ macro_rules! binary_operation {
 binary_operation!(
     Add,
     add,
-    fn (lhs: f64, rhs: f64) -> f64 { lhs + rhs },
     r"
         Adds two `CheckedF64` values or a `CheckedF64` and a `f64`.
 
@@ -174,7 +166,6 @@ binary_operation!(
 binary_operation!(
     Sub,
     sub,
-    fn (lhs: f64, rhs: f64) -> f64 { lhs - rhs },
     r"
         Subtracts one `CheckedF64` value from another or a `f64` from a `CheckedF64`.
 
@@ -196,7 +187,6 @@ binary_operation!(
 binary_operation!(
     Mul,
     mul,
-    fn (lhs: f64, rhs: f64) -> f64 { lhs * rhs },
     r"
         Multiplies two `CheckedF64` values or a `CheckedF64` and a `f64`.
 
