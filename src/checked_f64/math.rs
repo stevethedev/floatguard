@@ -81,6 +81,27 @@ const_math!(
     "
 );
 
+const_math!(
+    signum,
+    r"
+        Returns a number that represents the sign of `self`.
+
+        See: [`f64::signum`]
+
+        # Examples
+
+        ```rust
+        use checked_float::CheckedF64;
+
+        let pos = CheckedF64::new(3.5_f64);
+        let neg = CheckedF64::new(-3.5_f64);
+
+        assert_eq!(pos.signum(), 1.0);
+        assert_eq!(neg.signum(), -1.0);
+        ```
+    "
+);
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -99,6 +120,17 @@ mod tests {
         #[test]
         fn test_abs_invalid(a in invalid_f64()) {
             prop_assert_eq!(*CheckedF64::new(a).abs(), Err(FloatError));
+        }
+        
+        // Signing Number
+        #[test]
+        fn test_signum_valid(a in valid_f64()) {
+            prop_assert_eq!(CheckedF64::new(a).signum(), a.signum());
+        }
+        
+        #[test]
+        fn test_signum_invalid(a in invalid_f64()) {
+            prop_assert_eq!(*CheckedF64::new(a).signum(), Err(FloatError));
         }
     }
 }

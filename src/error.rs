@@ -13,7 +13,7 @@ impl std::fmt::Display for Error {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone)]
 pub struct Result<T>(pub(crate) std::result::Result<T, Error>);
 
 impl<T> Result<T> {
@@ -63,4 +63,3 @@ impl<T> From<Result<T>> for std::result::Result<T, Error> {
         result.0
     }
 }
-

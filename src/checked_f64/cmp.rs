@@ -39,6 +39,18 @@ impl PartialEq<CheckedF64Result> for CheckedF64 {
     }
 }
 
+impl PartialEq for CheckedF64Result {
+    /// Compares `CheckedF64Result` with `CheckedF64` for equality.
+    ///
+    /// # Returns
+    ///
+    /// Returns `true` if `CheckedF64Result` is valid (finite) and equal to `CheckedF64`, otherwise returns `false`.
+    fn eq(&self, other: &Self) -> bool {
+        self.as_ref()
+            .is_ok_and(|value| *value == *other)
+    }
+}
+
 impl PartialEq<CheckedF64> for CheckedF64Result {
     /// Compares `CheckedF64Result` with `CheckedF64` for equality.
     ///
@@ -424,6 +436,5 @@ mod tests {
         fn test_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
             prop_assert_ne!(CheckedF64::new(a), CheckedF64::new(b));
         }
-
     }
 }
