@@ -2,6 +2,7 @@ mod cmp;
 mod consts;
 mod ops_binary;
 mod ops_unary;
+mod math;
 
 use crate::FloatError;
 
@@ -268,27 +269,6 @@ impl CheckedF64 {
     }
 
     copy_const_op!(
-        abs,
-        r"
-            Computes the absolute value of self.
-
-            See: [`f64::abs`]
-
-            # Examples
-
-            ```rust
-            use checked_float::CheckedF64;
-
-            let x = CheckedF64::new(3.5_f64);
-            let y = CheckedF64::new(-3.5_f64);
-
-            assert_eq!(x.abs(), x);
-            assert_eq!(y.abs(), -y);
-            ```
-        "
-    );
-
-    copy_const_op!(
         signum,
         r"
             Returns a number that represents the sign of `self`.
@@ -345,7 +325,7 @@ impl CheckedF64 {
             use checked_float::CheckedF64;
 
             let x = CheckedF64::new(2.0_f64);
-            let abs_difference = (x.recip() - (1.0 / x)).unwrap().abs();
+            let abs_difference = (x.recip() - (1.0 / x)).unwrap().abs().unwrap();
 
             assert!(abs_difference < CheckedF64::EPSILON);
             ```
@@ -370,7 +350,7 @@ impl CheckedF64 {
             let e = one.exp();
 
             // ln(e) - 1 == 0
-            let abs_difference = (e.ln() - 1.0).unwrap().abs();
+            let abs_difference = (e.ln() - 1.0).unwrap().abs().unwrap();
 
             assert!(abs_difference < 1e-10);
             ```
@@ -392,7 +372,7 @@ impl CheckedF64 {
             let e = CheckedF64::new(2.718281828459045_f64);
 
             // ln(e) == 1
-            let abs_difference = (e.ln() - 1.0).unwrap().abs();
+            let abs_difference = (e.ln() - 1.0).unwrap().abs().unwrap();
 
             assert!(abs_difference < 1e-10);
             ```
@@ -414,7 +394,7 @@ impl CheckedF64 {
             use checked_float::CheckedF64;
 
             let x = CheckedF64::new(2.0_f64);
-            let abs_difference = (x.powi(2) - (x * x)).unwrap().abs();
+            let abs_difference = (x.powi(2) - (x * x)).unwrap().abs().unwrap();
             assert!(abs_difference <= CheckedF64::EPSILON);
 
             assert!(CheckedF64::new(f64::NAN).powi(2).is_invalid());
@@ -433,7 +413,7 @@ impl CheckedF64 {
     ///
     /// let x = CheckedF64::new(2.0_f64);
     /// let abs_difference = (x.powf(3.0) - (x * x * x)).unwrap().abs();
-    /// assert!(abs_difference <= CheckedF64::EPSILON);
+    /// assert!(abs_difference.unwrap() <= CheckedF64::EPSILON);
     ///
     /// let invalid = CheckedF64::new(f64::NAN);
     /// assert!(invalid.powf(2.0).is_invalid());
@@ -533,7 +513,7 @@ impl CheckedF64 {
             let x = CheckedF64::new(1.0_f64);
             let f = x.sinh().asinh();
 
-            let abs_difference = (f - x).unwrap().abs();
+            let abs_difference = (f - x).unwrap().abs().unwrap();
 
             assert!(abs_difference < 1.0e-10);
             ```
@@ -602,7 +582,7 @@ impl CheckedF64 {
 
             // Solving cosh() at 1 gives this result
             let g = ((e * e) + 1.0) / (2.0 * e);
-            let abs_difference = (f - g).unwrap().abs();
+            let abs_difference = (f - g).unwrap().abs().unwrap();
 
             // Same result
             assert!(abs_difference < 1e-10);
@@ -625,7 +605,7 @@ impl CheckedF64 {
             let x = CheckedF64::new(1.0);
             let f = x.cosh().acosh();
 
-            let abs_difference = (f - x).unwrap().abs();
+            let abs_difference = (f - x).unwrap().abs().unwrap();
 
             assert!(abs_difference < 1.0e-10);
             ```
@@ -695,7 +675,7 @@ impl CheckedF64 {
             let f = CheckedF64::new(1.0);
 
             // atan(tan(1))
-            let abs_difference = (f.tan().atan() - 1.0).unwrap().abs();
+            let abs_difference = (f.tan().atan() - 1.0).unwrap().abs().unwrap();
 
             assert!(abs_difference < 1e-10)
             ```
@@ -718,7 +698,7 @@ impl CheckedF64 {
             let f = x.tanh();
 
             // tanh(1) is approximately 0.7615941559557649
-            let abs_difference = (f - 0.7615941559557649).unwrap().abs();
+            let abs_difference = (f - 0.7615941559557649).unwrap().abs().unwrap();
 
             assert!(abs_difference < 1e-10);
             ```
@@ -741,7 +721,7 @@ impl CheckedF64 {
             let x = CheckedF64::new(0.5_f64);
             let f = x.tanh().atanh();
 
-            let abs_difference = (f - x).unwrap().abs();
+            let abs_difference = (f - x).unwrap().abs().unwrap();
 
             assert!(abs_difference < 1e-10);
             ```
@@ -814,17 +794,6 @@ mod tests {
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
             prop_assert_eq!(CheckedF64(a).get(), Err(FloatError));
-        }
-
-        // Absolute value
-        #[test]
-        fn test_abs_valid(a in valid_f64()) {
-            prop_assert_eq!(CheckedF64(a).abs().get(), Ok(a.abs()));
-        }
-
-        #[test]
-        fn test_abs_invalid(a in invalid_f64()) {
-            prop_assert_eq!(CheckedF64(a).abs().get(), Err(FloatError));
         }
 
         // Signing Number
