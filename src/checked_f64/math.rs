@@ -2,12 +2,20 @@ use crate::{CheckedF64Result, CheckedF64};
 
 macro_rules! const_math {
     ($name:ident, $doc:expr) => {
+        #[inline(always)]
+        #[must_use]
+        const fn $name(x: f64) -> f64 {
+            x.$name()
+        }
+        const_math!($name, $name, $doc);
+    };
+    ($name:ident, $implementation:ident, $doc:expr) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
             pub const fn $name(self) -> CheckedF64Result {
-                Self::new(self.0.$name())
+                Self::new($implementation(self.0))
             }
         }
 
@@ -18,7 +26,7 @@ macro_rules! const_math {
             pub const fn $name(self) -> CheckedF64Result {
                 match self.as_inner() {
                     Ok(value) => value.$name(),
-                    Err(err) => CheckedF64Result::new(Err(*err)),
+                    _ => self,
                 }
             }
         }
@@ -27,12 +35,22 @@ macro_rules! const_math {
 
 macro_rules! math {
     ($name:ident, $doc:expr) => {
+        #[inline(always)]
+        #[must_use]
+        fn $name(x: f64) -> f64 {
+            x.$name()
+        }
+
+        math!($name, $name, $doc);
+    };
+
+    ($name:ident, $implementation:ident, $doc:expr) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
             pub fn $name(self) -> CheckedF64Result {
-                Self::new(self.0.$name())
+                Self::new($implementation(self.0))
             }
         }
 
@@ -43,19 +61,27 @@ macro_rules! math {
             pub fn $name(self) -> CheckedF64Result {
                 match self.as_inner() {
                     Ok(value) => value.$name(),
-                    Err(err) => CheckedF64Result::new(Err(*err)),
+                    _ => self,
                 }
             }
         }
     };
 
-    ($name:ident, $operand:ident, $t:tt, $doc:expr) => {
+    ($name:ident, $operand:ident : $t:tt, $doc:expr) => {
+        fn $name(x: f64, $operand: $t) -> f64 {
+            x.$name($operand)
+        }
+
+        math!($name, $operand: $t, $name, $doc);
+    };
+
+    ($name:ident, $operand:ident : $t:tt, $implementation:ident, $doc:expr) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
             pub fn $name(self, $operand: $t) -> CheckedF64Result {
-                Self::new(self.0.$name($operand))
+                Self::new($implementation(self.0, $operand))
             }
         }
 
@@ -66,7 +92,7 @@ macro_rules! math {
             pub fn $name(self, $operand: $t) -> CheckedF64Result {
                 match self.as_inner() {
                     Ok(value) => value.$name($operand),
-                    Err(err) => CheckedF64Result::new(Err(*err)),
+                    _ => self,
                 }
             }
         }
@@ -207,8 +233,7 @@ math!(
 
 math!(
     powi,
-    power,
-    i32,
+    power: i32,
     r"
         Raises a number to an integer power.
 
@@ -228,23 +253,29 @@ math!(
     "
 );
 
-// /// Raises a number to a floating-point power.
-// ///
-// /// See: [`f64::powf`]
-// ///
-// /// # Examples
-// ///
-// /// ```rust
-// /// use checked_float::CheckedF64;
-// ///
-// /// let x = CheckedF64::new(2.0_f64);
-// /// let abs_difference = (x.powf(3.0) - (x * x * x)).unwrap().abs();
-// /// assert!(abs_difference.unwrap() <= CheckedF64::EPSILON);
-// ///
-// /// let invalid = CheckedF64::new(f64::NAN);
-// /// assert!(invalid.powf(2.0).is_err());
-// /// assert!(CheckedF64::new(2.0).powf(f64::NAN).is_err());
-// /// ```
+// math!(
+//     powf,
+//     power: impl TryInto<Self>
+//     r"
+//         Raises a number to a floating-point power.
+// 
+//         See: [`f64::powf`]
+// 
+//         # Examples
+// 
+//         ```rust
+//         use checked_float::CheckedF64;
+// 
+//         let x = CheckedF64::new(2.0_f64);
+//         let abs_difference = (x.powf(3.0) - (x * x * x)).unwrap().abs();
+//         assert!(abs_difference.unwrap() <= CheckedF64::EPSILON);
+// 
+//         let invalid = CheckedF64::new(f64::NAN);
+//         assert!(invalid.powf(2.0).is_err());
+//         assert!(CheckedF64::new(2.0).powf(f64::NAN).is_err());
+//         ```
+//     "
+// );
 // #[must_use = "this function returns a new CheckedF64 instance"]
 // #[allow(clippy::inline_always)]
 // #[inline(always)]
