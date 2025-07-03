@@ -36,8 +36,7 @@ macro_rules! binary_operation {
             fn ($lhs: CheckedF64, $rhs: CheckedF64) -> CheckedF64Result {
                 let $lhs: f64 = $lhs.0;
                 let $rhs: f64 = $rhs.0;
-                let result: CheckedF64Result = $implementation;
-                result
+                $implementation
             },
             $doc
         );
@@ -56,8 +55,7 @@ macro_rules! binary_operation {
         binary_operation!($op_trait :: $op_method,
             fn ($lhs: CheckedF64, $rhs: f64) -> CheckedF64Result {
                 let $lhs: f64 = $lhs.0;
-                let result: CheckedF64Result = $implementation;
-                result
+                $implementation
             },
             $doc
         );
@@ -75,14 +73,10 @@ macro_rules! binary_operation {
         // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
         binary_operation!($op_trait :: $op_method,
             fn ($lhs: CheckedF64, $rhs: CheckedF64Result) -> CheckedF64Result {
-                match $rhs.as_inner() {
-                    Ok($rhs) => {
-                        let $lhs: f64 = $lhs.0;
-                        let $rhs: f64 = $rhs.0;
-                        $implementation
-                    },
-                    _ => $rhs,
-                }
+                let Ok($rhs) = *$rhs else { return $rhs; };
+                let $lhs: f64 = $lhs.0;
+                let $rhs: f64 = $rhs.0;
+                $implementation
             },
             $doc
         );
@@ -119,13 +113,9 @@ macro_rules! binary_operation {
         // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
         binary_operation!($op_trait :: $op_method,
             fn ($lhs: f64, $rhs: CheckedF64Result) -> CheckedF64Result {
-                match $rhs.as_inner() {
-                    Ok($rhs) => {
-                        let $rhs: f64 = $rhs.0;
-                        $implementation
-                    },
-                    _ => $rhs,
-                }
+                let Ok($rhs) = *$rhs else { return $rhs; };
+                let $rhs: f64 = $rhs.0;
+                $implementation
             },
             $doc
         );
@@ -143,14 +133,10 @@ macro_rules! binary_operation {
         // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
         binary_operation!($op_trait :: $op_method,
             fn ($lhs: CheckedF64Result, $rhs: CheckedF64) -> CheckedF64Result {
-                match $lhs.as_inner() {
-                    Ok($lhs) => {
-                        let $lhs: f64 = $lhs.0;
-                        let $rhs: f64 = $rhs.0;
-                        $implementation
-                    },
-                    _ => $lhs,
-                }
+                let Ok($lhs) = *$lhs else { return $lhs; };
+                let $lhs: f64 = $lhs.0;
+                let $rhs: f64 = $rhs.0;
+                $implementation
             },
             $doc
         );
@@ -168,13 +154,9 @@ macro_rules! binary_operation {
         // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
         binary_operation!($op_trait :: $op_method,
             fn ($lhs: CheckedF64Result, $rhs: f64) -> CheckedF64Result {
-                match $lhs.as_inner() {
-                    Ok($lhs) => {
-                        let $lhs: f64 = $lhs.0;
-                        $implementation
-                    },
-                    _ => $lhs,
-                }
+                let Ok($lhs) = *$lhs else { return $lhs; };
+                let $lhs: f64 = $lhs.0;
+                $implementation
             },
             $doc
         );
@@ -192,15 +174,11 @@ macro_rules! binary_operation {
         // | X | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
         binary_operation!($op_trait :: $op_method,
             fn ($lhs: CheckedF64Result, $rhs: CheckedF64Result) -> CheckedF64Result {
-                match ($lhs.as_inner(), $rhs.as_inner()) {
-                    (Ok($lhs), Ok($rhs)) => {
-                        let $lhs: f64 = $lhs.0;
-                        let $rhs: f64 = $rhs.0;
-                        $implementation
-                    },
-                    (Err(_), _) => $lhs,
-                    (_, Err(_)) => $rhs,
-                }
+                let Ok($lhs) = *$lhs else { return $lhs; };
+                let Ok($rhs) = *$rhs else { return $rhs; };
+                let $lhs: f64 = $lhs.0;
+                let $rhs: f64 = $rhs.0;
+                $implementation
             },
             $doc
         );

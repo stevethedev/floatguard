@@ -14,10 +14,10 @@ macro_rules! unary_operation {
         unary_operation!(
             $op_trait :: $op_method,
             fn (lhs: CheckedF64Result) -> CheckedF64Result {
-                match *lhs {
-                    Ok(lhs) => lhs.$op_method(),
-                    _ => lhs,
-                }
+                let Ok(lhs) = *lhs else {
+                    return lhs;
+                };
+                lhs.$op_method()
             },
             $doc
         );
