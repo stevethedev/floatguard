@@ -125,29 +125,6 @@ macro_rules! copy_op {
 }
 
 impl CheckedF64 {
-    // copy_op!(
-    //     sqrt,
-    //     r"
-    //         Returns the square root of `self`.
-    //
-    //         See: [`f64::sqrt`]
-    //
-    //         # Examples
-    //
-    //         ```rust
-    //         use checked_float::CheckedF64;
-    //
-    //         let positive = CheckedF64::new(4.0_f64);
-    //         let negative = CheckedF64::new(-4.0_f64);
-    //         let negative_zero = CheckedF64::new(-0.0_f64);
-    //
-    //         assert_eq!(positive.sqrt(), Ok(2.0));
-    //         assert!(negative.sqrt().is_invalid());
-    //         assert_eq!(negative_zero.sqrt(), negative_zero);
-    //         ```
-    //     "
-    // );
-    //
     // copy_const_op!(
     //     recip,
     //     r"
@@ -626,20 +603,6 @@ mod tests {
             prop_assert_eq!(*CheckedF64::new(a), Err(FloatError));
         }
 
-        // // Square Root
-        // #[test]
-        // fn test_sqrt_valid(a in valid_f64()) {
-        //     prop_assert_eq!(CheckedF64::new(a).sqrt(), match (a.sqrt().is_finite(), a.sqrt()) {
-        //         (true, value) => Ok(value),
-        //         _ => Err(FloatError),
-        //     });
-        // }
-        //
-        // #[test]
-        // fn test_sqrt_invalid(a in invalid_f64()) {
-        //     prop_assert_eq!(CheckedF64::new(a).sqrt(), Err(FloatError));
-        // }
-        //
         // // Reciprocal
         // #[test]
         // fn test_recip_valid(a in valid_f64()) {

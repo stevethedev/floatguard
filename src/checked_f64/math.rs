@@ -1,4 +1,4 @@
-use crate::{CheckedF64Result, CheckedF64, FloatError};
+use crate::{CheckedF64Result, CheckedF64};
 
 macro_rules! const_math {
     ($name:ident, $doc:expr) => {
@@ -7,10 +7,7 @@ macro_rules! const_math {
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
             pub const fn $name(self) -> CheckedF64Result {
-                CheckedF64Result::new(match self.0.$name() {
-                    result if result.is_finite() => Ok(Self(result)),
-                    _ => Err(FloatError),
-                })
+                Self::new(self.0.$name())
             }
         }
 
@@ -34,11 +31,19 @@ macro_rules! math {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub fn $name(self) -> Self {
-                if self.is_valid() {
-                    Self(self.0.$name())
-                } else {
-                    self
+            pub fn $name(self) -> CheckedF64Result {
+                Self::new(self.0.$name())
+            }
+        }
+        
+        impl CheckedF64Result {
+            #[doc = $doc]
+            #[must_use = "method returns a new instance and does not mutate the original value"]
+            #[inline(always)]
+            pub fn $name(self) -> CheckedF64Result {
+                match self.as_inner() {
+                    Ok(value) => value.$name(),
+                    Err(err) => CheckedF64Result::new(Err(*err)),
                 }
             }
         }
@@ -49,11 +54,19 @@ macro_rules! math {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub fn $name(self, $operand: $t) -> Self {
-                if self.is_valid() {
-                    Self(self.0.$name($operand))
-                } else {
-                    self
+            pub fn $name(self, $operand: $t) -> CheckedF64Result {
+                Self::new(self.0.$name($operand))
+            }
+        }
+        
+        impl CheckedF64Result {
+            #[doc = $doc]
+            #[must_use = "method returns a new instance and does not mutate the original value"]
+            #[inline(always)]
+            pub fn $name(self, $operand: $t) -> CheckedF64Result {
+                match self.as_inner() {
+                    Ok(value) => value.$name($operand),
+                    Err(err) => CheckedF64Result::new(Err(*err)),
                 }
             }
         }
@@ -102,6 +115,29 @@ const_math!(
     "
 );
 
+math!(
+    sqrt,
+    r"
+        Returns the square root of `self`.
+
+        See: [`f64::sqrt`]
+
+        # Examples
+
+        ```rust
+        use checked_float::CheckedF64;
+
+        let positive = CheckedF64::new(4.0_f64);
+        let negative = CheckedF64::new(-4.0_f64);
+        let negative_zero = CheckedF64::new(-0.0_f64);
+
+        assert_eq!(positive.sqrt(), 2.0);
+        assert!(negative.sqrt().is_err());
+        assert_eq!(negative_zero.sqrt(), negative_zero);
+        ```
+    "
+);
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -131,6 +167,21 @@ mod tests {
         #[test]
         fn test_signum_invalid(a in invalid_f64()) {
             prop_assert_eq!(*CheckedF64::new(a).signum(), Err(FloatError));
+        }
+        
+        // Square Root
+        #[test]
+        fn test_sqrt_valid(a in valid_f64()) {
+            if a.sqrt().is_finite() {
+                prop_assert_eq!(CheckedF64::new(a).sqrt(), Ok(a.sqrt()));
+            } else {
+                prop_assert_eq!(*CheckedF64::new(a).sqrt(), Err(FloatError));
+            }
+        }
+        
+        #[test]
+        fn test_sqrt_invalid(a in invalid_f64()) {
+            prop_assert_eq!(*CheckedF64::new(a).sqrt(), Err(FloatError));
         }
     }
 }
