@@ -35,22 +35,21 @@ macro_rules! const_math {
 
 macro_rules! math {
     ($name:ident, $doc:expr) => {
-        #[inline(always)]
-        #[must_use]
-        fn $name(x: f64) -> f64 {
-            x.$name()
-        }
-
         math!($name, $name, $doc);
     };
 
     ($name:ident, $implementation:ident, $doc:expr) => {
+        math!($name, fn (base: f64) -> f64 { base.$implementation() }, $doc);
+    };
+
+    ($name:ident, fn ($base:ident : f64) -> f64 $implementation:block, $doc:expr) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
             pub fn $name(self) -> CheckedF64Result {
-                Self::new($implementation(self.0))
+                let $base = self.0;
+                Self::new($implementation)
             }
         }
 
@@ -68,20 +67,17 @@ macro_rules! math {
     };
 
     ($name:ident, $operand:ident : $t:tt, $doc:expr) => {
-        fn $name(x: f64, $operand: $t) -> f64 {
-            x.$name($operand)
-        }
-
-        math!($name, $operand: $t, $name, $doc);
+        math!($name, fn (base: f64, $operand: $t) -> f64 { base.$name($operand) }, $doc);
     };
-
-    ($name:ident, $operand:ident : $t:tt, $implementation:ident, $doc:expr) => {
+    
+    ($name:ident, fn ($base:ident : f64, $operand:ident : $t:tt) -> f64 $implementation:block, $doc:expr) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
             pub fn $name(self, $operand: $t) -> CheckedF64Result {
-                Self::new($implementation(self.0, $operand))
+                let $base = self.0;
+                Self::new($implementation)
             }
         }
 

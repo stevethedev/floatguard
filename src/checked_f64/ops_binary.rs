@@ -1,122 +1,158 @@
-use crate::{CheckedF64, CheckedF64Result, FloatError};
+use crate::{CheckedF64, CheckedF64Result};
 
 macro_rules! binary_operation {
-    ($op_trait:ident, $op_method:ident, $implementation:expr, $doc:literal) => {
+    ($op_trait:ident, $op_method:ident, $doc:literal) => {
+        binary_operation!(
+            $op_trait,
+            $op_method,
+            fn (lhs: f64, rhs: f64) -> f64 { lhs.$op_method(rhs) },
+            $doc
+        )
+    };
+
+    ($op_trait:ident, $op_method:ident, $implementation:block, $doc:literal) => {
+        binary_operation!(
+            $op_trait,
+            $op_method,
+            fn (lhs: f64, rhs: f64) -> f64 $implementation,
+            $doc
+        )
+    };
+    
+    ($op_trait:ident, $op_method:ident, fn ($lhs:ident : f64, $rhs:ident : f64) -> f64 $implementation:block, $doc:literal) => {
         impl std::ops::$op_trait for CheckedF64 {
             type Output = CheckedF64Result;
 
             #[doc = $doc]
-            fn $op_method(self, other: Self) -> Self::Output {
-                CheckedF64Result::new(match ($implementation)(self.0, other.0) {
-                    result if result.is_finite() => Ok(Self(result)),
-                    _ => Err(FloatError),
+            fn $op_method(self, $rhs: Self) -> Self::Output {
+                Self::new({
+                    let $lhs = self.0;
+                    let $rhs = $rhs.0;
+                    $implementation
                 })
             }
         }
 
         impl std::ops::$op_trait<&CheckedF64> for CheckedF64 {
             type Output = CheckedF64Result;
-
+        
             #[doc = $doc]
             #[inline(always)]
-            fn $op_method(self, other: &CheckedF64) -> Self::Output {
-                self.$op_method(*other)
-            }
-        }
-
-        impl std::ops::$op_trait<f64> for CheckedF64 {
-            type Output = CheckedF64Result;
-
-            #[doc = $doc]
-            fn $op_method(self, other: f64) -> Self::Output {
-                CheckedF64Result::new(match ($implementation)(self.0, other) {
-                    result if result.is_finite() => Ok(Self(result)),
-                    _ => Err(FloatError),
+            fn $op_method(self, $rhs: &CheckedF64) -> Self::Output {
+                Self::new({
+                    let $lhs = self.0;
+                    let $rhs = $rhs.0;
+                    $implementation
                 })
             }
         }
-
-        impl std::ops::$op_trait<CheckedF64> for f64 {
+        
+        impl std::ops::$op_trait<f64> for CheckedF64 {
             type Output = CheckedF64Result;
-
+        
             #[doc = $doc]
-            fn $op_method(self, other: CheckedF64) -> Self::Output {
-                CheckedF64::new($implementation(self, other.0))
+            fn $op_method(self, $rhs: f64) -> Self::Output {
+                Self::new({
+                    let $lhs = self.0;
+                    $implementation
+                })
             }
         }
-
+        
+        impl std::ops::$op_trait<CheckedF64> for f64 {
+            type Output = CheckedF64Result;
+        
+            #[doc = $doc]
+            fn $op_method(self, $rhs: CheckedF64) -> Self::Output {
+                CheckedF64::new({
+                    let $lhs = self;
+                    let $rhs = $rhs.0;
+                    $implementation
+                })
+            }
+        }
+        
         impl std::ops::$op_trait<CheckedF64Result> for CheckedF64 {
             type Output = CheckedF64Result;
-
+        
             #[doc = $doc]
-            fn $op_method(self, other: CheckedF64Result) -> Self::Output {
-                match other.as_inner() {
-                    Ok(value) => self.$op_method(value),
-                    Err(err) => CheckedF64Result::new(Err(*err)),
+            fn $op_method(self, $rhs: CheckedF64Result) -> Self::Output {
+                match $rhs.as_inner() {
+                    Ok($rhs) => Self::new({
+                        let $lhs = self.0;
+                        let $rhs = $rhs.0;
+                        $implementation
+                    }),
+                    err => CheckedF64Result::new(*err),
                 }
             }
         }
-
+        
         impl std::ops::$op_trait for CheckedF64Result {
             type Output = CheckedF64Result;
-
+        
             #[doc = $doc]
-            fn $op_method(self, other: Self) -> Self::Output {
-                match (self.as_inner(), other.as_inner()) {
+            fn $op_method(self, $rhs: Self) -> Self::Output {
+                match (self.as_inner(), $rhs.as_inner()) {
                     (Ok(value1), Ok(value2)) => value1.$op_method(value2),
                     (Err(err), _) | (_, Err(err)) => CheckedF64Result::new(Err(*err)),
                 }
             }
         }
-
+        
         impl std::ops::$op_trait<CheckedF64> for CheckedF64Result {
             type Output = CheckedF64Result;
-
+        
             #[doc = $doc]
-            fn $op_method(self, other: CheckedF64) -> Self::Output {
+            fn $op_method(self, $rhs: CheckedF64) -> Self::Output {
                 match self.as_inner() {
-                    Ok(value) => value.$op_method(other),
-                    Err(err) => CheckedF64Result::new(Err(*err)),
+                    Ok(value) => CheckedF64::new({
+                        let $lhs = value.0;
+                        let $rhs = $rhs.0;
+                        $implementation
+                    }),
+                    err => CheckedF64Result::new(*err),
                 }
             }
         }
-
+        
         impl std::ops::$op_trait<f64> for CheckedF64Result {
             type Output = CheckedF64Result;
-
+        
             #[doc = $doc]
-            fn $op_method(self, other: f64) -> Self::Output {
+            fn $op_method(self, $rhs: f64) -> Self::Output {
                 match self.as_inner() {
-                    Ok(value) => value.$op_method(other),
-                    Err(err) => CheckedF64Result::new(Err(*err)),
+                    Ok($lhs) => CheckedF64::new({
+                        let $lhs = $lhs.0;
+                        $implementation
+                    }),
+                    err => CheckedF64Result::new(*err),
                 }
             }
         }
-
+        
         impl std::ops::$op_trait<CheckedF64Result> for f64 {
             type Output = CheckedF64Result;
-
+        
             #[doc = $doc]
-            fn $op_method(self, other: CheckedF64Result) -> Self::Output {
-                match other.as_inner() {
-                    Ok(value) => CheckedF64::new($implementation(self, value.0)),
-                    Err(err) => CheckedF64Result::new(Err(*err)),
+            fn $op_method(self, $rhs: CheckedF64Result) -> Self::Output {
+                match $rhs.as_inner() {
+                    Ok($rhs) => CheckedF64::new({
+                        let $lhs = self;
+                        let $rhs = $rhs.0;
+                        $implementation
+                    }),
+                    err => CheckedF64Result::new(*err),
                 }
             }
         }
     };
 }
 
-#[allow(clippy::inline_always)]
-#[inline(always)]
-fn add_impl(a: f64, b: f64) -> f64 {
-    a + b
-}
-
 binary_operation!(
     Add,
     add,
-    add_impl,
+    fn (lhs: f64, rhs: f64) -> f64 { lhs + rhs },
     r"
         Adds two `CheckedF64` values or a `CheckedF64` and a `f64`.
 
@@ -135,15 +171,10 @@ binary_operation!(
     "
 );
 
-#[allow(clippy::inline_always)]
-#[inline(always)]
-fn sub_impl(a: f64, b: f64) -> f64 {
-    a - b
-}
 binary_operation!(
     Sub,
     sub,
-    sub_impl,
+    fn (lhs: f64, rhs: f64) -> f64 { lhs - rhs },
     r"
         Subtracts one `CheckedF64` value from another or a `f64` from a `CheckedF64`.
 
@@ -162,15 +193,10 @@ binary_operation!(
     "
 );
 
-#[allow(clippy::inline_always)]
-#[inline(always)]
-fn mul_impl(a: f64, b: f64) -> f64 {
-    a * b
-}
 binary_operation!(
     Mul,
     mul,
-    mul_impl,
+    fn (lhs: f64, rhs: f64) -> f64 { lhs * rhs },
     r"
         Multiplies two `CheckedF64` values or a `CheckedF64` and a `f64`.
 
@@ -189,15 +215,12 @@ binary_operation!(
     "
 );
 
-#[allow(clippy::inline_always)]
-#[inline(always)]
-fn div_impl(a: f64, b: f64) -> f64 {
-    if b.is_infinite() { f64::NAN } else { a / b }
-}
 binary_operation!(
     Div,
     div,
-    div_impl,
+    fn (lhs: f64, rhs: f64) -> f64 {
+        if rhs.is_infinite() { f64::NAN } else { lhs / rhs }
+    },
     r"
         Divides one `CheckedF64` value by another or a `f64` by a `CheckedF64`.
 
@@ -216,15 +239,12 @@ binary_operation!(
     "
 );
 
-#[allow(clippy::inline_always)]
-#[inline(always)]
-fn rem_impl(a: f64, b: f64) -> f64 {
-    if b.is_infinite() { f64::NAN } else { a % b }
-}
 binary_operation!(
     Rem,
     rem,
-    rem_impl,
+    fn (lhs: f64, rhs: f64) -> f64 {
+        if rhs.is_infinite() { f64::NAN } else { lhs % rhs }
+    },
     r"
         Computes the remainder of division between two `CheckedF64` values or a `CheckedF64` and
         a `f64`.
