@@ -69,10 +69,10 @@ unary_operation!(
         assert_eq!(-value, -2.0);
 
         let invalid_value = CheckedF64::new(f64::NAN);
-        assert!((-invalid_value).is_err());
+        assert_eq!((-invalid_value).unwrap_err(), FloatError);
 
         let infinity_value = CheckedF64::new(f64::INFINITY);
-        assert!((-infinity_value).is_err());
+        assert_eq!((-infinity_value).unwrap_err(), FloatError);
         ```
     "
 );
@@ -80,7 +80,7 @@ unary_operation!(
 #[cfg(test)]
 mod tests {
     use crate::{
-        CheckedF64,
+        CheckedF64, FloatError,
         checked_f64::tests::{invalid_f64, valid_f64},
     };
     use proptest::prelude::*;
@@ -98,7 +98,7 @@ mod tests {
         #[test]
         fn test_negation_invalid(a in invalid_f64()) {
             let checked_a = CheckedF64::new(a);
-            prop_assert!((-checked_a).is_err());
+            prop_assert_eq!((-checked_a).unwrap_err(), FloatError);
         }
     }
 }

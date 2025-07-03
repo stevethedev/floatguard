@@ -20,7 +20,7 @@ macro_rules! binary_operation {
         fn ($lhs:ident : f64, $rhs:ident : f64) -> CheckedF64Result $implementation:block,
         $doc:literal
     ) => {
-        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // | X | LHS                 | RHS                 | Result Type        | Note                |
         // |---|---------------------|---------------------|--------------------|---------------------|
         // | X | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
         // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
@@ -41,7 +41,7 @@ macro_rules! binary_operation {
             $doc
         );
 
-        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // | X | LHS                 | RHS                 | Result Type        | Note                |
         // |---|---------------------|---------------------|--------------------|---------------------|
         // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
         // | X | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
@@ -60,7 +60,7 @@ macro_rules! binary_operation {
             $doc
         );
 
-        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // | X | LHS                 | RHS                 | Result Type        | Note                |
         // |---|---------------------|---------------------|--------------------|---------------------|
         // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
         // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
@@ -81,7 +81,7 @@ macro_rules! binary_operation {
             $doc
         );
 
-        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // | X | LHS                 | RHS                 | Result Type        | Note                |
         // |---|---------------------|---------------------|--------------------|---------------------|
         // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
         // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
@@ -100,7 +100,7 @@ macro_rules! binary_operation {
             $doc
         );
 
-        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // | X | LHS                 | RHS                 | Result Type        | Note                |
         // |---|---------------------|---------------------|--------------------|---------------------|
         // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
         // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
@@ -120,7 +120,7 @@ macro_rules! binary_operation {
             $doc
         );
 
-        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // | X | LHS                 | RHS                 | Result Type        | Note                |
         // |---|---------------------|---------------------|--------------------|---------------------|
         // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
         // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
@@ -141,7 +141,7 @@ macro_rules! binary_operation {
             $doc
         );
 
-        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // | X | LHS                 | RHS                 | Result Type        | Note                |
         // |---|---------------------|---------------------|--------------------|---------------------|
         // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
         // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
@@ -161,7 +161,7 @@ macro_rules! binary_operation {
             $doc
         );
 
-        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // | X | LHS                 | RHS                 | Result Type        | Note                |
         // |---|---------------------|---------------------|--------------------|---------------------|
         // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
         // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
@@ -189,16 +189,12 @@ macro_rules! binary_operation {
         fn ($lhs:ident : $LHS:tt, $rhs:ident : $RHS:tt) -> CheckedF64Result $implementation:block,
         $doc:literal
     ) => {
-        #[doc = concat!(
-            "Binary Operation `std::ops::", stringify!($op_trait), "` must work with the following types:\n",
-            "\n",
-            "| X |  LHS                      | RHS                       | Result Type        |\n",
-            "|---|---------------------------|---------------------------|--------------------|\n",
-            "| X | `", stringify!($LHS), "`  | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
-            "|   | `", stringify!($LHS), "`  | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
-            "|   | `&", stringify!($LHS), "` | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
-            "|   | `&", stringify!($LHS), "` | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
-        )]
+        // | X | LHS   | RHS   | Result Type      |
+        // |---|-------|-------|------------------|
+        // | X | $LHS  | $RHS  | CheckedF64Result |
+        // |   | $LHS  | &$RHS | CheckedF64Result |
+        // |   | &$LHS | $RHS  | CheckedF64Result |
+        // |   | &$LHS | &$RHS | CheckedF64Result |
         impl std::ops::$op_trait<$RHS> for $LHS {
             type Output = CheckedF64Result;
 
@@ -210,16 +206,12 @@ macro_rules! binary_operation {
             }
         }
 
-        #[doc = concat!(
-            "Binary Operation `std::ops::", stringify!($op_trait), "` must work with the following types:\n",
-            "\n",
-            "| X |  LHS                      | RHS                       | Result Type        |\n",
-            "|---|---------------------------|---------------------------|--------------------|\n",
-            "|   | `", stringify!($LHS), "`  | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
-            "| X | `", stringify!($LHS), "`  | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
-            "|   | `&", stringify!($LHS), "` | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
-            "|   | `&", stringify!($LHS), "` | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
-        )]
+        // | X | LHS   | RHS   | Result Type      |
+        // |---|-------|-------|------------------|
+        // |   | $LHS  | $RHS  | CheckedF64Result |
+        // | X | $LHS  | &$RHS | CheckedF64Result |
+        // |   | &$LHS | $RHS  | CheckedF64Result |
+        // |   | &$LHS | &$RHS | CheckedF64Result |
         impl std::ops::$op_trait<&$RHS> for $LHS {
             type Output = CheckedF64Result;
 
@@ -230,16 +222,12 @@ macro_rules! binary_operation {
             }
         }
 
-        #[doc = concat!(
-            "Binary Operation `std::ops::", stringify!($op_trait), "` must work with the following types:\n",
-            "\n",
-            "| X |  LHS                      | RHS                       | Result Type        |\n",
-            "|---|---------------------------|---------------------------|--------------------|\n",
-            "|   | `", stringify!($LHS), "`  | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
-            "|   | `", stringify!($LHS), "`  | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
-            "| X | `&", stringify!($LHS), "` | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
-            "|   | `&", stringify!($LHS), "` | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
-        )]
+        // | X | LHS   | RHS   | Result Type      |
+        // |---|-------|-------|------------------|
+        // |   | $LHS  | $RHS  | CheckedF64Result |
+        // |   | $LHS  | &$RHS | CheckedF64Result |
+        // | X | &$LHS | $RHS  | CheckedF64Result |
+        // |   | &$LHS | &$RHS | CheckedF64Result |
         impl std::ops::$op_trait<$RHS> for &$LHS {
             type Output = CheckedF64Result;
 
@@ -250,16 +238,12 @@ macro_rules! binary_operation {
             }
         }
 
-        #[doc = concat!(
-            "Binary Operation `std::ops::", stringify!($op_trait), "` must work with the following types:\n",
-            "\n",
-            "| X |  LHS                      | RHS                       | Result Type        |\n",
-            "|---|---------------------------|---------------------------|--------------------|\n",
-            "|   | `", stringify!($LHS), "`  | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
-            "|   | `", stringify!($LHS), "`  | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
-            "|   | `&", stringify!($LHS), "` | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
-            "| X | `&", stringify!($LHS), "` | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
-        )]
+        // | X | LHS   | RHS   | Result Type      |
+        // |---|-------|-------|------------------|
+        // |   | $LHS  | $RHS  | CheckedF64Result |
+        // |   | $LHS  | &$RHS | CheckedF64Result |
+        // |   | &$LHS | $RHS  | CheckedF64Result |
+        // | X | &$LHS | &$RHS | CheckedF64Result |
         impl std::ops::$op_trait<&$RHS> for &$LHS {
             type Output = CheckedF64Result;
 
@@ -286,8 +270,7 @@ binary_operation!(
         let value2 = CheckedF64::new(3.0);
         assert_eq!(value1 + value2, 5.0);
 
-        let value3 = CheckedF64::new(f64::NAN);
-        assert_eq!((value1 + value3).unwrap_err(), FloatError);
+        assert_eq!((value1 + f64::NAN).unwrap_err(), FloatError);
         ```
     "
 );
@@ -306,8 +289,7 @@ binary_operation!(
         let value2 = CheckedF64::new(3.0);
         assert_eq!(value1 - value2, 2.0);
 
-        let value3 = CheckedF64::new(f64::NAN);
-        assert_eq!((value1 - value3).unwrap_err(), FloatError);
+        assert_eq!((value1 - f64::NAN).unwrap_err(), FloatError);
         ```
     "
 );
@@ -326,8 +308,7 @@ binary_operation!(
         let value2 = CheckedF64::new(3.0);
         assert_eq!(value1 * value2, 6.0);
 
-        let value3 = CheckedF64::new(f64::NAN);
-        assert_eq!((value1 * value3).unwrap_err(), FloatError);
+        assert_eq!((value1 * f64::NAN).unwrap_err(), FloatError);
         ```
     "
 );
@@ -355,8 +336,7 @@ binary_operation!(
         let value2 = CheckedF64::new(3.0);
         assert_eq!(value1 / value2, 2.0);
 
-        let value3 = CheckedF64::new(f64::NAN);
-        assert_eq!((value1 / value3).unwrap_err(), FloatError);
+        assert_eq!((value1 / 0.0).unwrap_err(), FloatError);
         ```
     "
 );
@@ -385,8 +365,7 @@ binary_operation!(
         let value2 = CheckedF64::new(3.0);
         assert_eq!(value1 % value2, 2.0);
 
-        let value3 = CheckedF64::new(f64::NAN);
-        assert_eq!((value1 % value3).unwrap_err(), FloatError);
+        assert_eq!((value1 % 0.0).unwrap_err(), FloatError);
         ```
     "
 );
@@ -416,23 +395,23 @@ mod tests {
 
         #[test]
         fn test_valid_add_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) + CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) + b), Err(FloatError));
-            prop_assert_eq!(*(a + CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) + CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) + b).unwrap_err(), FloatError);
+            prop_assert_eq!((a + CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_add_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) + CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) + b), Err(FloatError));
-            prop_assert_eq!(*(a + CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) + CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) + b).unwrap_err(), FloatError);
+            prop_assert_eq!((a + CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_add_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) + CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) + b), Err(FloatError));
-            prop_assert_eq!(*(a + CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) + CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) + b).unwrap_err(), FloatError);
+            prop_assert_eq!((a + CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         // Subtraction Operations
@@ -447,23 +426,23 @@ mod tests {
 
         #[test]
         fn test_valid_sub_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) - CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) - b), Err(FloatError));
-            prop_assert_eq!(*(a - CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) - CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) - b).unwrap_err(), FloatError);
+            prop_assert_eq!((a - CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_sub_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) - CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) - b), Err(FloatError));
-            prop_assert_eq!(*(a - CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) - CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) - b).unwrap_err(), FloatError);
+            prop_assert_eq!((a - CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_sub_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) - CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) - b), Err(FloatError));
-            prop_assert_eq!(*(a - CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) - CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) - b).unwrap_err(), FloatError);
+            prop_assert_eq!((a - CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         // Multiplication Operations
@@ -478,23 +457,23 @@ mod tests {
 
         #[test]
         fn test_valid_mul_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) * CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) * b), Err(FloatError));
-            prop_assert_eq!(*(a * CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) * CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) * b).unwrap_err(), FloatError);
+            prop_assert_eq!((a * CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_mul_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) * CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) * b), Err(FloatError));
-            prop_assert_eq!(*(a * CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) * CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) * b).unwrap_err(), FloatError);
+            prop_assert_eq!((a * CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_mul_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) * CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) * b), Err(FloatError));
-            prop_assert_eq!(*(a * CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) * CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) * b).unwrap_err(), FloatError);
+            prop_assert_eq!((a * CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         // Division Operations
@@ -509,23 +488,23 @@ mod tests {
 
         #[test]
         fn test_valid_div_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) / CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) / b), Err(FloatError));
-            prop_assert_eq!(*(a / CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) / CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) / b).unwrap_err(), FloatError);
+            prop_assert_eq!((a / CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_div_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) / CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) / b), Err(FloatError));
-            prop_assert_eq!(*(a / CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) / CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) / b).unwrap_err(), FloatError);
+            prop_assert_eq!((a / CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_div_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) / CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) / b), Err(FloatError));
-            prop_assert_eq!(*(a / CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) / CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) / b).unwrap_err(), FloatError);
+            prop_assert_eq!((a / CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         // Remainder Operations
@@ -540,23 +519,23 @@ mod tests {
 
         #[test]
         fn test_valid_rem_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) % CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) % b), Err(FloatError));
-            prop_assert_eq!(*(a % CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) % CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) % b).unwrap_err(), FloatError);
+            prop_assert_eq!((a % CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_rem_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) % CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) % b), Err(FloatError));
-            prop_assert_eq!(*(a % CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) % CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) % b).unwrap_err(), FloatError);
+            prop_assert_eq!((a % CheckedF64::new(b)).unwrap_err(), FloatError);
         }
 
         #[test]
         fn test_invalid_rem_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-            prop_assert_eq!(*(CheckedF64::new(a) % CheckedF64::new(b)), Err(FloatError));
-            prop_assert_eq!(*(CheckedF64::new(a) % b), Err(FloatError));
-            prop_assert_eq!(*(a % CheckedF64::new(b)), Err(FloatError));
+            prop_assert_eq!((CheckedF64::new(a) % CheckedF64::new(b)).unwrap_err(), FloatError);
+            prop_assert_eq!((CheckedF64::new(a) % b).unwrap_err(), FloatError);
+            prop_assert_eq!((a % CheckedF64::new(b)).unwrap_err(), FloatError);
         }
     }
 }
