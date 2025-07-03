@@ -7,16 +7,16 @@ macro_rules! unary_operation {
     ) => {
         unary_operation!(
             $op_trait :: $op_method,
-            fn (lhs: CheckedF64) -> f64 { -lhs.0 },
+            fn (lhs: CheckedF64) -> CheckedF64Result { CheckedF64::new(lhs.0.$op_method()) },
             $doc
         );
 
         unary_operation!(
             $op_trait :: $op_method,
-            fn (lhs: CheckedF64Result) -> f64 {
+            fn (lhs: CheckedF64Result) -> CheckedF64Result {
                 match *lhs {
-                    Ok(lhs) => -lhs.0,
-                    err => f64::NAN,
+                    Ok(lhs) => lhs.$op_method(),
+                    _ => lhs,
                 }
             },
             $doc
@@ -25,18 +25,17 @@ macro_rules! unary_operation {
 
     (
         $op_trait:ident :: $op_method:ident,
-        fn ($lhs:ident : $LHS:ty) -> f64 $implementation:block,
+        fn ($lhs:ident : $LHS:ty) -> CheckedF64Result $implementation:block,
         $doc:literal
     ) => {
         impl std::ops::$op_trait for $LHS {
             type Output = CheckedF64Result;
 
             #[doc = $doc]
+            #[inline(always)]
             fn $op_method(self) -> Self::Output {
-                CheckedF64::new({
-                    let $lhs: $LHS = self;
-                    $implementation
-                })
+                let $lhs: $LHS = self;
+                $implementation
             }
         }
 
