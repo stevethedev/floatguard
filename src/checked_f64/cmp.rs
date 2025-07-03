@@ -363,7 +363,7 @@ impl PartialOrd<CheckedF64Result> for f64 {
 #[cfg(test)]
 mod tests {
     use crate::{
-        CheckedF64, CheckedF64Result,
+        CheckedF64,
         checked_f64::tests::{invalid_f64, valid_f64},
     };
     use proptest::prelude::*;
