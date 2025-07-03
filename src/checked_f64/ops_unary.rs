@@ -1,33 +1,55 @@
 use crate::{CheckedF64, CheckedF64Result};
 
 macro_rules! unary_operation {
-    ($op_trait:ident, $op_method:ident, $doc:literal) => {
-        impl std::ops::$op_trait for CheckedF64 {
+    ($op_trait:ident :: $op_method:ident, $doc:literal) => {
+        unary_operation!(
+            $op_trait :: $op_method,
+            fn (lhs: CheckedF64) -> f64 { -lhs.0 },
+            $doc
+        );
+        
+        unary_operation!(
+            $op_trait :: $op_method,
+            fn (lhs: CheckedF64Result) -> f64 {
+                match *lhs {
+                    Ok(lhs) => -lhs.0,
+                    err => f64::NAN,
+                }
+            },
+            $doc
+        );
+    };
+
+    (
+        $op_trait:ident :: $op_method:ident,
+        fn ($lhs:ident : $LHS:ty) -> f64 $implementation:block,
+        $doc:literal
+    ) => {
+        impl std::ops::$op_trait for $LHS {
             type Output = CheckedF64Result;
 
             #[doc = $doc]
             fn $op_method(self) -> Self::Output {
-                Self::new(self.0.$op_method())
+                CheckedF64::new({
+                    let $lhs: $LHS = self;
+                    $implementation
+                })
             }
         }
 
-        impl std::ops::$op_trait for CheckedF64Result {
-            type Output = Self;
+        impl std::ops::$op_trait for &$LHS {
+            type Output = CheckedF64Result;
 
             #[doc = $doc]
             fn $op_method(self) -> Self::Output {
-                match self.as_inner() {
-                    Ok(value) => value.$op_method(),
-                    Err(_) => self,
-                }
+                (*self).$op_method()
             }
         }
     };
 }
 
 unary_operation!(
-    Neg,
-    neg,
+    Neg::neg,
     r"
         Negates the `CheckedF64` value.
 

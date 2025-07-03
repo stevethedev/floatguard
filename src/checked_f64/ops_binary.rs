@@ -1,10 +1,9 @@
 use crate::{CheckedF64, CheckedF64Result};
 
 macro_rules! binary_operation {
-    ($op_trait:ident, $op_method:ident, $doc:literal) => {
+    ($op_trait:ident :: $op_method:ident, $doc:literal) => {
         binary_operation!(
-            $op_trait,
-            $op_method,
+            $op_trait :: $op_method,
             fn (lhs: f64, rhs: f64) -> f64 {
                 std::ops::$op_trait::<f64>::$op_method(lhs, rhs)
             },
@@ -12,139 +11,291 @@ macro_rules! binary_operation {
         );
     };
 
-    ($op_trait:ident, $op_method:ident, fn ($lhs:ident : f64, $rhs:ident : f64) -> f64 $implementation:block, $doc:literal) => {
-        impl std::ops::$op_trait for CheckedF64 {
+    ($op_trait:ident::$op_method:ident, fn ($lhs:ident : f64, $rhs:ident : f64) -> f64 $implementation:block, $doc:literal) => {
+        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // |---|---------------------|---------------------|--------------------|---------------------|
+        // | X | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
+        // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64`        | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        // |   | `f64`               | `CheckedF64`        | `CheckedF64Result` | For ease of use     |
+        // | - | `f64`               | `f64`               | `CheckedF64Result` | Not supported       |
+        // |   | `f64`               | `CheckedF64Result`  | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64Result`  | `CheckedF64`        | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `f64`               | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        binary_operation!(
+            $op_trait :: $op_method,
+            fn ($lhs: CheckedF64, $rhs: CheckedF64) -> f64 {
+                let $lhs: f64 = $lhs.0;
+                let $rhs: f64 = $rhs.0;
+                $implementation
+            },
+            $doc
+        );
+
+        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // |---|---------------------|---------------------|--------------------|---------------------|
+        // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
+        // | X | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64`        | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        // |   | `f64`               | `CheckedF64`        | `CheckedF64Result` | For ease of use     |
+        // | - | `f64`               | `f64`               | `CheckedF64Result` | Not supported       |
+        // |   | `f64`               | `CheckedF64Result`  | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64Result`  | `CheckedF64`        | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `f64`               | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        binary_operation!($op_trait :: $op_method,
+            fn ($lhs: CheckedF64, $rhs: f64) -> f64 {
+                let $lhs: f64 = $lhs.0;
+                $implementation
+            },
+            $doc
+        );
+
+        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // |---|---------------------|---------------------|--------------------|---------------------|
+        // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
+        // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
+        // | X | `CheckedF64`        | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        // |   | `f64`               | `CheckedF64`        | `CheckedF64Result` | For ease of use     |
+        // | - | `f64`               | `f64`               | `CheckedF64Result` | Not supported       |
+        // |   | `f64`               | `CheckedF64Result`  | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64Result`  | `CheckedF64`        | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `f64`               | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        binary_operation!($op_trait :: $op_method,
+            fn ($lhs: CheckedF64, $rhs: CheckedF64Result) -> f64 {
+                match $rhs.as_inner() {
+                    Ok($rhs) => {
+                        let $lhs: f64 = $lhs.0;
+                        let $rhs: f64 = $rhs.0;
+                        $implementation
+                    },
+                    err => f64::NAN,
+                }
+            },
+            $doc
+        );
+
+        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // |---|---------------------|---------------------|--------------------|---------------------|
+        // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
+        // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64`        | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        // | X | `f64`               | `CheckedF64`        | `CheckedF64Result` | For ease of use     |
+        // | - | `f64`               | `f64`               | `CheckedF64Result` | Not supported       |
+        // |   | `f64`               | `CheckedF64Result`  | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64Result`  | `CheckedF64`        | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `f64`               | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        binary_operation!($op_trait :: $op_method,
+            fn ($lhs: f64, $rhs: CheckedF64) -> f64 {
+                let $rhs = $rhs.0;
+                $implementation
+            },
+            $doc
+        );
+
+        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // |---|---------------------|---------------------|--------------------|---------------------|
+        // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
+        // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64`        | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        // |   | `f64`               | `CheckedF64`        | `CheckedF64Result` | For ease of use     |
+        // | - | `f64`               | `f64`               | `CheckedF64Result` | Not supported       |
+        // | X | `f64`               | `CheckedF64Result`  | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64Result`  | `CheckedF64`        | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `f64`               | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        binary_operation!($op_trait :: $op_method,
+            fn ($lhs: f64, $rhs: CheckedF64Result) -> f64 {
+                match $rhs.as_inner() {
+                    Ok($rhs) => {
+                        let $rhs: f64 = $rhs.0;
+                        $implementation
+                    },
+                    err => f64::NAN,
+                }
+            },
+            $doc
+        );
+
+        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // |---|---------------------|---------------------|--------------------|---------------------|
+        // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
+        // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64`        | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        // |   | `f64`               | `CheckedF64`        | `CheckedF64Result` | For ease of use     |
+        // | - | `f64`               | `f64`               | `CheckedF64Result` | Not supported       |
+        // |   | `f64`               | `CheckedF64Result`  | `CheckedF64Result` | For ease of use     |
+        // | X | `CheckedF64Result`  | `CheckedF64`        | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `f64`               | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        binary_operation!($op_trait :: $op_method,
+            fn ($lhs: CheckedF64Result, $rhs: CheckedF64) -> f64 {
+                match $lhs.as_inner() {
+                    Ok($lhs) => {
+                        let $lhs: f64 = $lhs.0;
+                        let $rhs: f64 = $rhs.0;
+                        $implementation
+                    },
+                    err => f64::NAN,
+                }
+            },
+            $doc
+        );
+
+        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // |---|---------------------|---------------------|--------------------|---------------------|
+        // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
+        // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64`        | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        // |   | `f64`               | `CheckedF64`        | `CheckedF64Result` | For ease of use     |
+        // | - | `f64`               | `f64`               | `CheckedF64Result` | Not supported       |
+        // |   | `f64`               | `CheckedF64Result`  | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64Result`  | `CheckedF64`        | `CheckedF64Result` | For chaining        |
+        // | X | `CheckedF64Result`  | `f64`               | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        binary_operation!($op_trait :: $op_method,
+            fn ($lhs: CheckedF64Result, $rhs: f64) -> f64 {
+                match $lhs.as_inner() {
+                    Ok($lhs) => {
+                        let $lhs: f64 = $lhs.0;
+                        $implementation
+                    },
+                    err => f64::NAN,
+                }
+            },
+            $doc
+        );
+
+        // | X |  LHS                | RHS                 | Result Type        | Note                |
+        // |---|---------------------|---------------------|--------------------|---------------------|
+        // |   | `CheckedF64`        | `CheckedF64`        | `CheckedF64Result` | Standard operations |
+        // |   | `CheckedF64`        | `f64`               | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64`        | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        // |   | `f64`               | `CheckedF64`        | `CheckedF64Result` | For ease of use     |
+        // | - | `f64`               | `f64`               | `CheckedF64Result` | Not supported       |
+        // |   | `f64`               | `CheckedF64Result`  | `CheckedF64Result` | For ease of use     |
+        // |   | `CheckedF64Result`  | `CheckedF64`        | `CheckedF64Result` | For chaining        |
+        // |   | `CheckedF64Result`  | `f64`               | `CheckedF64Result` | For chaining        |
+        // | X | `CheckedF64Result`  | `CheckedF64Result`  | `CheckedF64Result` | For chaining        |
+        binary_operation!($op_trait :: $op_method,
+            fn ($lhs: CheckedF64Result, $rhs: CheckedF64Result) -> f64 {
+                match ($lhs.as_inner(), $rhs.as_inner()) {
+                    (Ok($lhs), Ok($rhs)) => {
+                        let $lhs: f64 = $lhs.0;
+                        let $rhs: f64 = $rhs.0;
+                        $implementation
+                    },
+                    err => f64::NAN,
+                }
+            },
+            $doc
+        );
+    };
+
+    (
+        $op_trait:ident :: $op_method:ident,
+        fn ($lhs:ident : $LHS:tt, $rhs:ident : $RHS:tt) -> f64 $implementation:block,
+        $doc:literal
+    ) => {
+        #[doc = concat!(
+            "Binary Operation `std::ops::", stringify!($op_trait), "` must work with the following types:\n",
+            "\n",
+            "| X |  LHS                      | RHS                       | Result Type        |\n",
+            "|---|---------------------------|---------------------------|--------------------|\n",
+            "| X | `", stringify!($LHS), "`  | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
+            "|   | `", stringify!($LHS), "`  | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
+            "|   | `&", stringify!($LHS), "` | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
+            "|   | `&", stringify!($LHS), "` | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
+        )]
+        impl std::ops::$op_trait<$RHS> for $LHS {
             type Output = CheckedF64Result;
 
             #[doc = $doc]
-            fn $op_method(self, $rhs: Self) -> Self::Output {
-                Self::new({
-                    let $lhs = self.0;
-                    let $rhs = $rhs.0;
-                    $implementation
-                })
-            }
-        }
-
-        impl std::ops::$op_trait<&CheckedF64> for CheckedF64 {
-            type Output = CheckedF64Result;
-
-            #[doc = $doc]
-            #[inline(always)]
-            fn $op_method(self, $rhs: &CheckedF64) -> Self::Output {
-                Self::new({
-                    let $lhs = self.0;
-                    let $rhs = $rhs.0;
-                    $implementation
-                })
-            }
-        }
-
-        impl std::ops::$op_trait<f64> for CheckedF64 {
-            type Output = CheckedF64Result;
-
-            #[doc = $doc]
-            fn $op_method(self, $rhs: f64) -> Self::Output {
-                Self::new({
-                    let $lhs = self.0;
-                    $implementation
-                })
-            }
-        }
-
-        impl std::ops::$op_trait<CheckedF64> for f64 {
-            type Output = CheckedF64Result;
-
-            #[doc = $doc]
-            fn $op_method(self, $rhs: CheckedF64) -> Self::Output {
+            fn $op_method(self, $rhs: $RHS) -> Self::Output {
                 CheckedF64::new({
-                    let $lhs = self;
-                    let $rhs = $rhs.0;
+                    let $lhs: $LHS = self;
+                    let $rhs: $RHS = $rhs;
                     $implementation
                 })
             }
         }
 
-        impl std::ops::$op_trait<CheckedF64Result> for CheckedF64 {
+        #[doc = concat!(
+            "Binary Operation `std::ops::", stringify!($op_trait), "` must work with the following types:\n",
+            "\n",
+            "| X |  LHS                      | RHS                       | Result Type        |\n",
+            "|---|---------------------------|---------------------------|--------------------|\n",
+            "|   | `", stringify!($LHS), "`  | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
+            "| X | `", stringify!($LHS), "`  | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
+            "|   | `&", stringify!($LHS), "` | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
+            "|   | `&", stringify!($LHS), "` | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
+        )]
+        impl std::ops::$op_trait<&$RHS> for $LHS {
             type Output = CheckedF64Result;
 
             #[doc = $doc]
-            fn $op_method(self, $rhs: CheckedF64Result) -> Self::Output {
-                match $rhs.as_inner() {
-                    Ok($rhs) => Self::new({
-                        let $lhs = self.0;
-                        let $rhs = $rhs.0;
-                        $implementation
-                    }),
-                    err => CheckedF64Result::new(*err),
-                }
+            fn $op_method(self, $rhs: &$RHS) -> Self::Output {
+                CheckedF64::new({
+                    let $lhs: $LHS = self;
+                    let $rhs: $RHS = *$rhs;
+                    $implementation
+                })
             }
         }
 
-        impl std::ops::$op_trait for CheckedF64Result {
+        #[doc = concat!(
+            "Binary Operation `std::ops::", stringify!($op_trait), "` must work with the following types:\n",
+            "\n",
+            "| X |  LHS                      | RHS                       | Result Type        |\n",
+            "|---|---------------------------|---------------------------|--------------------|\n",
+            "|   | `", stringify!($LHS), "`  | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
+            "|   | `", stringify!($LHS), "`  | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
+            "| X | `&", stringify!($LHS), "` | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
+            "|   | `&", stringify!($LHS), "` | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
+        )]
+        impl std::ops::$op_trait<$RHS> for &$LHS {
             type Output = CheckedF64Result;
 
             #[doc = $doc]
-            fn $op_method(self, $rhs: Self) -> Self::Output {
-                match (self.as_inner(), $rhs.as_inner()) {
-                    (Ok(value1), Ok(value2)) => value1.$op_method(value2),
-                    (Err(err), _) | (_, Err(err)) => CheckedF64Result::new(Err(*err)),
-                }
+            fn $op_method(self, $rhs: $RHS) -> Self::Output {
+                CheckedF64::new({
+                    let $lhs: $LHS = *self;
+                    let $rhs: $RHS = $rhs;
+                    $implementation
+                })
             }
         }
 
-        impl std::ops::$op_trait<CheckedF64> for CheckedF64Result {
+        #[doc = concat!(
+            "Binary Operation `std::ops::", stringify!($op_trait), "` must work with the following types:\n",
+            "\n",
+            "| X |  LHS                      | RHS                       | Result Type        |\n",
+            "|---|---------------------------|---------------------------|--------------------|\n",
+            "|   | `", stringify!($LHS), "`  | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
+            "|   | `", stringify!($LHS), "`  | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
+            "|   | `&", stringify!($LHS), "` | `", stringify!($RHS), "`  | `CheckedF64Result` |\n",
+            "| X | `&", stringify!($LHS), "` | `&", stringify!($RHS), "` | `CheckedF64Result` |\n",
+        )]
+        impl std::ops::$op_trait<&$RHS> for &$LHS {
             type Output = CheckedF64Result;
 
             #[doc = $doc]
-            fn $op_method(self, $rhs: CheckedF64) -> Self::Output {
-                match self.as_inner() {
-                    Ok(value) => CheckedF64::new({
-                        let $lhs = value.0;
-                        let $rhs = $rhs.0;
-                        $implementation
-                    }),
-                    err => CheckedF64Result::new(*err),
-                }
-            }
-        }
-
-        impl std::ops::$op_trait<f64> for CheckedF64Result {
-            type Output = CheckedF64Result;
-
-            #[doc = $doc]
-            fn $op_method(self, $rhs: f64) -> Self::Output {
-                match self.as_inner() {
-                    Ok($lhs) => CheckedF64::new({
-                        let $lhs = $lhs.0;
-                        $implementation
-                    }),
-                    err => CheckedF64Result::new(*err),
-                }
-            }
-        }
-
-        impl std::ops::$op_trait<CheckedF64Result> for f64 {
-            type Output = CheckedF64Result;
-
-            #[doc = $doc]
-            fn $op_method(self, $rhs: CheckedF64Result) -> Self::Output {
-                match $rhs.as_inner() {
-                    Ok($rhs) => CheckedF64::new({
-                        let $lhs = self;
-                        let $rhs = $rhs.0;
-                        $implementation
-                    }),
-                    err => CheckedF64Result::new(*err),
-                }
+            fn $op_method(self, $rhs: &$RHS) -> Self::Output {
+                CheckedF64::new({
+                    let $lhs: $LHS = *self;
+                    let $rhs: $RHS = *$rhs;
+                    $implementation
+                })
             }
         }
     };
 }
 
 binary_operation!(
-    Add,
-    add,
+    Add::add,
     r"
         Adds two `CheckedF64` values or a `CheckedF64` and a `f64`.
 
@@ -155,17 +306,16 @@ binary_operation!(
 
         let value1 = CheckedF64::new(2.0);
         let value2 = CheckedF64::new(3.0);
-        assert_eq!(value1 + value2, CheckedF64::new(5.0));
+        assert_eq!(value1 + value2, 5.0);
 
         let value3 = CheckedF64::new(f64::NAN);
-        assert_eq!(*(value1 + value3), Err(FloatError));
+        assert_eq!((value1 + value3).unwrap_err(), FloatError);
         ```
     "
 );
 
 binary_operation!(
-    Sub,
-    sub,
+    Sub::sub,
     r"
         Subtracts one `CheckedF64` value from another or a `f64` from a `CheckedF64`.
 
@@ -179,14 +329,13 @@ binary_operation!(
         assert_eq!(value1 - value2, 2.0);
 
         let value3 = CheckedF64::new(f64::NAN);
-        assert!((value1 - value3).is_err());
+        assert_eq!((value1 - value3).unwrap_err(), FloatError);
         ```
     "
 );
 
 binary_operation!(
-    Mul,
-    mul,
+    Mul::mul,
     r"
         Multiplies two `CheckedF64` values or a `CheckedF64` and a `f64`.
 
@@ -200,14 +349,13 @@ binary_operation!(
         assert_eq!(value1 * value2, 6.0);
 
         let value3 = CheckedF64::new(f64::NAN);
-        assert!((value1 * value3).is_err());
+        assert_eq!((value1 * value3).unwrap_err(), FloatError);
         ```
     "
 );
 
 binary_operation!(
-    Div,
-    div,
+    Div::div,
     fn (lhs: f64, rhs: f64) -> f64 {
         if rhs.is_infinite() { f64::NAN } else { lhs / rhs }
     },
@@ -221,17 +369,16 @@ binary_operation!(
 
         let value1 = CheckedF64::new(6.0);
         let value2 = CheckedF64::new(3.0);
-        assert_eq!(value1 / value2, CheckedF64::new(2.0));
+        assert_eq!(value1 / value2, 2.0);
 
         let value3 = CheckedF64::new(f64::NAN);
-        assert!((value1 / value3).is_err());
+        assert_eq!((value1 / value3).unwrap_err(), FloatError);
         ```
     "
 );
 
 binary_operation!(
-    Rem,
-    rem,
+    Rem::rem,
     fn (lhs: f64, rhs: f64) -> f64 {
         if rhs.is_infinite() { f64::NAN } else { lhs % rhs }
     },
@@ -249,7 +396,7 @@ binary_operation!(
         assert_eq!(value1 % value2, 2.0);
 
         let value3 = CheckedF64::new(f64::NAN);
-        assert!((value1 % value3).is_err());
+        assert_eq!((value1 % value3).unwrap_err(), FloatError);
         ```
     "
 );
