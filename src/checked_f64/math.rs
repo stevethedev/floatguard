@@ -16,7 +16,7 @@ macro_rules! const_math {
 
     (
         $name:ident,
-        fn ($base:ident : f64) -> $ret:tt $implementation:block,
+        fn ($base:ident : f64) -> $ret:ty $implementation:block,
         $doc:expr
     ) => {
         impl CheckedF64 {
@@ -58,7 +58,7 @@ macro_rules! math {
 
     (
         $name:ident,
-        fn ($base:ident : f64) -> $ret:tt $implementation:block,
+        fn ($base:ident : f64) -> $ret:ty $implementation:block,
         $doc:expr
     ) => {
         impl CheckedF64 {
@@ -84,7 +84,7 @@ macro_rules! math {
 
     (
         $name:ident,
-        $operand:ident : $t:tt,
+        $operand:ident : $t:ty,
         $doc:expr
     ) => {
         math!(
@@ -98,7 +98,7 @@ macro_rules! math {
 
     (
         $name:ident,
-        fn ($base:ident : f64, $operand:ident : $t:tt) -> $ret:ty $implementation:block,
+        fn ($base:ident : f64, $operand:ident : $t:ty) -> $ret:ty $implementation:block,
         $doc:expr
     ) => {
         impl CheckedF64 {
@@ -279,7 +279,9 @@ math!(
 
 math!(
     powf,
-    fn (base: f64, power: CheckedF64) -> CheckedF64Result {
+    fn (base: f64, power: impl Into<CheckedF64Result>) -> CheckedF64Result {
+        let power: CheckedF64Result = power.into();
+        let Ok(power) = power.as_inner() else { return power };
         CheckedF64::new(base.powf(power.0))
     },
     r"

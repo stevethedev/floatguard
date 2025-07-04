@@ -63,6 +63,12 @@ impl<T> From<std::result::Result<T, Error>> for Result<T> {
     }
 }
 
+impl<T> From<T> for Result<T> {
+    fn from(value: T) -> Self {
+        Self(Ok(value))
+    }
+}
+
 impl<T> From<Result<T>> for std::result::Result<T, Error> {
     fn from(result: Result<T>) -> Self {
         result.0

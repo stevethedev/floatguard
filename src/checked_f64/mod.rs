@@ -92,6 +92,29 @@ impl From<CheckedF64> for f64 {
     }
 }
 
+impl From<f64> for Result {
+    /// Converts a `f64` into a `CheckedF64`.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `CheckedF64` if the value is valid (finite), otherwise returns an error.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use checked_float::{CheckedF64, CheckedF64Result, FloatError};
+    ///
+    /// let valid_value: CheckedF64Result = 3.14.into();
+    /// assert_eq!(valid_value, 3.14);
+    ///
+    /// let invalid_value: CheckedF64Result = f64::NAN.into();
+    /// assert!(invalid_value.is_err());
+    /// ```
+    fn from(value: f64) -> Self {
+        CheckedF64::new(value)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

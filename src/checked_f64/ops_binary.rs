@@ -186,7 +186,7 @@ macro_rules! binary_operation {
 
     (
         $op_trait:ident :: $op_method:ident,
-        fn ($lhs:ident : $LHS:tt, $rhs:ident : $RHS:tt) -> CheckedF64Result $implementation:block,
+        fn ($lhs:ident : $LHS:ty, $rhs:ident : $RHS:ty) -> CheckedF64Result $implementation:block,
         $doc:literal
     ) => {
         // | X | LHS   | RHS   | Result Type      |
@@ -317,10 +317,10 @@ binary_operation!(
     Div::div,
     fn (lhs: f64, rhs: f64) -> CheckedF64Result {
         CheckedF64::new({
-            if rhs.is_infinite() {
-                f64::NAN
-            } else {
+            if rhs.is_finite() {
                 lhs / rhs
+            } else {
+                f64::NAN
             }
         })
     },
@@ -345,10 +345,10 @@ binary_operation!(
     Rem::rem,
     fn (lhs: f64, rhs: f64) -> CheckedF64Result {
         CheckedF64::new({
-            if rhs.is_infinite() {
-                f64::NAN
-            } else {
+            if rhs.is_finite() {
                 lhs % rhs
+            } else {
+                f64::NAN
             }
         })
     },
