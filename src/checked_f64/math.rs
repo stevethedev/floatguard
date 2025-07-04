@@ -1,21 +1,31 @@
 use crate::{CheckedF64, CheckedF64Result};
 
 macro_rules! const_math {
-    ($name:ident, $doc:expr) => {
-        #[inline(always)]
-        #[must_use]
-        const fn $name(x: f64) -> f64 {
-            x.$name()
-        }
-        const_math!($name, $name, $doc);
+    (
+        $name:ident,
+        $doc:expr
+    ) => {
+        const_math!(
+            $name,
+            fn (base: f64) -> CheckedF64Result {
+                CheckedF64::new(base.$name())
+            },
+            $doc
+        );
     };
-    ($name:ident, $implementation:ident, $doc:expr) => {
+
+    (
+        $name:ident,
+        fn ($base:ident : f64) -> $ret:tt $implementation:block,
+        $doc:expr
+    ) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub const fn $name(self) -> CheckedF64Result {
-                Self::new($implementation(self.0))
+            pub const fn $name(self) -> $ret {
+                let $base = self.0;
+                $implementation
             }
         }
 
@@ -23,11 +33,9 @@ macro_rules! const_math {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub const fn $name(self) -> CheckedF64Result {
-                match self.as_inner() {
-                    Ok(value) => value.$name(),
-                    _ => self,
-                }
+            pub const fn $name(self) -> $ret {
+                let Ok($base) = self.as_inner() else { return self; };
+                $base.$name()
             }
         }
     };
@@ -39,17 +47,27 @@ macro_rules! math {
     };
 
     ($name:ident, $implementation:ident, $doc:expr) => {
-        math!($name, fn (base: f64) -> f64 { base.$implementation() }, $doc);
+        math!(
+            $name,
+            fn (base: f64) -> CheckedF64Result {
+                CheckedF64::new(base.$implementation())
+            },
+            $doc
+        );
     };
 
-    ($name:ident, fn ($base:ident : f64) -> f64 $implementation:block, $doc:expr) => {
+    (
+        $name:ident,
+        fn ($base:ident : f64) -> $ret:tt $implementation:block,
+        $doc:expr
+    ) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub fn $name(self) -> CheckedF64Result {
+            pub fn $name(self) -> $ret {
                 let $base = self.0;
-                Self::new($implementation)
+                $implementation
             }
         }
 
@@ -57,27 +75,39 @@ macro_rules! math {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub fn $name(self) -> CheckedF64Result {
-                match self.as_inner() {
-                    Ok(value) => value.$name(),
-                    _ => self,
-                }
+            pub fn $name(self) -> $ret {
+                let Ok($base) = self.as_inner() else { return self; };
+                $base.$name()
             }
         }
     };
 
-    ($name:ident, $operand:ident : $t:tt, $doc:expr) => {
-        math!($name, fn (base: f64, $operand: $t) -> f64 { base.$name($operand) }, $doc);
+    (
+        $name:ident,
+        $operand:ident : $t:tt,
+        $doc:expr
+    ) => {
+        math!(
+            $name,
+            fn (base: f64, $operand: $t) -> CheckedF64Result {
+                CheckedF64::new(base.$name($operand))
+            },
+            $doc
+        );
     };
 
-    ($name:ident, fn ($base:ident : f64, $operand:ident : $t:tt) -> f64 $implementation:block, $doc:expr) => {
+    (
+        $name:ident,
+        fn ($base:ident : f64, $operand:ident : $t:tt) -> $ret:ty $implementation:block,
+        $doc:expr
+    ) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub fn $name(self, $operand: $t) -> CheckedF64Result {
+            pub fn $name(self, $operand: $t) -> $ret {
                 let $base = self.0;
-                Self::new($implementation)
+                $implementation
             }
         }
 
@@ -85,11 +115,9 @@ macro_rules! math {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub fn $name(self, $operand: $t) -> CheckedF64Result {
-                match self.as_inner() {
-                    Ok(value) => value.$name($operand),
-                    _ => self,
-                }
+            pub fn $name(self, $operand: $t) -> $ret {
+                let Ok($base) = self.as_inner() else { return self };
+                $base.$name($operand)
             }
         }
     };
@@ -249,35 +277,31 @@ math!(
     "
 );
 
-// math!(
-//     powf,
-//     power: impl TryInto<Self>
-//     r"
-//         Raises a number to a floating-point power.
-//
-//         See: [`f64::powf`]
-//
-//         # Examples
-//
-//         ```rust
-//         use checked_float::CheckedF64;
-//
-//         let x = CheckedF64::new(2.0_f64);
-//         let abs_difference = (x.powf(3.0) - (x * x * x)).unwrap().abs();
-//         assert!(abs_difference.unwrap() <= CheckedF64::EPSILON);
-//
-//         let invalid = CheckedF64::new(f64::NAN);
-//         assert!(invalid.powf(2.0).is_err());
-//         assert!(CheckedF64::new(2.0).powf(f64::NAN).is_err());
-//         ```
-//     "
-// );
-// #[must_use = "this function returns a new CheckedF64 instance"]
-// #[allow(clippy::inline_always)]
-// #[inline(always)]
-// pub fn powf(self, power: impl TryInto<Self>) -> Self {
-//     power.try_into().map_or(Self(f64::NAN), |power| Self(self.0.powf(power.0)))
-// }
+math!(
+    powf,
+    fn (base: f64, power: CheckedF64) -> CheckedF64Result {
+        CheckedF64::new(base.powf(power.0))
+    },
+    r"
+        Raises a number to a floating-point power.
+
+        See: [`f64::powf`]
+
+        # Examples
+
+        ```rust
+        use checked_float::CheckedF64;
+
+        let x = CheckedF64::new(2.0_f64);
+        let cubed = CheckedF64::new(3.0).unwrap();
+        let abs_difference = (x.powf(cubed) - (x * x * x)).abs();
+        assert!(abs_difference.unwrap() <= CheckedF64::EPSILON);
+
+        let invalid = CheckedF64::new(f64::NAN);
+        assert!(invalid.powf(x.unwrap()).is_err());
+        ```
+    "
+);
 
 math!(
     sin,
@@ -462,33 +486,33 @@ math!(
     "
 );
 
-// /// Simultaneously computes the sine and cosine of the number, x. Returns (sin(x), cos(x)).
-// ///
-// /// See: [`f64::sin_cos`]
-// ///
-// /// # Examples
-// ///
-// /// ```rust
-// /// use checked_float::CheckedF64;
-// ///
-// /// let x = CheckedF64::FRAC_PI_4;
-// /// let f = x.sin_cos();
-// ///
-// /// let abs_difference_0 = (f.0 - x.sin()).abs();
-// /// let abs_difference_1 = (f.1 - x.cos()).abs();
-// ///
-// /// assert!(abs_difference_0 < 1e-10);
-// /// assert!(abs_difference_1 < 1e-10);
-// /// ```
-// #[must_use = "this function returns a tuple of two CheckedF64 instances"]
-// #[allow(clippy::inline_always)]
-// #[inline(always)]
-// pub fn sin_cos(self) -> (Self, Self) {
-//     match self.0.sin_cos() {
-//         (sin, cos) if sin.is_finite() && cos.is_finite() => (Self(sin), Self(cos)),
-//         _ => (Self(f64::NAN), Self(f64::NAN)),
-//     }
-// }
+// math!(
+//     sin_cos,
+//     fn (base: f64) -> (CheckedF64Result, CheckedF64Result) {
+//         let (sin, cos) = base.sin_cos();
+//         (CheckedF64::new(sin), CheckedF64::new(cos))
+//     },
+//     r"
+//         Simultaneously computes the sine and cosine of the number, `x`. Returns (sin(x), cos(x)).
+//
+//         See: [`f64::sin_cos`]
+//
+//         # Examples
+//
+//         ```rust
+//         use checked_float::CheckedF64;
+//
+//         let x = CheckedF64::FRAC_PI_4;
+//         let f = x.sin_cos();
+//
+//         let abs_difference_0 = (f.0 - x.sin()).abs();
+//         let abs_difference_1 = (f.1 - x.cos()).abs();
+//
+//         assert!(abs_difference_0 < 1e-10);
+//         assert!(abs_difference_1 < 1e-10);
+//         ```
+//     "
+// );
 
 math!(
     tan,
@@ -578,39 +602,38 @@ math!(
     "
 );
 
-// /// Computes the arctangent of `self` divided by `other`.
-// ///
-// /// See: [`f64::atan2`]
-// ///
-// /// # Arguments
-// ///
-// /// `other` - The `CheckedF64` value to divide `self` by.
-// ///
-// /// # Returns
-// ///
-// /// Returns a new `CheckedF64` instance containing the result of the arctangent operation.
-// ///
-// /// # Examples
-// ///
-// /// ```rust
-// /// use checked_float::CheckedF64;
-// ///
-// /// let a = CheckedF64::new(1.0);
-// /// let b = CheckedF64::new(2.0);
-// /// assert_eq!(a.atan2(b), Ok(0.4636476090008061)); // atan2(1.0, 2.0)
-// ///
-// /// let invalid = CheckedF64::new(f64::NAN);
-// /// assert!(invalid.atan2(CheckedF64::new(1.0)).is_err());
-// /// assert!(CheckedF64::new(1.0).atan2(CheckedF64::new(f64::NAN)).is_err());
-// /// assert!(CheckedF64::new(f64::INFINITY).atan2(CheckedF64::new(1.0)).is_err());
-// /// assert!(CheckedF64::new(1.0).atan2(CheckedF64::new(f64::INFINITY)).is_err());
-// /// ```
-// #[must_use = "this function returns a new CheckedF64 instance"]
-// #[allow(clippy::inline_always)]
-// #[inline(always)]
-// pub fn atan2(self, other: impl TryInto<Self>) -> Self {
-//     other.try_into().map_or(Self(f64::NAN), |other| Self(self.0.atan2(other.0)))
-// }
+math!(
+    atan2,
+    fn (base: f64, other: CheckedF64) -> CheckedF64Result {
+        CheckedF64::new(base.atan2(other.0))
+    },
+    r"
+        Computes the arctangent of `self` divided by `other`.
+
+        See: [`f64::atan2`]
+
+        # Arguments
+
+        `other` - The `CheckedF64` value to divide `self` by.
+
+        # Returns
+
+        Returns a new `CheckedF64` instance containing the result of the arctangent operation.
+
+        # Examples
+
+        ```rust
+        use checked_float::CheckedF64;
+
+        let a = CheckedF64::new(1.0);
+        let b = CheckedF64::new(2.0).unwrap();
+        assert_eq!(a.atan2(b), Ok(0.4636476090008061)); // atan2(1.0, 2.0)
+
+        let invalid = CheckedF64::new(f64::NAN);
+        assert!(invalid.atan2(a.unwrap()).is_err());
+        ```
+    "
+);
 
 #[cfg(test)]
 mod tests {
@@ -703,34 +726,28 @@ mod tests {
         }
 
         // Exponentiation
-        // #[test]
-        // fn test_powf_valid(a in valid_f64(), b in valid_f64()) {
-        //     if a.powf(b).is_finite() && b.is_finite() {
-        //         prop_assert_eq!(CheckedF64::new(a).powf(CheckedF64::new(b)), Ok(a.powf(b)));
-        //         prop_assert_eq!(CheckedF64::new(a).powf(b), Ok(a.powf(b)));
-        //     } else {
-        //         prop_assert_eq!(*CheckedF64::new(a).powf(CheckedF64::new(b)), Err(FloatError));
-        //         prop_assert_eq!(*CheckedF64::new(a).powf(b), Err(FloatError));
-        //     }
-        // }
-        //
-        // #[test]
-        // fn test_powf_invalid(a in valid_f64(), b in invalid_f64()) {
-        //     prop_assert_eq!(*CheckedF64::new(a).powf(CheckedF64::new(b)), Err(FloatError));
-        //     prop_assert_eq!(*CheckedF64::new(a).powf(b), Err(FloatError));
-        // }
-        //
-        // #[test]
-        // fn test_powf_invalid_base(a in invalid_f64(), b in valid_f64()) {
-        //     prop_assert_eq!(*CheckedF64::new(a).powf(CheckedF64::new(b)), Err(FloatError));
-        //     prop_assert_eq!(*CheckedF64::new(a).powf(b), Err(FloatError));
-        // }
-        //
-        // #[test]
-        // fn test_powf_invalid_base_and_exponent(a in invalid_f64(), b in invalid_f64()) {
-        //     prop_assert_eq!(*CheckedF64::new(a).powf(CheckedF64::new(b)), Err(FloatError));
-        //     prop_assert_eq!(*CheckedF64::new(a).powf(b), Err(FloatError));
-        // }
+        #[test]
+        fn test_powf_valid(a in valid_f64(), b in valid_f64()) {
+            let checked_a = CheckedF64::new(a);
+            let checked_b = CheckedF64::new(b).unwrap();
+            let expected = a.powf(b);
+
+            if expected.is_finite() {
+                prop_assert_eq!(checked_a.powf(checked_b), expected);
+                prop_assert_eq!(checked_a.unwrap().powf(checked_b), expected);
+            } else {
+                prop_assert_eq!(checked_a.powf(checked_b).unwrap_err(), FloatError);
+                prop_assert_eq!(checked_a.unwrap().powf(checked_b).unwrap_err(), FloatError);
+            }
+        }
+
+        #[test]
+        fn test_powf_invalid_base(a in invalid_f64(), b in valid_f64()) {
+            let checked_a = CheckedF64::new(a);
+            let checked_b = CheckedF64::new(b).unwrap();
+
+            prop_assert_eq!(checked_a.powf(checked_b).unwrap_err(), FloatError);
+        }
 
         // Int Exponentiation
         #[test]
@@ -927,34 +944,28 @@ mod tests {
         }
 
         // Arctan2 Functions
-        // #[test]
-        // fn test_atan2_valid(a in valid_f64(), b in valid_f64()) {
-        //     if b != 0.0 && (a.atan2(b).is_finite()) {
-        //         prop_assert_eq!(CheckedF64::new(a).atan2(CheckedF64::new(b)), Ok(a.atan2(b)));
-        //         prop_assert_eq!(CheckedF64::new(a).atan2(b), Ok(a.atan2(b)));
-        //     } else {
-        //         prop_assert_eq!(*CheckedF64::new(a).atan2(CheckedF64::new(b)), Err(FloatError));
-        //         prop_assert_eq!(*CheckedF64::new(a).atan2(b), Err(FloatError));
-        //     }
-        // }
-        //
-        // #[test]
-        // fn test_atan2_invalid(a in valid_f64(), b in invalid_f64()) {
-        //     prop_assert_eq!(*CheckedF64::new(a).atan2(CheckedF64::new(b)), Err(FloatError));
-        //     prop_assert_eq!(*CheckedF64::new(a).atan2(b), Err(FloatError));
-        // }
-        //
-        // #[test]
-        // fn test_atan2_invalid_base(a in invalid_f64(), b in valid_f64()) {
-        //     prop_assert_eq!(*CheckedF64::new(a).atan2(CheckedF64::new(b)), Err(FloatError));
-        //     prop_assert_eq!(*CheckedF64::new(a).atan2(b), Err(FloatError));
-        // }
-        //
-        // #[test]
-        // fn test_atan2_invalid_both(a in invalid_f64(), b in invalid_f64()) {
-        //     prop_assert_eq!(*CheckedF64::new(a).atan2(CheckedF64::new(b)), Err(FloatError));
-        //     prop_assert_eq!(*CheckedF64::new(a).atan2(b), Err(FloatError));
-        // }
+        #[test]
+        fn test_atan2_valid(a in valid_f64(), b in valid_f64()) {
+            let checked_a = CheckedF64::new(a);
+            let checked_b = CheckedF64::new(b).unwrap();
+            let expected = a.atan2(b);
+
+            if b != 0.0 && expected.is_finite() {
+                prop_assert_eq!(checked_a.atan2(checked_b), expected);
+                prop_assert_eq!(checked_a.unwrap().atan2(checked_b), expected);
+            } else {
+                prop_assert_eq!(checked_a.atan2(checked_b).unwrap_err(), FloatError);
+                prop_assert_eq!(checked_a.unwrap().atan2(checked_b).unwrap_err(), FloatError);
+            }
+        }
+
+        #[test]
+        fn test_atan2_invalid_base(a in invalid_f64(), b in valid_f64()) {
+            let checked_a = CheckedF64::new(a);
+            let checked_b = CheckedF64::new(b).unwrap();
+
+            prop_assert_eq!(checked_a.atan2(checked_b).unwrap_err(), FloatError);
+        }
 
     //     // Sin & Cos Functions
     //     #[test]
