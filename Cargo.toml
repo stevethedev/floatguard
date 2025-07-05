@@ -19,4 +19,21 @@ std = []
 [dependencies]
 
 [dev-dependencies]
+criterion = "0.6"
 proptest = "1.7"
+
+[[bench]]
+name = "cmp"
+harness = false
+
+[[bench]]
+name = "math"
+harness = false
+
+[[bench]]
+name = "ops_binary"
+harness = false
+
+[[bench]]
+name = "ops_unary"
+harness = false

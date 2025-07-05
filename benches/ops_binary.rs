@@ -1,0 +1,157 @@
+use criterion::{criterion_group, criterion_main, Criterion};
+use checked_float::CheckedF64;
+
+fn bench_f64_add(c: &mut Criterion) {
+    c.bench_function("f64::add", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+
+        b.iter(|| lhs + rhs);
+    });
+}
+
+fn bench_checked_f64_add(c: &mut Criterion) {
+    c.bench_function("CheckedF64::add", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| (lhs + rhs).unwrap())
+    });
+}
+
+fn bench_checked_f64_result_add(c: &mut Criterion) {
+    c.bench_function("CheckedF64Result::add", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| lhs + rhs)
+    });
+}
+
+fn bench_f64_sub(c: &mut Criterion) {
+    c.bench_function("f64::add", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+
+        b.iter(|| lhs - rhs);
+    });
+}
+
+fn bench_checked_f64_sub(c: &mut Criterion) {
+    c.bench_function("CheckedF64::add", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| (lhs - rhs).unwrap())
+    });
+}
+
+fn bench_checked_f64_result_sub(c: &mut Criterion) {
+    c.bench_function("CheckedF64Result::add", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| lhs + rhs)
+    });
+}
+
+fn bench_f64_mul(c: &mut Criterion) {
+    c.bench_function("f64::mul", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+
+        b.iter(|| lhs * rhs);
+    });
+}
+
+fn bench_checked_f64_mul(c: &mut Criterion) {
+    c.bench_function("CheckedF64::mul", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| (lhs * rhs).unwrap())
+    });
+}
+
+fn bench_checked_f64_result_mul(c: &mut Criterion) {
+    c.bench_function("CheckedF64Result::mul", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| lhs * rhs)
+    });
+}
+
+fn bench_f64_div(c: &mut Criterion) {
+    c.bench_function("f64::div", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+
+        b.iter(|| lhs / rhs);
+    });
+}
+
+fn bench_checked_f64_div(c: &mut Criterion) {
+    c.bench_function("CheckedF64::div", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| (lhs / rhs).unwrap())
+    });
+}
+
+fn bench_checked_f64_result_div(c: &mut Criterion) {
+    c.bench_function("CheckedF64Result::div", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| lhs / rhs)
+    });
+}
+
+fn bench_f64_rem(c: &mut Criterion) {
+    c.bench_function("f64::rem", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+
+        b.iter(|| lhs % rhs);
+    });
+}
+
+fn bench_checked_f64_rem(c: &mut Criterion) {
+    c.bench_function("CheckedF64::rem", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| (lhs % rhs).unwrap())
+    });
+}
+
+fn bench_checked_f64_result_rem(c: &mut Criterion) {
+    c.bench_function("CheckedF64Result::rem", |b| {
+        let lhs = CheckedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = CheckedF64::new(std::hint::black_box(2.0)).unwrap();
+
+        b.iter(|| lhs % rhs)
+    });
+}
+
+criterion_group!(
+    benches,
+    bench_f64_add,
+    bench_checked_f64_add,
+    bench_checked_f64_result_add,
+    bench_f64_sub,
+    bench_checked_f64_sub,
+    bench_checked_f64_result_sub,
+    bench_f64_mul,
+    bench_checked_f64_mul,
+    bench_checked_f64_result_mul,
+    bench_f64_div,
+    bench_checked_f64_div,
+    bench_checked_f64_result_div,
+    bench_f64_rem,
+    bench_checked_f64_rem,
+    bench_checked_f64_result_rem,
+);
+criterion_main!(benches);
