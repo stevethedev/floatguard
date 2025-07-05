@@ -115,6 +115,28 @@ impl From<f64> for Result {
     }
 }
 
+impl std::ops::Deref for CheckedF64 {
+    type Target = f64;
+
+    /// Dereferences `CheckedF64` to its inner `f64` value.
+    ///
+    /// # Returns
+    ///
+    /// Returns a reference to the inner `f64` value.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use checked_float::CheckedF64;
+    ///
+    /// let value = CheckedF64::new(2.0).unwrap();
+    /// assert_eq!(*value, 2.0);
+    /// ```
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -124,7 +146,7 @@ mod tests {
         ($result:expr) => {
             prop_assert_eq!($result.unwrap_err(), FloatError);
         };
-        
+
         ($result:expr, $msg:expr) => {
             prop_assert_eq!($result.unwrap_err().to_string(), $msg);
         };
