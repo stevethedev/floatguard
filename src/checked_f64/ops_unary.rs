@@ -85,6 +85,16 @@ mod tests {
     };
     use proptest::prelude::*;
 
+    macro_rules! prop_assert_float_error {
+        ($result:expr) => {
+            prop_assert_eq!($result.unwrap_err(), FloatError);
+        };
+
+        ($result:expr, $msg:expr) => {
+            prop_assert_eq!($result.unwrap_err().to_string(), $msg);
+        };
+    }
+
     proptest! {
         #[test]
         fn test_negation(a in valid_f64()) {
@@ -98,7 +108,7 @@ mod tests {
         #[test]
         fn test_negation_invalid(a in invalid_f64()) {
             let checked_a = CheckedF64::new(a);
-            prop_assert_eq!((-checked_a).unwrap_err(), FloatError);
+            prop_assert_float_error!(-checked_a);
         }
     }
 }

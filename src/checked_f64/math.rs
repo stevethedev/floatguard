@@ -645,6 +645,16 @@ mod tests {
     };
     use proptest::prelude::*;
 
+    macro_rules! prop_assert_float_error {
+        ($result:expr) => {
+            prop_assert_eq!($result.unwrap_err(), FloatError);
+        };
+
+        ($result:expr, $msg:expr) => {
+            prop_assert_eq!($result.unwrap_err().to_string(), $msg);
+        };
+    }
+    
     proptest! {
         // Absolute value
         #[test]
@@ -738,8 +748,8 @@ mod tests {
                 prop_assert_eq!(checked_a.powf(checked_b), expected);
                 prop_assert_eq!(checked_a.unwrap().powf(checked_b), expected);
             } else {
-                prop_assert_eq!(checked_a.powf(checked_b).unwrap_err(), FloatError);
-                prop_assert_eq!(checked_a.unwrap().powf(checked_b).unwrap_err(), FloatError);
+                prop_assert_float_error!(checked_a.powf(checked_b));
+                prop_assert_float_error!(checked_a.unwrap().powf(checked_b));
             }
         }
 
@@ -748,7 +758,7 @@ mod tests {
             let checked_a = CheckedF64::new(a);
             let checked_b = CheckedF64::new(b).unwrap();
 
-            prop_assert_eq!(checked_a.powf(checked_b).unwrap_err(), FloatError);
+            prop_assert_float_error!(checked_a.powf(checked_b));
         }
 
         // Int Exponentiation
@@ -956,8 +966,8 @@ mod tests {
                 prop_assert_eq!(checked_a.atan2(checked_b), expected);
                 prop_assert_eq!(checked_a.unwrap().atan2(checked_b), expected);
             } else {
-                prop_assert_eq!(checked_a.atan2(checked_b).unwrap_err(), FloatError);
-                prop_assert_eq!(checked_a.unwrap().atan2(checked_b).unwrap_err(), FloatError);
+                prop_assert_float_error!(checked_a.atan2(checked_b));
+                prop_assert_float_error!(checked_a.unwrap().atan2(checked_b));
             }
         }
 
@@ -966,7 +976,7 @@ mod tests {
             let checked_a = CheckedF64::new(a);
             let checked_b = CheckedF64::new(b).unwrap();
 
-            prop_assert_eq!(checked_a.atan2(checked_b).unwrap_err(), FloatError);
+            prop_assert_float_error!(checked_a.atan2(checked_b));
         }
 
     //     // Sin & Cos Functions

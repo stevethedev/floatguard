@@ -120,6 +120,16 @@ mod tests {
     use super::*;
     use proptest::prelude::*;
 
+    macro_rules! prop_assert_float_error {
+        ($result:expr) => {
+            prop_assert_eq!($result.unwrap_err(), FloatError);
+        };
+        
+        ($result:expr, $msg:expr) => {
+            prop_assert_eq!($result.unwrap_err().to_string(), $msg);
+        };
+    }
+
     const INVALID_VALUES: &[f64; 3] = &[f64::NAN, f64::INFINITY, f64::NEG_INFINITY];
 
     pub fn valid_f64() -> impl Strategy<Value = f64> {
@@ -137,12 +147,19 @@ mod tests {
     proptest! {
         #[test]
         fn test_from_valid(a in valid_f64()) {
-            prop_assert_eq!(CheckedF64::new(a), Ok(a));
+            let checked_a = CheckedF64::new(a);
+
+            prop_assert_eq!(checked_a, Ok(CheckedF64(a)));
+            prop_assert_eq!(checked_a, Ok(a));
+            prop_assert_eq!(checked_a, a);
         }
 
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
-            prop_assert_eq!(*CheckedF64::new(a), Err(FloatError));
+            let checked_a = CheckedF64::new(a);
+
+            prop_assert_eq!(*checked_a, Err(FloatError));
+            prop_assert_float_error!(checked_a);
         }
     }
 }
