@@ -16,14 +16,14 @@ macro_rules! const_math {
 
     (
         $name:ident,
-        fn ($base:ident : f64) -> $ret:ty $implementation:block,
+        fn ($base:ident : f64) -> CheckedF64Result $implementation:block,
         $doc:expr
     ) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub const fn $name(self) -> $ret {
+            pub const fn $name(self) -> CheckedF64Result {
                 let $base = self.0;
                 $implementation
             }
@@ -33,7 +33,7 @@ macro_rules! const_math {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub const fn $name(self) -> $ret {
+            pub const fn $name(self) -> CheckedF64Result {
                 let Ok($base) = self.as_inner() else { return self; };
                 $base.$name()
             }
@@ -98,14 +98,14 @@ macro_rules! math {
 
     (
         $name:ident,
-        fn ($base:ident : f64, $operand:ident : $t:ty) -> $ret:ty $implementation:block,
+        fn ($base:ident : f64, $operand:ident : $t:ty) -> CheckedF64Result $implementation:block,
         $doc:expr
     ) => {
         impl CheckedF64 {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub fn $name(self, $operand: $t) -> $ret {
+            pub fn $name(self, $operand: $t) -> CheckedF64Result {
                 let $base = self.0;
                 $implementation
             }
@@ -115,7 +115,7 @@ macro_rules! math {
             #[doc = $doc]
             #[must_use = "method returns a new instance and does not mutate the original value"]
             #[inline(always)]
-            pub fn $name(self, $operand: $t) -> $ret {
+            pub fn $name(self, $operand: $t) -> CheckedF64Result {
                 let Ok($base) = self.as_inner() else { return self };
                 $base.$name($operand)
             }
@@ -564,33 +564,59 @@ math!(
     "
 );
 
-// math!(
-//     sin_cos,
-//     fn (base: f64) -> (CheckedF64Result, CheckedF64Result) {
-//         let (sin, cos) = base.sin_cos();
-//         (CheckedF64::new(sin), CheckedF64::new(cos))
-//     },
-//     r"
-//         Simultaneously computes the sine and cosine of the number, `x`. Returns (sin(x), cos(x)).
-//
-//         See: [`f64::sin_cos`]
-//
-//         # Examples
-//
-//         ```rust
-//         use checked_float::CheckedF64;
-//
-//         let x = CheckedF64::FRAC_PI_4;
-//         let f = x.sin_cos();
-//
-//         let abs_difference_0 = (f.0 - x.sin()).abs();
-//         let abs_difference_1 = (f.1 - x.cos()).abs();
-//
-//         assert!(abs_difference_0 < 1e-10);
-//         assert!(abs_difference_1 < 1e-10);
-//         ```
-//     "
-// );
+impl CheckedF64 {
+    /// Simultaneously computes the sine and cosine of the number, `x`. Returns (sin(x), cos(x)).
+    ///
+    /// See: [`f64::sin_cos`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use checked_float::CheckedF64;
+    ///
+    /// let x = CheckedF64::FRAC_PI_4;
+    /// let f = x.sin_cos();
+    ///
+    /// let abs_difference_0 = (f.0 - x.sin()).abs();
+    /// let abs_difference_1 = (f.1 - x.cos()).abs();
+    ///
+    /// assert!(abs_difference_0 < 1e-10);
+    /// assert!(abs_difference_1 < 1e-10);
+    /// ```
+    #[must_use = "method returns a new instance and does not mutate the original value"]
+    #[inline(always)]
+    pub fn sin_cos(self) -> (CheckedF64Result, CheckedF64Result) {
+        let (sin, cos) = self.0.sin_cos();
+        (CheckedF64::new(sin), CheckedF64::new(cos))
+    }
+}
+
+impl CheckedF64Result {
+    /// Simultaneously computes the sine and cosine of the number, `x`. Returns (sin(x), cos(x)).
+    ///
+    /// See: [`f64::sin_cos`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use checked_float::CheckedF64;
+    ///
+    /// let x = CheckedF64::FRAC_PI_4;
+    /// let f = x.sin_cos();
+    ///
+    /// let abs_difference_0 = (f.0 - x.sin()).abs();
+    /// let abs_difference_1 = (f.1 - x.cos()).abs();
+    ///
+    /// assert!(abs_difference_0 < 1e-10);
+    /// assert!(abs_difference_1 < 1e-10);
+    /// ```
+    #[must_use = "method returns a new instance and does not mutate the original value"]
+    #[inline(always)]
+    pub fn sin_cos(self) -> (CheckedF64Result, CheckedF64Result) {
+        let Ok(base) = self.as_inner() else { return (self, self); };
+        base.sin_cos()
+    }
+}
 
 math!(
     tan,
@@ -732,7 +758,7 @@ mod tests {
             prop_assert_eq!($result.unwrap_err().to_string(), $msg);
         };
     }
-    
+
     proptest! {
         // Absolute value
         #[test]
@@ -1057,25 +1083,25 @@ mod tests {
             prop_assert_float_error!(checked_a.atan2(checked_b));
         }
 
-    //     // Sin & Cos Functions
-    //     #[test]
-    //     fn test_sin_cos_valid(a in valid_f64()) {
-    //         if a.sin().is_finite() && a.cos().is_finite() {
-    //             let (sin_val, cos_val) = CheckedF64::new(a).sin_cos();
-    //             prop_assert_eq!(sin_val, Ok(a.sin()));
-    //             prop_assert_eq!(cos_val, Ok(a.cos()));
-    //         } else {
-    //             let (sin_val, cos_val) = CheckedF64::new(a).sin_cos();
-    //             prop_assert_eq!(*sin_val, Err(FloatError));
-    //             prop_assert_eq!(*cos_val, Err(FloatError));
-    //         }
-    //     }
-    //
-    //     #[test]
-    //     fn test_sin_cos_invalid(a in invalid_f64()) {
-    //         let (sin_val, cos_val) = CheckedF64::new(a).sin_cos();
-    //         prop_assert_eq!(*sin_val, Err(FloatError));
-    //         prop_assert_eq!(*cos_val, Err(FloatError));
-    //     }
+        // Sin & Cos Functions
+        #[test]
+        fn test_sin_cos_valid(a in valid_f64()) {
+            if a.sin().is_finite() && a.cos().is_finite() {
+                let (sin_val, cos_val) = CheckedF64::new(a).sin_cos();
+                prop_assert_eq!(sin_val, Ok(a.sin()));
+                prop_assert_eq!(cos_val, Ok(a.cos()));
+
+                let (sin_val, cos_val) = CheckedF64::new(a).unwrap().sin_cos();
+                prop_assert_eq!(sin_val, Ok(a.sin()));
+                prop_assert_eq!(cos_val, Ok(a.cos()));
+            }
+        }
+
+        #[test]
+        fn test_sin_cos_invalid(a in invalid_f64()) {
+            let (sin_val, cos_val) = CheckedF64::new(a).sin_cos();
+            prop_assert_float_error!(sin_val);
+            prop_assert_float_error!(cos_val);
+        }
     }
 }

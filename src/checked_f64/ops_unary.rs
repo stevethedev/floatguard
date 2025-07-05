@@ -1,5 +1,17 @@
 use crate::{CheckedF64, CheckedF64Result};
 
+/// Macro to implement unary operations for `CheckedF64` and `CheckedF64Result`.
+/// 
+/// This macro generates implementations for unary operations like negation, ensuring that the operation
+/// returns a `CheckedF64Result`. It handles both `CheckedF64` and `CheckedF64Result` types, allowing for
+/// safe operations on floating-point numbers while checking for invalid values like NaN or Infinity.
+/// 
+/// # Arguments
+/// 
+/// - `$op_trait`: The trait for the unary operation (e.g., `Neg`).
+/// - `$op_method`: The method name for the operation (e.g., `neg`).
+/// - `$implementation`: The implementation function that defines how the operation is performed.
+/// - `$doc`: A documentation string that describes the operation and its behavior.
 macro_rules! unary_operation {
     (
         $op_trait:ident :: $op_method:ident,
