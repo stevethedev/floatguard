@@ -256,6 +256,82 @@ math!(
 );
 
 math!(
+    log2,
+    r"
+        Returns the base-2 logarithm of a number, `log2(self)`.
+
+        See: [`f64::log2`]
+
+        # Examples
+
+        ```rust
+        use checked_float::CheckedF64;
+
+        let two = CheckedF64::new(2.0_f64);
+
+        // log2(2) == 1
+        let abs_difference = (two.log2() - 1.0).unwrap().abs().unwrap();
+
+        assert!(abs_difference < 1e-10);
+        ```
+    "
+);
+
+math!(
+    log10,
+    r"
+        Returns the base-10 logarithm of a number, `log10(self)`.
+
+        See: [`f64::log10`]
+
+        # Examples
+
+        ```rust
+        use checked_float::CheckedF64;
+
+        let ten = CheckedF64::new(10.0_f64);
+
+        // log10(10) == 1
+        let abs_difference = (ten.log10() - 1.0).unwrap().abs().unwrap();
+
+        assert!(abs_difference < 1e-10);
+        ```
+    "
+);
+
+math!(
+    log,
+    fn (me: f64, base: impl Into<CheckedF64Result>) -> CheckedF64Result {
+        let base: CheckedF64Result = base.into();
+        let Ok(base) = base.as_inner() else { return base };
+        CheckedF64::new(me.log(base.0))
+    },
+    r"
+        Returns the logarithm of a number with a specified base, `log(self, base)`.
+
+        See: [`f64::log`]
+
+        # Arguments
+
+        `base` - The base of the logarithm.
+
+        # Examples
+
+        ```rust
+        use checked_float::CheckedF64;
+
+        let two = CheckedF64::new(2.0_f64);
+        let eight = CheckedF64::new(8.0_f64);
+
+        // log(8, 2) == 3
+        let abs_difference = (eight.log(two) - 3.0).unwrap().abs().unwrap();
+
+        assert!(abs_difference < 1e-10);
+        ```
+    "
+);
+
+math!(
     powi,
     power: i32,
     r"
@@ -606,7 +682,9 @@ math!(
 
 math!(
     atan2,
-    fn (base: f64, other: CheckedF64) -> CheckedF64Result {
+    fn (base: f64, other: impl Into<CheckedF64Result>) -> CheckedF64Result {
+        let other: CheckedF64Result = other.into();
+        let Ok(other) = other.as_inner() else { return other };
         CheckedF64::new(base.atan2(other.0))
     },
     r"
