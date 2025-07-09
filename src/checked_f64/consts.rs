@@ -1,4 +1,4 @@
-use super::CheckedF64;
+use super::{CheckedF64, UncheckedF64};
 
 /// Macro to define constants in `CheckedF64` that mirror the constants in `f64`.
 ///
@@ -14,15 +14,20 @@ use super::CheckedF64;
 /// - `$doc`: A documentation string that describes the constant and its purpose.
 macro_rules! copy_const_value {
     ($name:ident, f64, $doc:expr) => {
-        copy_const_value!($name, Self, Self(f64::$name), $doc);
+        copy_const_value!($name, CheckedF64, CheckedF64(f64::$name), $doc);
     };
 
-    ($name:ident, $t:tt, $doc:expr) => {
+    ($name:ident, $t:ty, $doc:expr) => {
         copy_const_value!($name, $t, f64::$name, $doc);
     };
 
-    ($name:ident, $t:tt, $value:expr, $doc:expr) => {
+    ($name:ident, $t:ty, $value:expr, $doc:expr) => {
         impl CheckedF64 {
+            #[doc = $doc]
+            pub const $name: $t = $value;
+        }
+
+        impl UncheckedF64 {
             #[doc = $doc]
             pub const $name: $t = $value;
         }
@@ -367,53 +372,80 @@ mod tests {
     fn test_digits() {
         assert_eq!(CheckedF64::DIGITS, f64::DIGITS);
         assert_type_eq!(CheckedF64::DIGITS, u32);
+
+        assert_eq!(UncheckedF64::DIGITS, f64::DIGITS);
+        assert_type_eq!(UncheckedF64::DIGITS, u32);
     }
 
     #[test]
     fn test_mantissa_digits() {
         assert_eq!(CheckedF64::MANTISSA_DIGITS, f64::MANTISSA_DIGITS);
         assert_type_eq!(CheckedF64::MANTISSA_DIGITS, u32);
+
+        assert_eq!(UncheckedF64::MANTISSA_DIGITS, f64::MANTISSA_DIGITS);
+        assert_type_eq!(UncheckedF64::MANTISSA_DIGITS, u32);
     }
 
     #[test]
     fn test_min() {
         assert_eq!(CheckedF64::MIN, f64::MIN);
         assert_type_eq!(CheckedF64::MIN, CheckedF64);
+
+        assert_eq!(UncheckedF64::MIN, f64::MIN);
+        assert_type_eq!(UncheckedF64::MIN, CheckedF64);
     }
 
     #[test]
     fn test_min_positive() {
         assert_eq!(CheckedF64::MIN_POSITIVE, f64::MIN_POSITIVE);
         assert_type_eq!(CheckedF64::MIN_POSITIVE, CheckedF64);
+
+        assert_eq!(UncheckedF64::MIN_POSITIVE, f64::MIN_POSITIVE);
+        assert_type_eq!(UncheckedF64::MIN_POSITIVE, CheckedF64);
     }
 
     #[test]
     fn test_max() {
         assert_eq!(CheckedF64::MAX, f64::MAX);
         assert_type_eq!(CheckedF64::MAX, CheckedF64);
+
+        assert_eq!(UncheckedF64::MAX, f64::MAX);
+        assert_type_eq!(UncheckedF64::MAX, CheckedF64);
     }
 
     #[test]
     fn test_min_exp() {
         assert_eq!(CheckedF64::MIN_EXP, f64::MIN_EXP);
         assert_type_eq!(CheckedF64::MIN_EXP, i32);
+
+        assert_eq!(UncheckedF64::MIN_EXP, f64::MIN_EXP);
+        assert_type_eq!(UncheckedF64::MIN_EXP, i32);
     }
 
     #[test]
     fn test_max_exp() {
         assert_eq!(CheckedF64::MAX_EXP, f64::MAX_EXP);
         assert_type_eq!(CheckedF64::MAX_EXP, i32);
+
+        assert_eq!(UncheckedF64::MAX_EXP, f64::MAX_EXP);
+        assert_type_eq!(UncheckedF64::MAX_EXP, i32);
     }
 
     #[test]
     fn test_min_10_exp() {
         assert_eq!(CheckedF64::MIN_10_EXP, f64::MIN_10_EXP);
         assert_type_eq!(CheckedF64::MIN_10_EXP, i32);
+
+        assert_eq!(UncheckedF64::MIN_10_EXP, f64::MIN_10_EXP);
+        assert_type_eq!(UncheckedF64::MIN_10_EXP, i32);
     }
 
     #[test]
     fn test_max_10_exp() {
         assert_eq!(CheckedF64::MAX_10_EXP, f64::MAX_10_EXP);
         assert_type_eq!(CheckedF64::MAX_10_EXP, i32);
+
+        assert_eq!(UncheckedF64::MAX_10_EXP, f64::MAX_10_EXP);
+        assert_type_eq!(UncheckedF64::MAX_10_EXP, i32);
     }
 }

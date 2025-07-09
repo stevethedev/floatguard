@@ -1,6 +1,6 @@
 # checked-float
 
-A checked wrapper around `f64` to eliminate the risks of `NaN` and `Infinity` in numerical computations.
+A low-cost checked wrapper around `f64` to eliminate the risks of `NaN` and `Infinity` in numerical computations.
 
 ## Why?
 
@@ -8,43 +8,62 @@ Floating-point math in Rust (and most languages) silently permits invalid values
 lead to subtle and hard-to-trace bugs. `checked-float` wraps `f64` in a safe type that propagates invalid states and
 prevents invalid values from ever entering your system.
 
-## Features
-
-- Guaranteed no `NaN` or `Infinity` in valid values
-- Propagates invalid results like a poison value
-- Drop-in arithmetic: `+`, `-`, `*`, `/`, `+=`, `-=`, etc.
-- `From<f64>`, `TryFrom<CheckedF64>`, `Display`, `Debug`
-- Optional `serde` support
-- `#![no_std]` compatible
-
 ## Example
 
 ```rust
 use checked_float::CheckedF64;
 
 fn main() {
-    let a = CheckedF64::from(1.0);
-    let b = CheckedF64::from(2.0);
+    let a = CheckedF64::new(1.0).unwrap();
+    let b = CheckedF64::new(2.0).unwrap();
 
     // Valid arithmetic
-    let c = a + b; // c is CheckedF64(3.0)
+    let c = a + b; // c is UncheckedF64(3.0)
+
+    match c.check() {
+        Ok(valid) => println!("Valid result: {valid}"),
+        Err(e) => println!("Error: {e}"),
+    }
 
     // Invalid arithmetic
-    let d = c / CheckedF64::from(0.0); // d is CheckedF64(NaN)
-    
+    let d = c / CheckedF64::new(0.0).unwrap(); // d is UncheckedF64(NaN)
+
     // Check if the result is valid
-    if d.is_valid() {
-        println!("Result: {}", d);
-    } else {
-        println!("Invalid result: {:?}", d);
+    match d.check() {
+        Ok(valid) => println!("Valid result: {valid}"),
+        Err(e) => println!("Error: {e}"),
     }
 }
 ```
 
-## Crate Features
+Executes as:
 
-* `serde` — Enables Serialize and Deserialize support
+```plaintext
+Valid result: 3
+Error: The floating-point value is poisoned
+```
+
+## Features
+
+- Guaranteed no `NaN` or `Infinity` in `CheckedF64` values
+- Propagates invalid results in `UncheckedF64` like a poison value
+- Drop-in arithmetic: `+`, `-`, `*`, `/`, `+=`, `-=`, etc.
+- `TryFrom<f64>`, `From<CheckedF64>`
+- `#![no_std]` compatible
+
+### Crate Features
+
 * `std` (default) — Enables std-based functionality (currently unused but future-proofed)
+
+## Safety and Limitations
+
+- Only `f64` values are supported; no support for `f32` at this time.
+- Arithmetic operations that could produce `NaN` or `Infinity` will result in an `UncheckedF64` value for efficiency;
+  you must check the result using `.check()` to ensure validity.
+
+## MSRV
+
+`cargo msrv` marks this as MSRV=`1.85.1`
 
 ## License
 
