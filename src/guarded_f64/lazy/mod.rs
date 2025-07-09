@@ -1,4 +1,4 @@
-use crate::{GuardedF64, FloatError};
+use crate::{FloatError, GuardedF64};
 
 /// Represents a checked floating-point number that ensures it is neither NaN nor infinite.
 ///
@@ -192,9 +192,9 @@ impl From<f64> for UnguardedF64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use proptest::prelude::*;
-    use crate::guarded_f64::tests::{invalid_f64, valid_f64};
     use crate::GuardedF64;
+    use crate::guarded_f64::tests::{invalid_f64, valid_f64};
+    use proptest::prelude::*;
 
     proptest! {
         #[test]

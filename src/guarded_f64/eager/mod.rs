@@ -167,8 +167,8 @@ impl std::ops::Deref for GuardedF64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use proptest::prelude::*;
     use crate::guarded_f64::tests::{invalid_f64, valid_f64};
+    use proptest::prelude::*;
 
     proptest! {
         #[test]
