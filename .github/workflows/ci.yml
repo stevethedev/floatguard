@@ -20,6 +20,10 @@ jobs:
           override: true
           components: clippy, rustfmt
 
+      - name: Add Cargo Third-Party Tools
+        run: |
+          cargo install cargo-audit
+
       - name: Cache Cargo registry
         uses: actions/cache@v4
         with:
