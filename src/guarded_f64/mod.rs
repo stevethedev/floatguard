@@ -5,8 +5,8 @@ mod ops_unary;
 mod lazy;
 mod eager;
 
-pub use lazy::UncheckedF64;
-pub use eager::CheckedF64;
+pub use lazy::UnguardedF64;
+pub use eager::GuardedF64;
 
 #[cfg(test)]
 mod tests {

@@ -1,13 +1,13 @@
 [package]
-name = "checked-float"
+name = "floatguard"
 version = "0.1.0"
 edition = "2024"
 authors = ["Steven Jimenez <stevenmjimenez@gmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "A library for checked floating-point arithmetic in Rust, safely elminating NaN and Infinity from floating-point computations."
-repository = "https://github.com/stevethedev/checked-float-rs"
-homepage = "https://github.com/stevethedev/checked-float-rs"
-documentation = "https://docs.rs/checked-float"
+repository = "https://github.com/stevethedev/floatguard-rs"
+homepage = "https://github.com/stevethedev/floatguard-rs"
+documentation = "https://docs.rs/floatguard"
 keywords = ["float", "f64", "nan", "infinity", "checked"]
 categories = ["mathematics", "science", "no-std"]
 readme = "README.md"

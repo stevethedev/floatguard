@@ -1,9 +1,9 @@
-use super::{CheckedF64, UncheckedF64};
+use super::{GuardedF64, UnguardedF64};
 
-/// Macro to implement unary operations for `CheckedF64` and `UncheckedF64`.
+/// Macro to implement unary operations for `GuardedF64` and `UnguardedF64`.
 ///
 /// This macro generates implementations for unary operations like negation, ensuring that the operation
-/// returns a `UncheckedF64`. It handles both `CheckedF64` and `UncheckedF64` types, allowing for
+/// returns a `UnguardedF64`. It handles both `GuardedF64` and `UnguardedF64` types, allowing for
 /// safe operations on floating-point numbers while checking for invalid values like NaN or Infinity.
 ///
 /// # Arguments
@@ -19,18 +19,18 @@ macro_rules! unary_operation {
     ) => {
         unary_operation!(
             $op_trait :: $op_method,
-            fn (lhs: CheckedF64) -> CheckedF64 {
-                let CheckedF64(lhs) = lhs;
-                CheckedF64(lhs.$op_method())
+            fn (lhs: GuardedF64) -> GuardedF64 {
+                let GuardedF64(lhs) = lhs;
+                GuardedF64(lhs.$op_method())
             },
             $doc
         );
 
         unary_operation!(
             $op_trait :: $op_method,
-            fn (lhs: UncheckedF64) -> UncheckedF64 {
-                let UncheckedF64(lhs) = lhs;
-                UncheckedF64(lhs.$op_method())
+            fn (lhs: UnguardedF64) -> UnguardedF64 {
+                let UnguardedF64(lhs) = lhs;
+                UnguardedF64(lhs.$op_method())
             },
             $doc
         );
@@ -66,29 +66,29 @@ macro_rules! unary_operation {
 unary_operation!(
     Neg::neg,
     r"
-        Negates the `CheckedF64` or `UncheckedF64` value.
+        Negates the `GuardedF64` or `UnguardedF64` value.
 
         # Returns
 
         Returns a new `Self` instance with the negated value. Unlike other operations, this does not
-        default to creating an `UncheckedF64` for `CheckedF64`, as `-x` is always valid for finite
+        default to creating an `UnguardedF64` for `GuardedF64`, as `-x` is always valid for finite
         and non-NaN values.
 
         # Example
 
         ```rust
-        use checked_float::{CheckedF64, FloatError, UncheckedF64};
+        use floatguard::{GuardedF64, FloatError, UnguardedF64};
 
-        let value = CheckedF64::new(2.0).unwrap();
+        let value = GuardedF64::new(2.0).unwrap();
         assert_eq!(-value, -2.0);
 
-        let value = UncheckedF64::new(2.0);
+        let value = UnguardedF64::new(2.0);
         assert_eq!(f64::try_from(-value), Ok(-2.0));
 
-        let invalid_value = UncheckedF64::new(f64::NAN);
+        let invalid_value = UnguardedF64::new(f64::NAN);
         assert_eq!((-invalid_value).check(), Err(FloatError));
 
-        let infinity_value = UncheckedF64::new(f64::INFINITY);
+        let infinity_value = UnguardedF64::new(f64::INFINITY);
         assert_eq!((-infinity_value).check(), Err(FloatError));
         ```
     "
@@ -96,26 +96,26 @@ unary_operation!(
 
 #[cfg(test)]
 mod tests {
-    use crate::{CheckedF64, FloatError, checked_f64::tests::{invalid_f64, valid_f64}, UncheckedF64};
+    use crate::{GuardedF64, FloatError, guarded_f64::tests::{invalid_f64, valid_f64}, UnguardedF64};
     use proptest::prelude::*;
 
     proptest! {
         #[test]
         fn test_negation(a in valid_f64()) {
-            let checked_a = CheckedF64::new(a).unwrap();
-            let expected = CheckedF64::new(-a).unwrap();
+            let checked_a = GuardedF64::new(a).unwrap();
+            let expected = GuardedF64::new(-a).unwrap();
 
             prop_assert_eq!(-checked_a, expected);
             prop_assert_eq!(-checked_a, -a);
 
-            let unchecked_a = UncheckedF64::new(a);
+            let unchecked_a = UnguardedF64::new(a);
 
             prop_assert_eq!((-unchecked_a).check(), Ok(expected));
         }
 
         #[test]
         fn test_negation_invalid(a in invalid_f64()) {
-            let checked_a = UncheckedF64::new(a);
+            let checked_a = UnguardedF64::new(a);
             prop_assert_eq!((-checked_a).check(), Err(FloatError));
         }
     }

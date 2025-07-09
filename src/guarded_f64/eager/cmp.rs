@@ -1,12 +1,12 @@
-//! This module implements the `PartialEq` and `PartialOrd` traits for `CheckedF64`.
+//! This module implements the `PartialEq` and `PartialOrd` traits for `GuardedF64`.
 //!
-//! The `PartialEq` trait allows for equality comparisons between `CheckedF64` instances and `f64`
+//! The `PartialEq` trait allows for equality comparisons between `GuardedF64` instances and `f64`
 //! values, while the `PartialOrd` trait enables ordering comparisons.
-use super::CheckedF64;
+use super::GuardedF64;
 use std::cmp::{Ordering, PartialEq, PartialOrd};
 
-impl PartialEq for CheckedF64 {
-    /// Compares two `CheckedF64` values for equality.
+impl PartialEq for GuardedF64 {
+    /// Compares two `GuardedF64` values for equality.
     ///
     /// # Returns
     ///
@@ -15,14 +15,14 @@ impl PartialEq for CheckedF64 {
     /// # Example
     ///
     /// ```rust
-    /// use checked_float::CheckedF64;
+    /// use floatguard::GuardedF64;
     ///
-    /// let a = CheckedF64::new(2.0).unwrap();
-    /// let b = CheckedF64::new(2.0).unwrap();
+    /// let a = GuardedF64::new(2.0).unwrap();
+    /// let b = GuardedF64::new(2.0).unwrap();
     /// assert_eq!(a, b);
     ///
-    /// let a_invalid = CheckedF64::new(2.0);
-    /// let b_invalid = CheckedF64::new(f64::NAN);
+    /// let a_invalid = GuardedF64::new(2.0);
+    /// let b_invalid = GuardedF64::new(f64::NAN);
     /// assert_ne!(a_invalid, b_invalid);
     /// ```
     fn eq(&self, other: &Self) -> bool {
@@ -30,19 +30,19 @@ impl PartialEq for CheckedF64 {
     }
 }
 
-impl PartialEq<f64> for CheckedF64 {
-    /// Compares `CheckedF64` with `f64` for equality.
+impl PartialEq<f64> for GuardedF64 {
+    /// Compares `GuardedF64` with `f64` for equality.
     ///
     /// # Returns
     ///
-    /// Returns `true` if `CheckedF64` is valid (finite) and equal to `f64`, otherwise returns `false`.
+    /// Returns `true` if `GuardedF64` is valid (finite) and equal to `f64`, otherwise returns `false`.
     ///
     /// # Example
     ///
     /// ```rust
-    /// use checked_float::CheckedF64;
+    /// use floatguard::GuardedF64;
     ///
-    /// let a = CheckedF64::new(2.0).unwrap();
+    /// let a = GuardedF64::new(2.0).unwrap();
     /// let b = 2.0;
     /// assert_eq!(a, b);
     ///
@@ -54,33 +54,33 @@ impl PartialEq<f64> for CheckedF64 {
     }
 }
 
-impl PartialEq<CheckedF64> for f64 {
-    /// Compares `f64` with `CheckedF64` for equality.
+impl PartialEq<GuardedF64> for f64 {
+    /// Compares `f64` with `GuardedF64` for equality.
     ///
     /// # Returns
     ///
-    /// Returns `true` if `f64` is finite and equal to `CheckedF64`, otherwise returns `false`.
+    /// Returns `true` if `f64` is finite and equal to `GuardedF64`, otherwise returns `false`.
     ///
     /// # Example
     ///
     /// ```rust
-    /// use checked_float::CheckedF64;
+    /// use floatguard::GuardedF64;
     ///
     /// let a = 2.0;
-    /// let b = CheckedF64::new(2.0).unwrap();
+    /// let b = GuardedF64::new(2.0).unwrap();
     /// assert_eq!(a, b);
     ///
     /// let a_invalid = f64::NAN;
-    /// let b_invalid = CheckedF64::new(2.0).unwrap();
+    /// let b_invalid = GuardedF64::new(2.0).unwrap();
     /// assert_ne!(a_invalid, b_invalid);
     /// ```
-    fn eq(&self, other: &CheckedF64) -> bool {
+    fn eq(&self, other: &GuardedF64) -> bool {
         self.is_finite() && *self == other.0
     }
 }
 
-impl PartialOrd for CheckedF64 {
-    /// Compares two `CheckedF64` values.
+impl PartialOrd for GuardedF64 {
+    /// Compares two `GuardedF64` values.
     ///
     /// # Returns
     ///
@@ -89,10 +89,10 @@ impl PartialOrd for CheckedF64 {
     /// # Example
     ///
     /// ```rust
-    /// use checked_float::CheckedF64;
+    /// use floatguard::GuardedF64;
     ///
-    /// let a = CheckedF64::new(2.0).unwrap();
-    /// let b = CheckedF64::new(3.0).unwrap();
+    /// let a = GuardedF64::new(2.0).unwrap();
+    /// let b = GuardedF64::new(3.0).unwrap();
     /// assert_eq!(a < b, true);
     /// assert_eq!(a <= b, true);
     /// assert_eq!(a > b, false);
@@ -103,8 +103,8 @@ impl PartialOrd for CheckedF64 {
     }
 }
 
-impl PartialOrd<f64> for CheckedF64 {
-    /// Compares `CheckedF64` with `f64`.
+impl PartialOrd<f64> for GuardedF64 {
+    /// Compares `GuardedF64` with `f64`.
     ///
     /// # Returns
     ///
@@ -113,9 +113,9 @@ impl PartialOrd<f64> for CheckedF64 {
     /// # Example
     ///
     /// ```rust
-    /// use checked_float::CheckedF64;
+    /// use floatguard::GuardedF64;
     ///
-    /// let a = CheckedF64::new(2.0).unwrap();
+    /// let a = GuardedF64::new(2.0).unwrap();
     /// let b = 3.0;
     /// assert_eq!(a < b, true);
     /// assert_eq!(a <= b, true);
@@ -134,8 +134,8 @@ impl PartialOrd<f64> for CheckedF64 {
     }
 }
 
-impl PartialOrd<CheckedF64> for f64 {
-    /// Compares `f64` with `CheckedF64`.
+impl PartialOrd<GuardedF64> for f64 {
+    /// Compares `f64` with `GuardedF64`.
     ///
     /// # Returns
     ///
@@ -144,10 +144,10 @@ impl PartialOrd<CheckedF64> for f64 {
     /// # Example
     ///
     /// ```rust
-    /// use checked_float::CheckedF64;
+    /// use floatguard::GuardedF64;
     /// use std::cmp::Ordering;
     ///
-    /// let a = CheckedF64::new(2.0).unwrap();
+    /// let a = GuardedF64::new(2.0).unwrap();
     /// let b = 3.0;
     /// assert_eq!(a > b, false);
     /// assert_eq!(a >= b, false);
@@ -156,7 +156,7 @@ impl PartialOrd<CheckedF64> for f64 {
     ///
     /// assert_eq!(f64::NAN.partial_cmp(&b), None);
     /// ```
-    fn partial_cmp(&self, other: &CheckedF64) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &GuardedF64) -> Option<Ordering> {
         if self.is_finite() {
             self.partial_cmp(&other.0)
         } else {
@@ -168,8 +168,8 @@ impl PartialOrd<CheckedF64> for f64 {
 #[cfg(test)]
 mod tests {
     use crate::{
-        CheckedF64,
-        checked_f64::tests::valid_f64,
+        GuardedF64,
+        guarded_f64::tests::valid_f64,
     };
     use proptest::prelude::*;
 
@@ -177,8 +177,8 @@ mod tests {
         // Ordering
         #[test]
         fn test_valid_cmp_valid(a in valid_f64(), b in valid_f64()) {
-            let checked_a = CheckedF64::new(a).unwrap();
-            let checked_b = CheckedF64::new(b).unwrap();
+            let checked_a = GuardedF64::new(a).unwrap();
+            let checked_b = GuardedF64::new(b).unwrap();
 
             prop_assert_eq!(checked_a > checked_b, a > b);
             prop_assert_eq!(checked_a > b, a > b);
@@ -191,16 +191,16 @@ mod tests {
 
         #[test]
         fn test_valid_cmp_invalid(a in valid_f64(), b in valid_f64()) {
-            prop_assert_eq!(CheckedF64::new(a).unwrap() > CheckedF64::new(b).unwrap(), a > b);
-            prop_assert_eq!(CheckedF64::new(a).unwrap() >= CheckedF64::new(b).unwrap(), a >= b);
-            prop_assert_eq!(CheckedF64::new(a).unwrap() < CheckedF64::new(b).unwrap(), a < b);
-            prop_assert_eq!(CheckedF64::new(a).unwrap() <= CheckedF64::new(b).unwrap(), a <= b);
+            prop_assert_eq!(GuardedF64::new(a).unwrap() > GuardedF64::new(b).unwrap(), a > b);
+            prop_assert_eq!(GuardedF64::new(a).unwrap() >= GuardedF64::new(b).unwrap(), a >= b);
+            prop_assert_eq!(GuardedF64::new(a).unwrap() < GuardedF64::new(b).unwrap(), a < b);
+            prop_assert_eq!(GuardedF64::new(a).unwrap() <= GuardedF64::new(b).unwrap(), a <= b);
         }
 
         // Equality Operator
         #[test]
         fn test_valid_eq_valid(a in valid_f64()) {
-            let checked_a = CheckedF64::new(a).unwrap();
+            let checked_a = GuardedF64::new(a).unwrap();
 
             prop_assert_eq!(checked_a, a);
             prop_assert_eq!(a, checked_a);
