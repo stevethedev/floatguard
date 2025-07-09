@@ -1,4 +1,4 @@
-use crate::{GuardedF64, FloatError};
+use crate::{FloatError, GuardedF64};
 
 /// Represents a checked floating-point number that ensures it is neither NaN nor infinite.
 ///
