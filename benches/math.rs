@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use floatguard::{GuardedF64, UnguardedF64};
 
 fn bench_f64_abs(c: &mut Criterion) {
@@ -516,8 +516,6 @@ fn bench_unchecked_atan2(c: &mut Criterion) {
         b.iter(|| y.atan2(x));
     });
 }
-
-
 
 criterion_group!(
     benches,

@@ -167,10 +167,7 @@ impl PartialOrd<GuardedF64> for f64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        GuardedF64,
-        guarded_f64::tests::valid_f64,
-    };
+    use crate::{GuardedF64, guarded_f64::tests::valid_f64};
     use proptest::prelude::*;
 
     proptest! {
@@ -198,6 +195,7 @@ mod tests {
         }
 
         // Equality Operator
+        #[allow(clippy::float_cmp)]
         #[test]
         fn test_valid_eq_valid(a in valid_f64()) {
             let checked_a = GuardedF64::new(a).unwrap();

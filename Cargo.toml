@@ -11,6 +11,11 @@ documentation = "https://docs.rs/floatguard"
 keywords = ["float", "f64", "nan", "infinity", "checked"]
 categories = ["mathematics", "science", "no-std"]
 readme = "README.md"
+exclude = [
+    ".github/*",
+    "benches/*",
+    "target/*",
+]
 
 [features]
 default = ["std"]

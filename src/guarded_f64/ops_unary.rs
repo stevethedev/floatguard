@@ -96,7 +96,10 @@ unary_operation!(
 
 #[cfg(test)]
 mod tests {
-    use crate::{GuardedF64, FloatError, guarded_f64::tests::{invalid_f64, valid_f64}, UnguardedF64};
+    use crate::{
+        FloatError, GuardedF64, UnguardedF64,
+        guarded_f64::tests::{invalid_f64, valid_f64},
+    };
     use proptest::prelude::*;
 
     proptest! {

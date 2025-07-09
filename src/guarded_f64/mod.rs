@@ -1,12 +1,12 @@
 mod consts;
+mod eager;
+mod lazy;
 mod math;
 mod ops_binary;
 mod ops_unary;
-mod lazy;
-mod eager;
 
-pub use lazy::UnguardedF64;
 pub use eager::GuardedF64;
+pub use lazy::UnguardedF64;
 
 #[cfg(test)]
 mod tests {

@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-tag-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Benchmark
+        run: cargo bench --verbose
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: target/criterion
+          publish_branch: gh-pages
+          destination_dir: benchmarks
