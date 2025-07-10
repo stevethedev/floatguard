@@ -18,154 +18,104 @@ macro_rules! bench {
 bench!(
     bench_add,
     "Addition",
-    (
-        "f64::add",
-        |b| {
-            let lhs = std::hint::black_box(42.0f64);
-            let rhs = std::hint::black_box(2.0);
-            b.iter(|| lhs + rhs)
-        }
-    ),
-    (
-        "GuardedF64::add",
-        |b| {
-            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
-            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
-            b.iter(|| lhs + rhs)
-        }
-    ),
-    (
-        "UnguardedF64::add",
-        |b| {
-            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
-            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
-            b.iter(|| lhs + rhs)
-        }
-    )
+    ("f64::add", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs + rhs)
+    }),
+    ("GuardedF64::add", |b| {
+        let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs + rhs)
+    }),
+    ("UnguardedF64::add", |b| {
+        let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+        let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+        b.iter(|| lhs + rhs)
+    })
 );
 
 bench!(
     bench_sub,
     "Subtraction",
-    (
-        "f64::sub",
-        |b| {
-            let lhs = std::hint::black_box(42.0f64);
-            let rhs = std::hint::black_box(2.0);
-            b.iter(|| lhs - rhs)
-        }
-    ),
-    (
-        "GuardedF64::sub",
-        |b| {
-            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
-            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
-            b.iter(|| lhs - rhs)
-        }
-    ),
-    (
-        "UnguardedF64::sub",
-        |b| {
-            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
-            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
-            b.iter(|| lhs - rhs)
-        }
-    )
+    ("f64::sub", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs - rhs)
+    }),
+    ("GuardedF64::sub", |b| {
+        let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs - rhs)
+    }),
+    ("UnguardedF64::sub", |b| {
+        let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+        let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+        b.iter(|| lhs - rhs)
+    })
 );
 
 bench!(
     bench_mul,
     "Multiplication",
-    (
-        "f64::mul",
-        |b| {
-            let lhs = std::hint::black_box(42.0f64);
-            let rhs = std::hint::black_box(2.0);
-            b.iter(|| lhs * rhs)
-        }
-    ),
-    (
-        "GuardedF64::mul",
-        |b| {
-            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
-            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
-            b.iter(|| lhs * rhs)
-        }
-    ),
-    (
-        "UnguardedF64::mul",
-        |b| {
-            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
-            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
-            b.iter(|| lhs * rhs)
-        }
-    )
+    ("f64::mul", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs * rhs)
+    }),
+    ("GuardedF64::mul", |b| {
+        let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs * rhs)
+    }),
+    ("UnguardedF64::mul", |b| {
+        let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+        let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+        b.iter(|| lhs * rhs)
+    })
 );
 
 bench!(
     bench_div,
     "Division",
-    (
-        "f64::div",
-        |b| {
-            let lhs = std::hint::black_box(42.0f64);
-            let rhs = std::hint::black_box(2.0);
-            b.iter(|| lhs / rhs)
-        }
-    ),
-    (
-        "GuardedF64::div",
-        |b| {
-            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
-            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
-            b.iter(|| lhs / rhs)
-        }
-    ),
-    (
-        "UnguardedF64::div",
-        |b| {
-            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
-            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
-            b.iter(|| lhs / rhs)
-        }
-    )
+    ("f64::div", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs / rhs)
+    }),
+    ("GuardedF64::div", |b| {
+        let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs / rhs)
+    }),
+    ("UnguardedF64::div", |b| {
+        let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+        let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+        b.iter(|| lhs / rhs)
+    })
 );
 
 bench!(
     bench_rem,
     "Remainder",
-    (
-        "f64::rem",
-        |b| {
-            let lhs = std::hint::black_box(42.0f64);
-            let rhs = std::hint::black_box(2.0);
-            b.iter(|| lhs % rhs)
-        }
-    ),
-    (
-        "GuardedF64::rem",
-        |b| {
-            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
-            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
-            b.iter(|| lhs % rhs)
-        }
-    ),
-    (
-        "UnguardedF64::rem",
-        |b| {
-            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
-            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
-            b.iter(|| lhs % rhs)
-        }
-    )
+    ("f64::rem", |b| {
+        let lhs = std::hint::black_box(42.0f64);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs % rhs)
+    }),
+    ("GuardedF64::rem", |b| {
+        let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs % rhs)
+    }),
+    ("UnguardedF64::rem", |b| {
+        let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+        let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+        b.iter(|| lhs % rhs)
+    })
 );
 
 criterion_group!(
-    benches,
-    bench_add,
-    bench_sub,
-    bench_mul,
-    bench_div,
-    bench_rem,
+    benches, bench_add, bench_sub, bench_mul, bench_div, bench_rem,
 );
 criterion_main!(benches);

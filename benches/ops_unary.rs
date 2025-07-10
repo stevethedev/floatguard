@@ -18,31 +18,19 @@ macro_rules! bench {
 bench!(
     bench_neg,
     "Negation",
-    (
-        "f64::neg",
-        |b| {
-            let value = std::hint::black_box(42.0f64);
-            b.iter(|| -value)
-        }
-    ),
-    (
-        "GuardedF64::neg",
-        |b| {
-            let value = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
-            b.iter(|| -value)
-        }
-    ),
-    (
-        "UnguardedF64::neg",
-        |b| {
-            let value = UnguardedF64::new(std::hint::black_box(42.0f64));
-            b.iter(|| -value)
-        }
-    )
+    ("f64::neg", |b| {
+        let value = std::hint::black_box(42.0f64);
+        b.iter(|| -value)
+    }),
+    ("GuardedF64::neg", |b| {
+        let value = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+        b.iter(|| -value)
+    }),
+    ("UnguardedF64::neg", |b| {
+        let value = UnguardedF64::new(std::hint::black_box(42.0f64));
+        b.iter(|| -value)
+    })
 );
 
-criterion_group!(
-    benches,
-    bench_neg,
-);
+criterion_group!(benches, bench_neg,);
 criterion_main!(benches);
