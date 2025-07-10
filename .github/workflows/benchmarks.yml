@@ -1,7 +1,7 @@
 name: Benchmarks
 
 permissions:
-  contents: read
+  contents: write
   pages: write
 
 on:
@@ -21,6 +21,7 @@ concurrency:
 
 jobs:
   benchmark:
+    name: Benchmarks
     runs-on: ubuntu-latest
 
     steps:
