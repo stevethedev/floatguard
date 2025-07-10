@@ -66,3 +66,9 @@ jobs:
           publish_dir: target/criterion
           publish_branch: gh-pages-source
           destination_dir: src/benchmarks/${{ steps.get_sanitized_ref_name.outputs.sanitizedRefName }}
+
+      - name: Trigger gh-pages workflow
+        uses: peter-evans/workflow-dispatch@v1
+        with:
+          workflow: gh-pages.yml
+          ref: gh-pages-source
