@@ -1,7 +1,7 @@
 name: Benchmarks
 
 permissions:
-  contents: read
+  contents: write
   pages: write
 
 on:
@@ -53,10 +53,16 @@ jobs:
       - name: Benchmark
         run: cargo bench --verbose
 
+      - name: Sanitize ref name
+        id: get_sanitized_ref_name
+        run: |
+          SANITIZED_REF_NAME=$(echo "${GITHUB_REF_NAME}" | tr -c '[:alnum:]' '-')
+          echo "sanitizedRefName=${SANITIZED_REF_NAME}" >> $GITHUB_OUTPUT
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: target/criterion
           publish_branch: gh-pages
-          destination_dir: benchmarks/${{ env.SANITIZED_REF_NAME }}
+          destination_dir: benchmarks/${{ get_sanitized_ref_name.outputs.sanitizedRefName }}
