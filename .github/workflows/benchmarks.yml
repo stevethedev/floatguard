@@ -65,4 +65,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: target/criterion
           publish_branch: gh-pages
-          destination_dir: benchmarks/${{ get_sanitized_ref_name.outputs.sanitizedRefName }}
+          destination_dir: benchmarks/${{ steps.get_sanitized_ref_name.outputs.sanitizedRefName }}
