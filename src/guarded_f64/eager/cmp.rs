@@ -30,6 +30,8 @@ impl PartialEq for GuardedF64 {
     }
 }
 
+impl Eq for GuardedF64 {}
+
 impl PartialEq<f64> for GuardedF64 {
     /// Compares `GuardedF64` with `f64` for equality.
     ///
@@ -99,7 +101,35 @@ impl PartialOrd for GuardedF64 {
     /// assert_eq!(a >= b, false);
     /// ```
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        PartialOrd::partial_cmp(&self.0, &other.0)
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for GuardedF64 {
+    /// Compares two `GuardedF64` values.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ordering` if both values are valid (finite), otherwise panics.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use floatguard::GuardedF64;
+    ///
+    /// let a = GuardedF64::new(2.0).unwrap();
+    /// let b = GuardedF64::new(3.0).unwrap();
+    /// assert_eq!(a.cmp(&b), std::cmp::Ordering::Less);
+    /// ```
+    fn cmp(&self, other: &Self) -> Ordering {
+        let lhs = self.0;
+        let rhs = other.0;
+
+        match (lhs < rhs, lhs > rhs) {
+            (true, _) => Ordering::Less,
+            (_, true) => Ordering::Greater,
+            _ => Ordering::Equal,
+        }
     }
 }
 
