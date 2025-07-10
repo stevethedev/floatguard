@@ -36,7 +36,9 @@ jobs:
 
       - name: Add Cargo Third-Party Tools
         run: |
-          cargo install cargo-audit
+          if ! command -v cargo-audit &> /dev/null; then
+            cargo install cargo-audit
+          fi
 
       - name: Check documentation
         run: cargo doc --no-deps --document-private-items
