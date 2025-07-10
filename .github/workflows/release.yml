@@ -23,7 +23,7 @@ jobs:
       - name: Get version from Cargo.toml
         id: get_version
         run: |
-          version=$(grep '^version' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          version=$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[0].version')
           echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Git Tag and Push
