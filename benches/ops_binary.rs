@@ -1,157 +1,171 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use floatguard::{GuardedF64, UnguardedF64};
 
-fn bench_f64_add(c: &mut Criterion) {
-    c.bench_function("f64::add", |b| {
-        let lhs = std::hint::black_box(42.0f64);
-        let rhs = std::hint::black_box(2.0);
+macro_rules! bench {
+    ($id:ident, $group:literal, $( ($bench:literal, $expr:expr) ),* ) => {
+        fn $id(c: &mut Criterion) {
+            let mut group = c.benchmark_group($group);
 
-        b.iter(|| lhs + rhs);
-    });
+            $(
+                group.bench_function($bench, $expr);
+            )*
+
+            group.finish();
+        }
+    };
 }
 
-fn bench_checked_add(c: &mut Criterion) {
-    c.bench_function("GuardedF64::add", |b| {
-        let lhs = std::hint::black_box(GuardedF64::new(42.0f64).unwrap());
-        let rhs = std::hint::black_box(GuardedF64::new(2.0).unwrap());
+bench!(
+    bench_add,
+    "Addition",
+    (
+        "f64::add",
+        |b| {
+            let lhs = std::hint::black_box(42.0f64);
+            let rhs = std::hint::black_box(2.0);
+            b.iter(|| lhs + rhs)
+        }
+    ),
+    (
+        "GuardedF64::add",
+        |b| {
+            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+            b.iter(|| lhs + rhs)
+        }
+    ),
+    (
+        "UnguardedF64::add",
+        |b| {
+            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+            b.iter(|| lhs + rhs)
+        }
+    )
+);
 
-        b.iter(|| lhs + rhs)
-    });
-}
+bench!(
+    bench_sub,
+    "Subtraction",
+    (
+        "f64::sub",
+        |b| {
+            let lhs = std::hint::black_box(42.0f64);
+            let rhs = std::hint::black_box(2.0);
+            b.iter(|| lhs - rhs)
+        }
+    ),
+    (
+        "GuardedF64::sub",
+        |b| {
+            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+            b.iter(|| lhs - rhs)
+        }
+    ),
+    (
+        "UnguardedF64::sub",
+        |b| {
+            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+            b.iter(|| lhs - rhs)
+        }
+    )
+);
 
-fn bench_unchecked_add(c: &mut Criterion) {
-    c.bench_function("UnguardedF64::add", |b| {
-        let lhs = std::hint::black_box(UnguardedF64::new(42.0f64));
-        let rhs = std::hint::black_box(UnguardedF64::new(2.0));
+bench!(
+    bench_mul,
+    "Multiplication",
+    (
+        "f64::mul",
+        |b| {
+            let lhs = std::hint::black_box(42.0f64);
+            let rhs = std::hint::black_box(2.0);
+            b.iter(|| lhs * rhs)
+        }
+    ),
+    (
+        "GuardedF64::mul",
+        |b| {
+            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+            b.iter(|| lhs * rhs)
+        }
+    ),
+    (
+        "UnguardedF64::mul",
+        |b| {
+            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+            b.iter(|| lhs * rhs)
+        }
+    )
+);
 
-        b.iter(|| lhs + rhs)
-    });
-}
+bench!(
+    bench_div,
+    "Division",
+    (
+        "f64::div",
+        |b| {
+            let lhs = std::hint::black_box(42.0f64);
+            let rhs = std::hint::black_box(2.0);
+            b.iter(|| lhs / rhs)
+        }
+    ),
+    (
+        "GuardedF64::div",
+        |b| {
+            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+            b.iter(|| lhs / rhs)
+        }
+    ),
+    (
+        "UnguardedF64::div",
+        |b| {
+            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+            b.iter(|| lhs / rhs)
+        }
+    )
+);
 
-fn bench_f64_sub(c: &mut Criterion) {
-    c.bench_function("f64::sub", |b| {
-        let lhs = std::hint::black_box(42.0f64);
-        let rhs = std::hint::black_box(2.0);
-
-        b.iter(|| lhs - rhs);
-    });
-}
-
-fn bench_checked_sub(c: &mut Criterion) {
-    c.bench_function("GuardedF64::sub", |b| {
-        let lhs = std::hint::black_box(GuardedF64::new(42.0f64).unwrap());
-        let rhs = std::hint::black_box(GuardedF64::new(2.0).unwrap());
-
-        b.iter(|| lhs - rhs)
-    });
-}
-
-fn bench_unchecked_sub(c: &mut Criterion) {
-    c.bench_function("UnguardedF64::sub", |b| {
-        let lhs = std::hint::black_box(UnguardedF64::new(42.0f64));
-        let rhs = std::hint::black_box(UnguardedF64::new(2.0));
-
-        b.iter(|| lhs + rhs)
-    });
-}
-
-fn bench_f64_mul(c: &mut Criterion) {
-    c.bench_function("f64::mul", |b| {
-        let lhs = std::hint::black_box(42.0f64);
-        let rhs = std::hint::black_box(2.0);
-
-        b.iter(|| lhs * rhs);
-    });
-}
-
-fn bench_checked_mul(c: &mut Criterion) {
-    c.bench_function("GuardedF64::mul", |b| {
-        let lhs = std::hint::black_box(GuardedF64::new(42.0f64).unwrap());
-        let rhs = std::hint::black_box(GuardedF64::new(2.0).unwrap());
-
-        b.iter(|| lhs * rhs)
-    });
-}
-
-fn bench_unchecked_mul(c: &mut Criterion) {
-    c.bench_function("UnguardedF64::mul", |b| {
-        let lhs = std::hint::black_box(UnguardedF64::new(42.0f64));
-        let rhs = std::hint::black_box(UnguardedF64::new(2.0));
-
-        b.iter(|| lhs * rhs)
-    });
-}
-
-fn bench_f64_div(c: &mut Criterion) {
-    c.bench_function("f64::div", |b| {
-        let lhs = std::hint::black_box(42.0f64);
-        let rhs = std::hint::black_box(2.0);
-
-        b.iter(|| lhs / rhs);
-    });
-}
-
-fn bench_checked_div(c: &mut Criterion) {
-    c.bench_function("GuardedF64::div", |b| {
-        let lhs = std::hint::black_box(GuardedF64::new(42.0f64).unwrap());
-        let rhs = std::hint::black_box(GuardedF64::new(2.0).unwrap());
-
-        b.iter(|| lhs / rhs)
-    });
-}
-
-fn bench_unchecked_div(c: &mut Criterion) {
-    c.bench_function("UnguardedF64::div", |b| {
-        let lhs = std::hint::black_box(UnguardedF64::new(42.0f64));
-        let rhs = std::hint::black_box(UnguardedF64::new(2.0));
-
-        b.iter(|| lhs / rhs)
-    });
-}
-
-fn bench_f64_rem(c: &mut Criterion) {
-    c.bench_function("f64::rem", |b| {
-        let lhs = std::hint::black_box(42.0f64);
-        let rhs = std::hint::black_box(2.0);
-
-        b.iter(|| lhs % rhs);
-    });
-}
-
-fn bench_checked_rem(c: &mut Criterion) {
-    c.bench_function("GuardedF64::rem", |b| {
-        let lhs = std::hint::black_box(GuardedF64::new(42.0f64).unwrap());
-        let rhs = std::hint::black_box(GuardedF64::new(2.0).unwrap());
-
-        b.iter(|| lhs % rhs)
-    });
-}
-
-fn bench_unchecked_rem(c: &mut Criterion) {
-    c.bench_function("UnguardedF64::rem", |b| {
-        let lhs = std::hint::black_box(UnguardedF64::new(42.0f64));
-        let rhs = std::hint::black_box(UnguardedF64::new(2.0));
-
-        b.iter(|| lhs % rhs)
-    });
-}
+bench!(
+    bench_rem,
+    "Remainder",
+    (
+        "f64::rem",
+        |b| {
+            let lhs = std::hint::black_box(42.0f64);
+            let rhs = std::hint::black_box(2.0);
+            b.iter(|| lhs % rhs)
+        }
+    ),
+    (
+        "GuardedF64::rem",
+        |b| {
+            let lhs = GuardedF64::new(std::hint::black_box(42.0f64)).unwrap();
+            let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+            b.iter(|| lhs % rhs)
+        }
+    ),
+    (
+        "UnguardedF64::rem",
+        |b| {
+            let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
+            let rhs = UnguardedF64::new(std::hint::black_box(2.0));
+            b.iter(|| lhs % rhs)
+        }
+    )
+);
 
 criterion_group!(
     benches,
-    bench_f64_add,
-    bench_checked_add,
-    bench_unchecked_add,
-    bench_f64_sub,
-    bench_checked_sub,
-    bench_unchecked_sub,
-    bench_f64_mul,
-    bench_checked_mul,
-    bench_unchecked_mul,
-    bench_f64_div,
-    bench_checked_div,
-    bench_unchecked_div,
-    bench_f64_rem,
-    bench_checked_rem,
-    bench_unchecked_rem,
+    bench_add,
+    bench_sub,
+    bench_mul,
+    bench_div,
+    bench_rem,
 );
 criterion_main!(benches);
