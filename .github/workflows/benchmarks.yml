@@ -44,10 +44,10 @@ jobs:
       - name: Cache general target directory
         uses: actions/cache@v4
         with:
-          path: target
-          key: target-${{ hashFiles('**/Cargo.lock') }}
+          path: target/release
+          key: target-release-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            target-
+            target-release-
 
       - name: Benchmark
         run: cargo bench --verbose
