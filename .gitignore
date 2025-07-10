@@ -5,3 +5,4 @@
 
 # Compiled Rust files and executables
 target/
+dist/
