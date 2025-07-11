@@ -35,7 +35,7 @@ jobs:
     name: Prepare Release PR
     runs-on: ubuntu-latest
     needs: has-changesets
-    if: jobs.has-changesets.outputs.has-changesets == 'true'
+    if: needs.has-changesets.outputs.has-changesets == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -61,7 +61,7 @@ jobs:
     name: Publish Release
     runs-on: ubuntu-latest
     needs: has-changesets
-    if: jobs.has-changesets.outputs.has-changesets == 'false'
+    if: needs.has-changesets.outputs.has-changesets == 'false'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
