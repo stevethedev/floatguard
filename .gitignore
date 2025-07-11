@@ -1,7 +1,0 @@
-# IDE and Editor specific files
-.idea/
-.vscode/
-*.iml
-
-# Compiled Rust files and executables
-target/
