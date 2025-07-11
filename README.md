@@ -1,5 +1,13 @@
 # FloatGuard (`floatguard`)
 
+[![Crates.io](https://img.shields.io/crates/v/floatguard.svg)](https://crates.io/crates/floatguard)
+[![Docs.rs](https://img.shields.io/badge/docs.rs-floatguard-blue)](https://docs.rs/floatguard)
+[![License](https://img.shields.io/crates/l/floatguard)](https://github.com/stevethedev/floatguard/blob/main/LICENSE.MID.md)
+
+[![Build Status](https://github.com/stevethedev/floatguard/actions/workflows/ci.yml/badge.svg)](https://github.com/stevethedev/floatguard/actions)
+[![codecov](https://codecov.io/gh/stevethedev/floatguard/graph/badge.svg?token=9OhzXIlNjL)](https://codecov.io/gh/stevethedev/floatguard)
+[![Release](https://github.com/stevethedev/floatguard/actions/workflows/release.yml/badge.svg)](https://github.com/stevethedev/floatguard/actions/workflows/release.yml)
+
 A low-cost, zero-overhead wrapper around `f64` that eliminates the risk of `NaN` and infinity in floating-point
 computations.
 
