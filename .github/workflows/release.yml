@@ -45,10 +45,8 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-      - name: Install the latest Knope
+      - name: Install Knope
         uses: knope-dev/action@v2.1.0
-        with:
-          version: latest
 
       - name: Execute Knope Versioning
         run: |
