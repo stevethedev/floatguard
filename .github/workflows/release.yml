@@ -53,7 +53,7 @@ jobs:
           knope version --verbose
           knope version-pr --verbose
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PR_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
 
   publish-release:
     name: Publish Release
