@@ -79,13 +79,44 @@ async function buildRootIndex(distDir) {
  */
 async function buildBenchmarkIndex(sourceDir, distDir) {
   await ensureDirExists(distDir);
-  const benchmarkList = await Array.fromAsync(getBenchmarks(sourceDir));
+  const benchmarkList = (await Array.fromAsync(getBenchmarks(sourceDir)))
+      .toSorted(sortBenchmarks);
   const benchmarkHtml = buildBenchmarkHtml(benchmarkList);
 
   const indexPath = join(distDir, "index.html");
   await writeFile(indexPath, benchmarkHtml, "utf8");
 
   await cp(sourceDir, distDir, { recursive: true });
+}
+
+/**
+ * Sort benchmark directories based on their version numbers or alphabetically.
+ * @param a {{ dir: string }} - The first benchmark directory object to compare.
+ * @param b {{ dir: string }} - The second benchmark directory object to compare.
+ * @returns {number} -1, 0, or 1 depending on the comparison result.
+ */
+function sortBenchmarks(a, b) {
+  const bVersion = b.dir.match(/^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)/)?.groups;
+  const aVersion = a.dir.match(/^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)/)?.groups;
+
+  // If both are versions, compare them numerically in descending order of major, minor, and patch.
+  if (aVersion && bVersion) {
+    const aMajor = parseInt(aVersion.major, 10);
+    const aMinor = parseInt(aVersion.minor, 10);
+    const aPatch = parseInt(aVersion.patch, 10);
+    const bMajor = parseInt(bVersion.major, 10);
+    const bMinor = parseInt(bVersion.minor, 10);
+    const bPatch = parseInt(bVersion.patch, 10);
+
+    return bMajor - aMajor || bMinor - aMinor || bPatch - aPatch;
+  }
+
+  // If one is a version and the other is not, prioritize the non-version.
+  if (aVersion) return -1; // a is a version, b is not
+  if (bVersion) return 1; // b is a version, a is not
+
+  // If neither is a version, sort alphabetically.
+  return a.dir.localeCompare(b.dir);
 }
 
 /**
@@ -202,7 +233,10 @@ function buildBenchmarkHtml(benchmarkList) {
     .map(({ dir, reportPath }) => `<li><a href="${reportPath}">${dir}</a></li>`)
     .join("");
 
-  return buildHtml("FloatGuard Benchmarks", `<ul>${benchmarkData}</ul>`);
+  return buildHtml("FloatGuard Benchmarks", `
+    <h2>Benchmarks</h2>
+    <ul>${benchmarkData}</ul>
+  `);
 }
 
 // Execute the main function and handle any errors.
