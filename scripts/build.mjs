@@ -226,7 +226,6 @@ function buildBenchmarkHtml(benchmarkList) {
     .map(({ dir, reportPath }) => ({
       dir,
       reportPath: join(
-        "benchmarks",
         reportPath.split(sep).map(encodeURIComponent).join("/"),
       ),
     }))
