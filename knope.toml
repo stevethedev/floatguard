@@ -44,9 +44,5 @@ command = "git push --force -u origin knope/v$version"
 [[workflows.steps]]
 type = "CreatePullRequest"
 base = "main"
-
-[workflows.steps.title]
-template = "[Knope] Release v$version"
-
-[workflows.steps.body]
-template = "Merging this PR will release the following:\n\n$changelog"
+title = { template = "[Knope] Version v$version" }
+body = { template = "Merging this PR will release the following:\n\n$changelog" }
