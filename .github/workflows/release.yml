@@ -13,10 +13,29 @@ permissions:
   pull-requests: write
 
 jobs:
+  has-changesets:
+    name: Check for Changesets
+    runs-on: ubuntu-latest
+    outputs:
+      has-changesets: ${{ steps.check_changesets.outputs.has_changesets }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for changesets
+        id: check_changesets
+        run: |
+          if [ -n "$(ls .changeset/*.md 2>/dev/null)" ]; then
+            echo "has_changesets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changesets=false" >> $GITHUB_OUTPUT
+          fi
+
   prepare-release-pr:
     name: Prepare Release PR
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('.changeset/*.md') != '' }}
+    needs: has-changesets
+    if: jobs.has-changesets.outputs.has-changesets == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,7 +60,8 @@ jobs:
   publish-release:
     name: Publish Release
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('.changeset/*.md') == '' }}
+    needs: has-changesets
+    if: jobs.has-changesets.outputs.has-changesets == 'false'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
