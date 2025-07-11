@@ -69,6 +69,8 @@ jobs:
 
       - name: Trigger gh-pages workflow
         uses: actions/github-script@v7
+        env:
+            GITHUB_TOKEN: ${{ secrets.BENCHMARK_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
         with:
           script: |
             await github.rest.actions.createWorkflowDispatch({
