@@ -1,0 +1,48 @@
+[package]
+versioned_files = ["Cargo.toml", "Cargo.lock"]
+changelog = "CHANGELOG.md"
+
+[github]
+owner = "stevethedev"
+repo = "floatguard"
+
+[[workflows]]
+name = "version"
+
+[[workflows.steps]]
+type = "Command"
+command = "git diff --quiet --exit-code"
+
+[[workflows.steps]]
+type = "PrepareRelease"
+
+[[workflows.steps]]
+type = "Command"
+command = "git commit -m \"[Knope] Prepare release v$version\""
+
+[[workflows]]
+name = "document-change"
+
+[[workflows.steps]]
+type = "CreateChangeFile"
+
+[[workflows]]
+name = "version-pr"
+
+[[workflows.steps]]
+type = "Command"
+command = "git diff --quiet --exit-code"
+
+[[workflows.steps]]
+type = "Command"
+command = "git checkout -b knope/v$version"
+
+[[workflows.steps]]
+type = "Command"
+command = "git push --force -u origin knope/v$version"
+
+[[workflows.steps]]
+type = "CreatePullRequest"
+base = "main"
+title = { template = "[Knope] Version v$version" }
+body = { template = "Merging this PR will release the following:\n\n$changelog" }
