@@ -381,173 +381,110 @@ mod tests {
     use proptest::prelude::*;
 
     proptest! {
-        // Addition Operations
         #[test]
-        fn test_valid_add_valid_eq_valid(a in any::<f64>(), b in any::<f64>()) {
-            let unchecked_a = UnguardedF64::new(a);
-            let unchecked_b = UnguardedF64::new(b);
+        fn test_addition(a in any::<f64>(), b in any::<f64>()) {
+            let unguarded_a = UnguardedF64::new(a);
+            let unguarded_b = UnguardedF64::new(b);
 
             let expected = GuardedF64::new(a + b);
             if a.is_finite() && b.is_finite() {
-                let checked_a = GuardedF64::new(a).unwrap();
-                let checked_b = GuardedF64::new(b).unwrap();
+                let guarded_a = GuardedF64::new(a).unwrap();
+                let guarded_b = GuardedF64::new(b).unwrap();
 
-                prop_assert_eq!((checked_a + checked_b).check(), expected);
-                prop_assert_eq!((checked_a + b).check(), expected);
-                prop_assert_eq!((a + checked_b).check(), expected);
-                prop_assert_eq!((checked_a + unchecked_b).check(), expected);
-                prop_assert_eq!((unchecked_a + checked_b).check(), expected);
+                prop_assert_eq!((guarded_a + guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a + b).check(), expected);
+                prop_assert_eq!((a + guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a + unguarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a + guarded_b).check(), expected);
             }
 
-            prop_assert_eq!((unchecked_a + unchecked_b).check(), expected);
-            prop_assert_eq!((unchecked_a + b).check(), expected);
-            prop_assert_eq!((a + unchecked_b).check(), expected);
+            prop_assert_eq!((unguarded_a + unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a + b).check(), expected);
+            prop_assert_eq!((a + unguarded_b).check(), expected);
         }
 
-        // #[test]
-        // fn test_valid_add_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-        //     let valid = GuardedF64::new(a);
-        //     let invalid = GuardedF64::new(b);
-        //
-        //     prop_assert_float_error!(valid + invalid);
-        //     prop_assert_float_error!(invalid + valid);
-        //
-        //     prop_assert_float_error!(a + invalid);
-        //     prop_assert_float_error!(invalid + a);
-        //
-        //     prop_assert_float_error!(valid + b);
-        //     prop_assert_float_error!(b + valid);
-        // }
-        //
-        // #[test]
-        // fn test_invalid_add_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) + GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) + b);
-        //     prop_assert_float_error!(a + GuardedF64::new(b));
-        // }
-        //
-        // // Subtraction Operations
-        // #[test]
-        // fn test_valid_sub_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
-        //     if (a - b).is_finite() {
-        //         prop_assert_eq!(GuardedF64::new(a) - GuardedF64::new(b), Ok(a - b));
-        //         prop_assert_eq!(GuardedF64::new(a) - b, Ok(a - b));
-        //         prop_assert_eq!(a - GuardedF64::new(b), Ok(a - b));
-        //     }
-        // }
-        //
-        // #[test]
-        // fn test_valid_sub_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) - GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) - b);
-        //     prop_assert_float_error!(a - GuardedF64::new(b));
-        // }
-        //
-        // #[test]
-        // fn test_invalid_sub_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) - GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) - b);
-        //     prop_assert_float_error!(a - GuardedF64::new(b));
-        // }
-        //
-        // #[test]
-        // fn test_invalid_sub_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) - GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) - b);
-        //     prop_assert_float_error!(a - GuardedF64::new(b));
-        // }
-        //
-        // // Multiplication Operations
-        // #[test]
-        // fn test_valid_mul_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
-        //     if (a * b).is_finite() {
-        //         prop_assert_eq!(GuardedF64::new(a) * GuardedF64::new(b), Ok(a * b));
-        //         prop_assert_eq!(GuardedF64::new(a) * b, Ok(a * b));
-        //         prop_assert_eq!(a * GuardedF64::new(b), Ok(a * b));
-        //     }
-        // }
-        //
-        // #[test]
-        // fn test_valid_mul_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) * GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) * b);
-        //     prop_assert_float_error!(a * GuardedF64::new(b));
-        // }
-        //
-        // #[test]
-        // fn test_invalid_mul_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) * GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) * b);
-        //     prop_assert_float_error!(a * GuardedF64::new(b));
-        // }
-        //
-        // #[test]
-        // fn test_invalid_mul_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) * GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) * b);
-        //     prop_assert_float_error!(a * GuardedF64::new(b));
-        // }
-        //
-        // // Division Operations
-        // #[test]
-        // fn test_valid_div_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
-        //     if b != 0.0 && (a / b).is_finite() {
-        //         prop_assert_eq!(GuardedF64::new(a) / GuardedF64::new(b), Ok(a / b));
-        //         prop_assert_eq!(GuardedF64::new(a) / b, Ok(a / b));
-        //         prop_assert_eq!(a / GuardedF64::new(b), Ok(a / b));
-        //     }
-        // }
-        //
-        // #[test]
-        // fn test_valid_div_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) / GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) / b);
-        //     prop_assert_float_error!(a / GuardedF64::new(b));
-        // }
-        //
-        // #[test]
-        // fn test_invalid_div_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) / GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) / b);
-        //     prop_assert_float_error!(a / GuardedF64::new(b));
-        // }
-        //
-        // #[test]
-        // fn test_invalid_div_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) / GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) / b);
-        //     prop_assert_float_error!(a / GuardedF64::new(b));
-        // }
-        //
-        // // Remainder Operations
-        // #[test]
-        // fn test_valid_rem_valid_eq_valid(a in valid_f64(), b in valid_f64()) {
-        //     if b != 0.0 && (a % b).is_finite() {
-        //         prop_assert_eq!(GuardedF64::new(a) % GuardedF64::new(b), Ok(a % b));
-        //         prop_assert_eq!(GuardedF64::new(a) % b, Ok(a % b));
-        //         prop_assert_eq!(a % GuardedF64::new(b), Ok(a % b));
-        //     }
-        // }
-        //
-        // #[test]
-        // fn test_valid_rem_invalid_eq_invalid(a in valid_f64(), b in invalid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) % GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) % b);
-        //     prop_assert_float_error!(a % GuardedF64::new(b));
-        // }
-        //
-        // #[test]
-        // fn test_invalid_rem_valid_eq_invalid(a in invalid_f64(), b in valid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) % GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) % b);
-        //     prop_assert_float_error!(a % GuardedF64::new(b));
-        // }
-        //
-        // #[test]
-        // fn test_invalid_rem_invalid_eq_invalid(a in invalid_f64(), b in invalid_f64()) {
-        //     prop_assert_float_error!(GuardedF64::new(a) % GuardedF64::new(b));
-        //     prop_assert_float_error!(GuardedF64::new(a) % b);
-        //     prop_assert_float_error!(a % GuardedF64::new(b));
-        // }
+        #[test]
+        fn test_subtraction(a in any::<f64>(), b in any::<f64>()) {
+            let unguarded_a = UnguardedF64::new(a);
+            let unguarded_b = UnguardedF64::new(b);
+
+            let expected = GuardedF64::new(a - b);
+            if a.is_finite() && b.is_finite() {
+                let guarded_a = GuardedF64::new(a).unwrap();
+                let guarded_b = GuardedF64::new(b).unwrap();
+
+                prop_assert_eq!((guarded_a - guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a - b).check(), expected);
+                prop_assert_eq!((a - guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a - unguarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a - guarded_b).check(), expected);
+            }
+            prop_assert_eq!((unguarded_a - unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a - b).check(), expected);
+            prop_assert_eq!((a - unguarded_b).check(), expected);
+        }
+
+        #[test]
+        fn test_multiplication(a in any::<f64>(), b in any::<f64>()) {
+            let unguarded_a = UnguardedF64::new(a);
+            let unguarded_b = UnguardedF64::new(b);
+
+            let expected = GuardedF64::new(a * b);
+            if a.is_finite() && b.is_finite() {
+                let guarded_a = GuardedF64::new(a).unwrap();
+                let guarded_b = GuardedF64::new(b).unwrap();
+
+                prop_assert_eq!((guarded_a * guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a * b).check(), expected);
+                prop_assert_eq!((a * guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a * unguarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a * guarded_b).check(), expected);
+            }
+            prop_assert_eq!((unguarded_a * unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a * b).check(), expected);
+            prop_assert_eq!((a * unguarded_b).check(), expected);
+        }
+
+        #[test]
+        fn test_division(a in any::<f64>(), b in any::<f64>()) {
+            let unguarded_a = UnguardedF64::new(a);
+            let unguarded_b = UnguardedF64::new(b);
+
+            let expected = GuardedF64::new(if b.is_finite() { a / b } else { f64::NAN });
+            if a.is_finite() && b.is_finite() && b != 0.0 {
+                let guarded_a = GuardedF64::new(a).unwrap();
+                let guarded_b = GuardedF64::new(b).unwrap();
+
+                prop_assert_eq!((guarded_a / guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a / b).check(), expected);
+                prop_assert_eq!((a / guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a / unguarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a / guarded_b).check(), expected);
+            }
+            prop_assert_eq!((unguarded_a / unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a / b).check(), expected);
+            prop_assert_eq!((a / unguarded_b).check(), expected);
+        }
+
+        #[test]
+        fn test_remainder(a in any::<f64>(), b in any::<f64>()) {
+            let unguarded_a = UnguardedF64::new(a);
+            let unguarded_b = UnguardedF64::new(b);
+
+            let expected = GuardedF64::new(if b.is_finite() { a % b } else { f64::NAN });
+            if a.is_finite() && b.is_finite() && b != 0.0 {
+                let guarded_a = GuardedF64::new(a).unwrap();
+                let guarded_b = GuardedF64::new(b).unwrap();
+
+                prop_assert_eq!((guarded_a % guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a % b).check(), expected);
+                prop_assert_eq!((a % guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a % unguarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a % guarded_b).check(), expected);
+            }
+            prop_assert_eq!((unguarded_a % unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a % b).check(), expected);
+            prop_assert_eq!((a % unguarded_b).check(), expected);
+        }
     }
 }
