@@ -377,6 +377,8 @@ binary_operation!(
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::op_ref)]
+
     use crate::{GuardedF64, UnguardedF64};
     use proptest::prelude::*;
 

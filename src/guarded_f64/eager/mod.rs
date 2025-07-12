@@ -80,6 +80,8 @@ impl std::fmt::Display for GuardedF64 {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::float_cmp)]
+
     use super::*;
     use crate::guarded_f64::tests::{invalid_f64, valid_f64};
     use proptest::prelude::*;
@@ -88,7 +90,7 @@ mod tests {
         #[test]
         fn test_new_valid(a in valid_f64()) {
             prop_assert_eq!(GuardedF64::new(a), Ok(GuardedF64(a)));
-            prop_assert_eq!(f64::try_from(GuardedF64::new(a).unwrap()), Ok(a));
+            prop_assert_eq!(GuardedF64::new(a).map(f64::from), Ok(a));
             prop_assert_eq!(*GuardedF64::new(a).unwrap(), a);
         }
 
