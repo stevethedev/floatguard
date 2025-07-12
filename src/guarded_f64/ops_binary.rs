@@ -392,15 +392,45 @@ mod tests {
                 let guarded_b = GuardedF64::new(b).unwrap();
 
                 prop_assert_eq!((guarded_a + guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a + &guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a + guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a + &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a + b).check(), expected);
+                prop_assert_eq!((guarded_a + &b).check(), expected);
+                prop_assert_eq!((&guarded_a + b).check(), expected);
+                prop_assert_eq!((&guarded_a + &b).check(), expected);
+
                 prop_assert_eq!((a + guarded_b).check(), expected);
+                prop_assert_eq!((a + &guarded_b).check(), expected);
+                prop_assert_eq!((&a + guarded_b).check(), expected);
+                prop_assert_eq!((&a + &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a + unguarded_b).check(), expected);
+                prop_assert_eq!((guarded_a + &unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a + unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a + &unguarded_b).check(), expected);
+
                 prop_assert_eq!((unguarded_a + guarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a + &guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a + guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a + &guarded_b).check(), expected);
             }
 
             prop_assert_eq!((unguarded_a + unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a + &unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a + unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a + &unguarded_b).check(), expected);
+
             prop_assert_eq!((unguarded_a + b).check(), expected);
+            prop_assert_eq!((unguarded_a + &b).check(), expected);
+            prop_assert_eq!((&unguarded_a + b).check(), expected);
+            prop_assert_eq!((&unguarded_a + &b).check(), expected);
+
             prop_assert_eq!((a + unguarded_b).check(), expected);
+            prop_assert_eq!((a + &unguarded_b).check(), expected);
+            prop_assert_eq!((&a + unguarded_b).check(), expected);
+            prop_assert_eq!((&a + &unguarded_b).check(), expected);
         }
 
         #[test]
@@ -414,14 +444,44 @@ mod tests {
                 let guarded_b = GuardedF64::new(b).unwrap();
 
                 prop_assert_eq!((guarded_a - guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a - &guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a - guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a - &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a - b).check(), expected);
+                prop_assert_eq!((guarded_a - &b).check(), expected);
+                prop_assert_eq!((&guarded_a - b).check(), expected);
+                prop_assert_eq!((&guarded_a - &b).check(), expected);
+
                 prop_assert_eq!((a - guarded_b).check(), expected);
+                prop_assert_eq!((a - &guarded_b).check(), expected);
+                prop_assert_eq!((&a - guarded_b).check(), expected);
+                prop_assert_eq!((&a - &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a - unguarded_b).check(), expected);
+                prop_assert_eq!((guarded_a - &unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a - unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a - &unguarded_b).check(), expected);
+
                 prop_assert_eq!((unguarded_a - guarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a - &guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a - guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a - &guarded_b).check(), expected);
             }
             prop_assert_eq!((unguarded_a - unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a - &unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a - unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a - &unguarded_b).check(), expected);
+
             prop_assert_eq!((unguarded_a - b).check(), expected);
+            prop_assert_eq!((unguarded_a - &b).check(), expected);
+            prop_assert_eq!((&unguarded_a - b).check(), expected);
+            prop_assert_eq!((&unguarded_a - &b).check(), expected);
+
             prop_assert_eq!((a - unguarded_b).check(), expected);
+            prop_assert_eq!((a - &unguarded_b).check(), expected);
+            prop_assert_eq!((&a - unguarded_b).check(), expected);
+            prop_assert_eq!((&a - &unguarded_b).check(), expected);
         }
 
         #[test]
@@ -435,14 +495,44 @@ mod tests {
                 let guarded_b = GuardedF64::new(b).unwrap();
 
                 prop_assert_eq!((guarded_a * guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a * &guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a * guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a * &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a * b).check(), expected);
+                prop_assert_eq!((guarded_a * &b).check(), expected);
+                prop_assert_eq!((&guarded_a * b).check(), expected);
+                prop_assert_eq!((&guarded_a * &b).check(), expected);
+
                 prop_assert_eq!((a * guarded_b).check(), expected);
+                prop_assert_eq!((a * &guarded_b).check(), expected);
+                prop_assert_eq!((&a * guarded_b).check(), expected);
+                prop_assert_eq!((&a * &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a * unguarded_b).check(), expected);
+                prop_assert_eq!((guarded_a * &unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a * unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a * &unguarded_b).check(), expected);
+
                 prop_assert_eq!((unguarded_a * guarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a * &guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a * guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a * &guarded_b).check(), expected);
             }
             prop_assert_eq!((unguarded_a * unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a * &unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a * unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a * &unguarded_b).check(), expected);
+
             prop_assert_eq!((unguarded_a * b).check(), expected);
+            prop_assert_eq!((unguarded_a * &b).check(), expected);
+            prop_assert_eq!((&unguarded_a * b).check(), expected);
+            prop_assert_eq!((&unguarded_a * &b).check(), expected);
+
             prop_assert_eq!((a * unguarded_b).check(), expected);
+            prop_assert_eq!((a * &unguarded_b).check(), expected);
+            prop_assert_eq!((&a * unguarded_b).check(), expected);
+            prop_assert_eq!((&a * &unguarded_b).check(), expected);
         }
 
         #[test]
@@ -456,14 +546,44 @@ mod tests {
                 let guarded_b = GuardedF64::new(b).unwrap();
 
                 prop_assert_eq!((guarded_a / guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a / &guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a / guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a / &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a / b).check(), expected);
+                prop_assert_eq!((guarded_a / &b).check(), expected);
+                prop_assert_eq!((&guarded_a / b).check(), expected);
+                prop_assert_eq!((&guarded_a / &b).check(), expected);
+
                 prop_assert_eq!((a / guarded_b).check(), expected);
+                prop_assert_eq!((a / &guarded_b).check(), expected);
+                prop_assert_eq!((&a / guarded_b).check(), expected);
+                prop_assert_eq!((&a / &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a / unguarded_b).check(), expected);
+                prop_assert_eq!((guarded_a / &unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a / unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a / &unguarded_b).check(), expected);
+
                 prop_assert_eq!((unguarded_a / guarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a / &guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a / guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a / &guarded_b).check(), expected);
             }
             prop_assert_eq!((unguarded_a / unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a / &unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a / unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a / &unguarded_b).check(), expected);
+
             prop_assert_eq!((unguarded_a / b).check(), expected);
+            prop_assert_eq!((unguarded_a / &b).check(), expected);
+            prop_assert_eq!((&unguarded_a / b).check(), expected);
+            prop_assert_eq!((&unguarded_a / &b).check(), expected);
+
             prop_assert_eq!((a / unguarded_b).check(), expected);
+            prop_assert_eq!((a / &unguarded_b).check(), expected);
+            prop_assert_eq!((&a / unguarded_b).check(), expected);
+            prop_assert_eq!((&a / &unguarded_b).check(), expected);
         }
 
         #[test]
@@ -477,14 +597,44 @@ mod tests {
                 let guarded_b = GuardedF64::new(b).unwrap();
 
                 prop_assert_eq!((guarded_a % guarded_b).check(), expected);
+                prop_assert_eq!((guarded_a % &guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a % guarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a % &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a % b).check(), expected);
+                prop_assert_eq!((guarded_a % &b).check(), expected);
+                prop_assert_eq!((&guarded_a % b).check(), expected);
+                prop_assert_eq!((&guarded_a % &b).check(), expected);
+
                 prop_assert_eq!((a % guarded_b).check(), expected);
+                prop_assert_eq!((a % &guarded_b).check(), expected);
+                prop_assert_eq!((&a % guarded_b).check(), expected);
+                prop_assert_eq!((&a % &guarded_b).check(), expected);
+
                 prop_assert_eq!((guarded_a % unguarded_b).check(), expected);
+                prop_assert_eq!((guarded_a % &unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a % unguarded_b).check(), expected);
+                prop_assert_eq!((&guarded_a % &unguarded_b).check(), expected);
+
                 prop_assert_eq!((unguarded_a % guarded_b).check(), expected);
+                prop_assert_eq!((unguarded_a % &guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a % guarded_b).check(), expected);
+                prop_assert_eq!((&unguarded_a % &guarded_b).check(), expected);
             }
             prop_assert_eq!((unguarded_a % unguarded_b).check(), expected);
+            prop_assert_eq!((unguarded_a % &unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a % unguarded_b).check(), expected);
+            prop_assert_eq!((&unguarded_a % &unguarded_b).check(), expected);
+
             prop_assert_eq!((unguarded_a % b).check(), expected);
+            prop_assert_eq!((unguarded_a % &b).check(), expected);
+            prop_assert_eq!((&unguarded_a % b).check(), expected);
+            prop_assert_eq!((&unguarded_a % &b).check(), expected);
+
             prop_assert_eq!((a % unguarded_b).check(), expected);
+            prop_assert_eq!((a % &unguarded_b).check(), expected);
+            prop_assert_eq!((&a % unguarded_b).check(), expected);
+            prop_assert_eq!((&a % &unguarded_b).check(), expected);
         }
     }
 }
