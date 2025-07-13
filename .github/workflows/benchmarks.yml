@@ -62,20 +62,7 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.BENCHMARK_GITHUB_TOKEN }}
           publish_dir: target/criterion
           publish_branch: gh-pages-source
           destination_dir: src/benchmarks/${{ steps.get_sanitized_ref_name.outputs.sanitizedRefName }}
-
-      - name: Trigger gh-pages workflow
-        uses: actions/github-script@v7
-        env:
-            GITHUB_TOKEN: ${{ secrets.BENCHMARK_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
-        with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'gh-pages.yml',
-              ref: 'gh-pages-script'
-            })
