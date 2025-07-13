@@ -111,5 +111,13 @@ mod tests {
             prop_assert_eq!(checked_a.check(), Err(FloatError));
             prop_assert_eq!(f64::try_from(checked_a), Err(FloatError));
         }
+
+        #[test]
+        fn test_from_guarded(guarded in valid_f64()) {
+            let guarded_f64 = GuardedF64::new(guarded).unwrap();
+            let unchecked_f64: UnguardedF64 = UnguardedF64::from(guarded_f64);
+
+            prop_assert_eq!(GuardedF64::try_from(unchecked_f64), Ok(guarded_f64));
+        }
     }
 }
