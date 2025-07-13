@@ -15,11 +15,11 @@ use crate::FloatError;
 /// let checked_f64 = GuardedF64::new(1.0).expect("1.0 is a valid f64 value");
 /// assert_eq!((checked_f64 + 1.0).check(), GuardedF64::new(2.0));
 ///
-/// assert_eq!((checked_f64 / 0.0).check(), Err(FloatError));
+/// assert_eq!((checked_f64 / 0.0).check(), Err(FloatError::Infinity));
 ///
-/// assert_eq!((checked_f64 - f64::INFINITY).check(), Err(FloatError));
+/// assert_eq!((checked_f64 - f64::INFINITY).check(), Err(FloatError::Infinity));
 ///
-/// assert_eq!((checked_f64 % f64::NAN).check(), Err(FloatError));
+/// assert_eq!((checked_f64 % f64::NAN).check(), Err(FloatError::NaN));
 /// ```
 #[derive(Debug, Default, Clone, Copy)]
 pub struct GuardedF64(pub(crate) f64);
@@ -44,16 +44,23 @@ impl GuardedF64 {
     /// assert_eq!(valid_value, 2.0f64);
     ///
     /// let invalid_value = GuardedF64::new(f64::NAN);
-    /// assert_eq!(invalid_value, Err(FloatError));
+    /// assert_eq!(invalid_value, Err(FloatError::NaN));
     ///
     /// let inf_value = GuardedF64::new(f64::INFINITY);
-    /// assert_eq!(inf_value, Err(FloatError));
+    /// assert_eq!(inf_value, Err(FloatError::Infinity));
     /// ```
     pub const fn new(value: f64) -> Result<Self, FloatError> {
         if value.is_finite() {
             Ok(Self(value))
         } else {
-            Err(FloatError)
+            Err(if value.is_nan() {
+                FloatError::NaN
+            } else if value.is_infinite() {
+                FloatError::Infinity
+            } else {
+                // This case should not happen, but we handle it for completeness.
+                unreachable!()
+            })
         }
     }
 }
@@ -96,7 +103,12 @@ mod tests {
 
         #[test]
         fn test_new_invalid(a in invalid_f64()) {
-            prop_assert_eq!(GuardedF64::new(a), Err(FloatError));
+            let err = if a.is_nan() {
+                FloatError::NaN
+            } else {
+                FloatError::Infinity
+            };
+            prop_assert_eq!(GuardedF64::new(a), Err(err));
         }
 
         #[test]

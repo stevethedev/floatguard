@@ -22,13 +22,13 @@ impl UnguardedF64 {
     /// assert_eq!(unchecked_f64.check(), GuardedF64::new(1.0));
     ///
     /// let invalid_f64 = UnguardedF64::new(f64::NAN);
-    /// assert_eq!(invalid_f64.check(), Err(FloatError));
+    /// assert_eq!(invalid_f64.check(), Err(FloatError::NaN));
     ///
     /// let inf_f64 = UnguardedF64::new(f64::INFINITY);
-    /// assert_eq!(inf_f64.check(), Err(FloatError));
+    /// assert_eq!(inf_f64.check(), Err(FloatError::Infinity));
     ///
     /// let neg_inf_f64 = UnguardedF64::new(f64::NEG_INFINITY);
-    /// assert_eq!(neg_inf_f64.check(), Err(FloatError));
+    /// assert_eq!(neg_inf_f64.check(), Err(FloatError::Infinity));
     /// ```
     pub const fn check(self) -> Result<GuardedF64, FloatError> {
         GuardedF64::new(self.0)
@@ -57,10 +57,10 @@ impl TryFrom<UnguardedF64> for GuardedF64 {
     /// assert_eq!(valid_value.try_into(), GuardedF64::new(2.0));
     ///
     /// let invalid_value = UnguardedF64::new(f64::NAN);
-    /// assert_eq!(GuardedF64::try_from(invalid_value), Err(FloatError));
+    /// assert_eq!(GuardedF64::try_from(invalid_value), Err(FloatError::NaN));
     ///
     /// let inf_value = UnguardedF64::new(f64::INFINITY);
-    /// assert_eq!(GuardedF64::try_from(inf_value), Err(FloatError));
+    /// assert_eq!(GuardedF64::try_from(inf_value), Err(FloatError::Infinity));
     /// ```
     fn try_from(value: UnguardedF64) -> Result<Self, Self::Error> {
         value.check()
@@ -107,9 +107,16 @@ mod tests {
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
             let checked_a = UnguardedF64::new(a);
+            let float_error = if a.is_nan() {
+                FloatError::NaN
+            } else if a.is_infinite() {
+                FloatError::Infinity
+            } else {
+                unreachable!()
+            };
 
-            prop_assert_eq!(checked_a.check(), Err(FloatError));
-            prop_assert_eq!(f64::try_from(checked_a), Err(FloatError));
+            prop_assert_eq!(checked_a.check(), Err(float_error));
+            prop_assert_eq!(f64::try_from(checked_a), Err(float_error));
         }
 
         #[test]

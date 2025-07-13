@@ -56,10 +56,10 @@ impl From<GuardedF64> for f64 {
     /// assert_eq!(valid_value.try_into(), Ok(2.0));
     ///
     /// let invalid_value = GuardedF64::try_from(f64::NAN);
-    /// assert_eq!(invalid_value, Err(FloatError));
+    /// assert_eq!(invalid_value, Err(FloatError::NaN));
     ///
     /// let inf_value = GuardedF64::try_from(f64::INFINITY);
-    /// assert_eq!(inf_value, Err(FloatError));
+    /// assert_eq!(inf_value, Err(FloatError::Infinity));
     /// ```
     fn from(value: GuardedF64) -> Self {
         value.0
@@ -108,9 +108,16 @@ mod tests {
 
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
-            prop_assert_eq!(GuardedF64::new(a), Err(FloatError));
+            let float_error = if a.is_nan() {
+                FloatError::NaN
+            } else if a.is_infinite() {
+                FloatError::Infinity
+            } else {
+                unreachable!()
+            };
+            prop_assert_eq!(GuardedF64::new(a), Err(float_error));
 
-            prop_assert_eq!(GuardedF64::try_from(a), Err(FloatError));
+            prop_assert_eq!(GuardedF64::try_from(a), Err(float_error));
         }
     }
 }

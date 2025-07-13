@@ -13,7 +13,7 @@ mod ops_assign;
 ///
 /// assert_eq!(unchecked_f64.check(), GuardedF64::new(1.0));
 ///
-/// assert_eq!((unchecked_f64 - f64::INFINITY).check(), Err(FloatError));
+/// assert_eq!((unchecked_f64 - f64::INFINITY).check(), Err(FloatError::Infinity));
 /// ```
 #[derive(Debug, Default, Clone, Copy)]
 pub struct UnguardedF64(pub(crate) f64);
@@ -67,7 +67,15 @@ mod tests {
         #[test]
         fn test_new_invalid(a in invalid_f64()) {
             let unchecked_a = UnguardedF64::new(a);
-            prop_assert_eq!(unchecked_a.check(), Err(FloatError));
+            let float_error = if a.is_nan() {
+                FloatError::NaN
+            } else if a.is_infinite() {
+                FloatError::Infinity
+            } else {
+                unreachable!()
+            };
+
+            prop_assert_eq!(unchecked_a.check(), Err(float_error));
         }
 
         #[test]

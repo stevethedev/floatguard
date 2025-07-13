@@ -86,10 +86,10 @@ unary_operation!(
         assert_eq!(f64::try_from(-value), Ok(-2.0));
 
         let invalid_value = UnguardedF64::new(f64::NAN);
-        assert_eq!((-invalid_value).check(), Err(FloatError));
+        assert_eq!((-invalid_value).check(), Err(FloatError::NaN));
 
         let infinity_value = UnguardedF64::new(f64::INFINITY);
-        assert_eq!((-infinity_value).check(), Err(FloatError));
+        assert_eq!((-infinity_value).check(), Err(FloatError::Infinity));
         ```
     "
 );
@@ -122,8 +122,16 @@ mod tests {
         #[test]
         fn test_negation_invalid(a in invalid_f64()) {
             let checked_a = UnguardedF64::new(a);
-            prop_assert_eq!((-checked_a).check(), Err(FloatError));
-            prop_assert_eq!((-(&checked_a)).check(), Err(FloatError));
+            let float_error = if a.is_nan() {
+                FloatError::NaN
+            } else if a.is_infinite() {
+                FloatError::Infinity
+            } else {
+                unreachable!()
+            };
+
+            prop_assert_eq!((-checked_a).check(), Err(float_error));
+            prop_assert_eq!((-(&checked_a)).check(), Err(float_error));
         }
     }
 }
