@@ -37,12 +37,13 @@ jobs:
             ~/.cargo/registry
             target
 
+      - name: Install cargo-binstall
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-binstall
+
       - name: Add Cargo Third-Party Tools
         run: |
-          if ! command -v cargo-binstall &> /dev/null; then
-            cargo install cargo-binstall
-          fi
-
           if ! command -v cargo-audit &> /dev/null; then
             cargo binstall cargo-audit --no-confirm
           fi
