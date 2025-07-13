@@ -102,11 +102,15 @@ mod tests {
             prop_assert_eq!(GuardedF64::new(a), Ok(GuardedF64(a)));
             prop_assert_eq!(GuardedF64::new(a).map(f64::from), Ok(a));
             prop_assert_eq!(*GuardedF64::new(a).unwrap(), a);
+
+            prop_assert_eq!(GuardedF64::try_from(a), Ok(GuardedF64(a)));
         }
 
         #[test]
         fn test_from_invalid(a in invalid_f64()) {
             prop_assert_eq!(GuardedF64::new(a), Err(FloatError));
+
+            prop_assert_eq!(GuardedF64::try_from(a), Err(FloatError));
         }
     }
 }
