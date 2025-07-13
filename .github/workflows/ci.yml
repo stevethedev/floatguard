@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     name: Build and Test
@@ -37,16 +41,20 @@ jobs:
             ~/.cargo/registry
             target
 
+      - name: Install cargo-binstall
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-binstall
+
       - name: Add Cargo Third-Party Tools
         run: |
           if ! command -v cargo-audit &> /dev/null; then
-            cargo install cargo-audit
-          fi
-          
-          if ! command -v cargo-tarpaulin &> /dev/null; then
-            cargo install cargo-tarpaulin
+            cargo binstall cargo-audit --no-confirm
           fi
 
+          if ! command -v cargo-tarpaulin &> /dev/null; then
+            cargo binstall cargo-tarpaulin --no-confirm
+          fi
       - name: Check documentation
         run: cargo doc --no-deps --document-private-items
 
