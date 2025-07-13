@@ -68,5 +68,11 @@ mod tests {
             let unchecked_a = UnguardedF64::new(a);
             prop_assert_eq!(unchecked_a.check(), Err(FloatError));
         }
+
+        #[test]
+        fn test_display(a in any::<f64>()) {
+            let unchecked_a = UnguardedF64::new(a);
+            prop_assert_eq!(unchecked_a.to_string(), a.to_string());
+        }
     }
 }
