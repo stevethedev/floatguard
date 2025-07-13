@@ -109,17 +109,21 @@ mod tests {
             let expected = GuardedF64::new(-a).unwrap();
 
             prop_assert_eq!(-checked_a, expected);
+            prop_assert_eq!(-(&checked_a), expected);
             prop_assert_eq!(-checked_a, -a);
+            prop_assert_eq!(-(&checked_a), -a);
 
             let unchecked_a = UnguardedF64::new(a);
 
             prop_assert_eq!((-unchecked_a).check(), Ok(expected));
+            prop_assert_eq!((-(&unchecked_a)).check(), Ok(expected));
         }
 
         #[test]
         fn test_negation_invalid(a in invalid_f64()) {
             let checked_a = UnguardedF64::new(a);
             prop_assert_eq!((-checked_a).check(), Err(FloatError));
+            prop_assert_eq!((-(&checked_a)).check(), Err(FloatError));
         }
     }
 }
