@@ -43,8 +43,13 @@ jobs:
             cargo install cargo-binstall
           fi
 
-          cargo binstall cargo-audit cargo-tarpaulin --no-confirm
+          if ! command -v cargo-audit &> /dev/null; then
+            cargo binstall cargo-audit --no-confirm
+          fi
 
+          if ! command -v cargo-tarpaulin &> /dev/null; then
+            cargo binstall cargo-tarpaulin --no-confirm
+          fi
       - name: Check documentation
         run: cargo doc --no-deps --document-private-items
 
