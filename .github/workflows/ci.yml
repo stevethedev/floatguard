@@ -39,13 +39,11 @@ jobs:
 
       - name: Add Cargo Third-Party Tools
         run: |
-          if ! command -v cargo-audit &> /dev/null; then
-            cargo install cargo-audit
+          if ! command -v cargo-binstall &> /dev/null; then
+            cargo install cargo-binstall
           fi
-          
-          if ! command -v cargo-tarpaulin &> /dev/null; then
-            cargo install cargo-tarpaulin
-          fi
+
+          cargo binstall cargo-audit cargo-tarpaulin --no-confirm
 
       - name: Check documentation
         run: cargo doc --no-deps --document-private-items
