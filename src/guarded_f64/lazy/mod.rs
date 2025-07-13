@@ -1,4 +1,5 @@
 mod convert;
+mod ops_assign;
 
 /// Represents a checked floating-point number that ensures it is neither NaN nor infinite.
 ///
