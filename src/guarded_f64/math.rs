@@ -2,10 +2,7 @@ use super::{GuardedF64, UnguardedF64};
 use crate::math;
 
 math!(
-    (GuardedF64, UnguardedF64),
-    const fn abs(value: f64) -> Self {
-        Self(value.abs())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the absolute value of self. `GuardedF64::abs` returns a `GuardedF64` type because
         any value that is not NaN or infinite is guaranteed to return a valid value.
@@ -24,13 +21,13 @@ math!(
         assert_eq!(unchecked.abs().check(), GuardedF64::new(3.5_f64));
         ```
     "
+    const fn abs(value: f64) -> Self {
+        Self(value.abs())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    const fn signum(value: f64) -> Self {
-        Self(value.signum())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Returns a number that represents the sign of `self`. `GuardedF64::signum` returns a
         `GuardedF64` type because any value that is not NaN or infinite is guaranteed to return
@@ -50,13 +47,13 @@ math!(
         assert_eq!(neg.signum().check(), GuardedF64::new(-1.0));
         ```
     "
+    const fn signum(value: f64) -> Self {
+        Self(value.signum())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn sqrt(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.sqrt())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Returns the square root of `self`.
 
@@ -76,13 +73,13 @@ math!(
         assert_eq!(negative_zero.sqrt().check(), GuardedF64::new(-0.0));
         ```
     "
+    fn sqrt(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.sqrt())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    const fn recip(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.recip())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Takes the reciprocal (inverse) of `self`, `1/x` where `x` is `self`. This returns an
         `UncheckedF64` because `CheckedF64::new(0.0).unwrap().recip()` is invalid.
@@ -100,13 +97,13 @@ math!(
         assert!(abs_difference < GuardedF64::EPSILON);
         ```
     "
+    const fn recip(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.recip())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn exp(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.exp())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Returns <math>e<sup>(`self`)</sup></math>, (the exponential function).
 
@@ -128,13 +125,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn exp(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.exp())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn ln(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.ln())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Returns the natural logarithm of a number, `ln(self)`.
 
@@ -153,13 +150,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn ln(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.ln())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn log2(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.log2())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Returns the base-2 logarithm of a number, `log2(self)`.
 
@@ -178,13 +175,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn log2(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.log2())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn log10(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.log10())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Returns the base-10 logarithm of a number, `log10(self)`.
 
@@ -203,14 +200,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn log10(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.log10())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn log(me: f64, base: impl Into<UnguardedF64>) -> UnguardedF64 {
-        let UnguardedF64(base) = base.into();
-        UnguardedF64::new(me.log(base))
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Returns the logarithm of a number with a specified base, `log(self, base)`.
 
@@ -234,13 +230,14 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn log(me: f64, base: impl Into<UnguardedF64>) -> UnguardedF64 {
+        let UnguardedF64(base) = base.into();
+        UnguardedF64::new(me.log(base))
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn powi(base: f64, power: i32) -> UnguardedF64 {
-        UnguardedF64::new(base.powi(power))
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Raises a number to an integer power.
 
@@ -258,14 +255,13 @@ math!(
         assert!(UnguardedF64::new(f64::NAN).powi(2).check().is_err());
         ```
     "
+    fn powi(base: f64, power: i32) -> UnguardedF64 {
+        UnguardedF64::new(base.powi(power))
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn powf(base: f64, power: impl Into<UnguardedF64>) -> UnguardedF64 {
-        let UnguardedF64(power) = power.into();
-        UnguardedF64::new(base.powf(power))
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Raises a number to a floating-point power.
 
@@ -285,13 +281,14 @@ math!(
         assert!(invalid.powf(x).check().is_err());
         ```
     "
+    fn powf(base: f64, power: impl Into<UnguardedF64>) -> UnguardedF64 {
+        let UnguardedF64(power) = power.into();
+        UnguardedF64::new(base.powf(power))
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn sin(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.sin())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the sine of a number (in radians).
 
@@ -309,13 +306,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn sin(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.sin())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn asin(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.asin())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the arcsine of a number. Return value is in radians in the range [-&pi;/2, &pi;/2] or
         invalid if the number is outside the range [-1, 1].
@@ -335,13 +332,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn asin(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.asin())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn sinh(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.sinh())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Hyperbolic sine function.
 
@@ -363,13 +360,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn sinh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.sinh())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn asinh(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.asinh())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Inverse hyperbolic sine function.
 
@@ -388,13 +385,13 @@ math!(
         assert!(abs_difference < 1.0e-10);
         ```
     "
+    fn asinh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.asinh())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn cos(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.cos())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the cosine of a number (in radians).
 
@@ -412,13 +409,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn cos(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.cos())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn acos(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.acos())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the arccosine of a number. Return value is in radians in the range [0, &pi;], if the
         value is in the range [-1, 1].
@@ -438,13 +435,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn acos(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.acos())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn cosh(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.cosh())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Hyperbolic cosine function.
 
@@ -467,13 +464,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn cosh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.cosh())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn acosh(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.acosh())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Inverse hyperbolic cosine function.
 
@@ -492,14 +489,13 @@ math!(
         assert!(abs_difference < 1.0e-10);
         ```
     "
+    fn acosh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.acosh())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn sin_cos(value: f64) -> (UnguardedF64, UnguardedF64) {
-        let (sin, cos) = value.sin_cos();
-        (UnguardedF64(sin), UnguardedF64(cos))
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Simultaneously computes the sine and cosine of a number, `x`. Returns (sin(x), cos(x)).
 
@@ -520,13 +516,14 @@ math!(
         assert!(abs_difference_1 < 1e-10);
         ```
     "
+    fn sin_cos(value: f64) -> (UnguardedF64, UnguardedF64) {
+        let (sin, cos) = value.sin_cos();
+        (UnguardedF64(sin), UnguardedF64(cos))
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn tan(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.tan())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the tangent of a number (in radians).
 
@@ -543,13 +540,13 @@ math!(
         assert!(abs_difference < 1e-14);
         ```
     "
+    fn tan(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.tan())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn atan(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.atan())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the arctangent of a number. Return value is in radians in the range [-&pi;/2, &pi;/2].
 
@@ -568,13 +565,13 @@ math!(
         assert!(abs_difference < 1e-10)
         ```
     "
+    fn atan(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.atan())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn tanh(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.tanh())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the hyperbolic tangent of a number.
 
@@ -594,13 +591,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn tanh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.tanh())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn atanh(value: f64) -> UnguardedF64 {
-        UnguardedF64(value.atanh())
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the inverse hyperbolic tangent of a number. Return value is in the range (-∞, ∞)
         for inputs in the range (-1, 1).
@@ -620,14 +617,13 @@ math!(
         assert!(abs_difference < 1e-10);
         ```
     "
+    fn atanh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.atanh())
+    }
 );
 
 math!(
-    (GuardedF64, UnguardedF64),
-    fn atan2(base: f64, other: impl Into<UnguardedF64>) -> UnguardedF64 {
-        let UnguardedF64(other) = other.into();
-        UnguardedF64::new(base.atan2(other))
-    },
+    (GuardedF64, UnguardedF64)
     r"
         Computes the arctangent of `self` divided by `other`.
 
@@ -654,6 +650,10 @@ math!(
         assert!(invalid.atan2(a).check().is_err());
         ```
     "
+    fn atan2(base: f64, other: impl Into<UnguardedF64>) -> UnguardedF64 {
+        let UnguardedF64(other) = other.into();
+        UnguardedF64::new(base.atan2(other))
+    }
 );
 
 #[cfg(test)]
