@@ -13,9 +13,11 @@
 #[macro_export]
 macro_rules! unary_operation {
     (
-        ($( $T:ty ),*)
-        $doc:literal
-        fn $op_trait:ident :: $op_method:ident ($base:ident : $base_ty:ty) -> Self::Output $implementation:block
+        impl $op_trait:ident for ($( $T:ty ),*) {
+            $doc:literal
+            fn $op_method:ident ($base:ident : $base_ty:ty) -> Self::Output
+            $implementation:block
+        }
     ) => {
         $(
             impl $op_trait for $T {
