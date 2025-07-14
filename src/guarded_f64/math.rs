@@ -1,87 +1,5 @@
 use super::{GuardedF64, UnguardedF64};
-use crate::const_math;
-
-macro_rules! math {
-    ($name:ident, $doc:expr) => {
-        math!($name, $name, $doc);
-    };
-
-    ($name:ident, $implementation:ident, $doc:expr) => {
-        math!(
-            $name,
-            fn (base: f64) -> UnguardedF64 {
-                UnguardedF64::new(base.$implementation())
-            },
-            $doc
-        );
-    };
-
-    (
-        $name:ident,
-        fn ($base:ident : f64) -> $ret:ty $implementation:block,
-        $doc:expr
-    ) => {
-        impl GuardedF64 {
-            #[doc = $doc]
-            #[must_use = "method returns a new instance and does not mutate the original value"]
-            #[inline(always)]
-            pub fn $name(self) -> $ret {
-                let $base = self.0;
-                $implementation
-            }
-        }
-
-        impl UnguardedF64 {
-            #[doc = $doc]
-            #[must_use = "method returns a new instance and does not mutate the original value"]
-            #[inline(always)]
-            pub fn $name(self) -> $ret {
-                let $base = self.0;
-                $implementation
-            }
-        }
-    };
-
-    (
-        $name:ident,
-        $operand:ident : $t:ty,
-        $doc:expr
-    ) => {
-        math!(
-            $name,
-            fn (base: f64, $operand: $t) -> UnguardedF64 {
-                UnguardedF64::new(base.$name($operand))
-            },
-            $doc
-        );
-    };
-
-    (
-        $name:ident,
-        fn ($base:ident : f64, $operand:ident : $t:ty) -> UnguardedF64 $implementation:block,
-        $doc:expr
-    ) => {
-        impl GuardedF64 {
-            #[doc = $doc]
-            #[must_use = "method returns a new instance and does not mutate the original value"]
-            #[inline(always)]
-            pub fn $name(self, $operand: $t) -> UnguardedF64 {
-                let $base = self.0;
-                $implementation
-            }
-        }
-
-        impl UnguardedF64 {
-            #[doc = $doc]
-            #[must_use = "method returns a new instance and does not mutate the original value"]
-            #[inline(always)]
-            pub fn $name(self, $operand: $t) -> UnguardedF64 {
-                let $base = self.0;
-                $implementation
-            }
-        }
-    };
-}
+use crate::{const_math, math};
 
 const_math!(
     (GuardedF64, UnguardedF64),
@@ -135,7 +53,10 @@ const_math!(
 );
 
 math!(
-    sqrt,
+    (GuardedF64, UnguardedF64),
+    fn sqrt(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.sqrt())
+    },
     r"
         Returns the square root of `self`.
 
@@ -182,7 +103,10 @@ const_math!(
 );
 
 math!(
-    exp,
+    (GuardedF64, UnguardedF64),
+    fn exp(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.exp())
+    },
     r"
         Returns <math>e<sup>(`self`)</sup></math>, (the exponential function).
 
@@ -207,7 +131,10 @@ math!(
 );
 
 math!(
-    ln,
+    (GuardedF64, UnguardedF64),
+    fn ln(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.ln())
+    },
     r"
         Returns the natural logarithm of a number, `ln(self)`.
 
@@ -229,7 +156,10 @@ math!(
 );
 
 math!(
-    log2,
+    (GuardedF64, UnguardedF64),
+    fn log2(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.log2())
+    },
     r"
         Returns the base-2 logarithm of a number, `log2(self)`.
 
@@ -251,7 +181,10 @@ math!(
 );
 
 math!(
-    log10,
+    (GuardedF64, UnguardedF64),
+    fn log10(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.log10())
+    },
     r"
         Returns the base-10 logarithm of a number, `log10(self)`.
 
@@ -273,8 +206,8 @@ math!(
 );
 
 math!(
-    log,
-    fn (me: f64, base: impl Into<UnguardedF64>) -> UnguardedF64 {
+    (GuardedF64, UnguardedF64),
+    fn log(me: f64, base: impl Into<UnguardedF64>) -> UnguardedF64 {
         let UnguardedF64(base) = base.into();
         UnguardedF64::new(me.log(base))
     },
@@ -304,8 +237,10 @@ math!(
 );
 
 math!(
-    powi,
-    power: i32,
+    (GuardedF64, UnguardedF64),
+    fn powi(base: f64, power: i32) -> UnguardedF64 {
+        UnguardedF64::new(base.powi(power))
+    },
     r"
         Raises a number to an integer power.
 
@@ -326,8 +261,8 @@ math!(
 );
 
 math!(
-    powf,
-    fn (base: f64, power: impl Into<UnguardedF64>) -> UnguardedF64 {
+    (GuardedF64, UnguardedF64),
+    fn powf(base: f64, power: impl Into<UnguardedF64>) -> UnguardedF64 {
         let UnguardedF64(power) = power.into();
         UnguardedF64::new(base.powf(power))
     },
@@ -353,7 +288,10 @@ math!(
 );
 
 math!(
-    sin,
+    (GuardedF64, UnguardedF64),
+    fn sin(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.sin())
+    },
     r"
         Computes the sine of a number (in radians).
 
@@ -374,7 +312,10 @@ math!(
 );
 
 math!(
-    asin,
+    (GuardedF64, UnguardedF64),
+    fn asin(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.asin())
+    },
     r"
         Computes the arcsine of a number. Return value is in radians in the range [-&pi;/2, &pi;/2] or
         invalid if the number is outside the range [-1, 1].
@@ -397,7 +338,10 @@ math!(
 );
 
 math!(
-    sinh,
+    (GuardedF64, UnguardedF64),
+    fn sinh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.sinh())
+    },
     r"
         Hyperbolic sine function.
 
@@ -422,7 +366,10 @@ math!(
 );
 
 math!(
-    asinh,
+    (GuardedF64, UnguardedF64),
+    fn asinh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.asinh())
+    },
     r"
         Inverse hyperbolic sine function.
 
@@ -444,7 +391,10 @@ math!(
 );
 
 math!(
-    cos,
+    (GuardedF64, UnguardedF64),
+    fn cos(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.cos())
+    },
     r"
         Computes the cosine of a number (in radians).
 
@@ -465,7 +415,10 @@ math!(
 );
 
 math!(
-    acos,
+    (GuardedF64, UnguardedF64),
+    fn acos(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.acos())
+    },
     r"
         Computes the arccosine of a number. Return value is in radians in the range [0, &pi;], if the
         value is in the range [-1, 1].
@@ -488,7 +441,10 @@ math!(
 );
 
 math!(
-    cosh,
+    (GuardedF64, UnguardedF64),
+    fn cosh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.cosh())
+    },
     r"
         Hyperbolic cosine function.
 
@@ -514,7 +470,10 @@ math!(
 );
 
 math!(
-    acosh,
+    (GuardedF64, UnguardedF64),
+    fn acosh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.acosh())
+    },
     r"
         Inverse hyperbolic cosine function.
 
@@ -535,60 +494,39 @@ math!(
     "
 );
 
-impl GuardedF64 {
-    /// Simultaneously computes the sine and cosine of the number, `x`. Returns (sin(x), cos(x)).
-    ///
-    /// See: [`f64::sin_cos`]
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use floatguard::GuardedF64;
-    ///
-    /// let x = GuardedF64::FRAC_PI_4;
-    /// let f = x.sin_cos();
-    ///
-    /// let abs_difference_0 = (f.0 - x.sin()).abs().check().unwrap();
-    /// let abs_difference_1 = (f.1 - x.cos()).abs().check().unwrap();
-    ///
-    /// assert!(abs_difference_0 < 1e-10);
-    /// assert!(abs_difference_1 < 1e-10);
-    /// ```
-    #[must_use = "method returns a new instance and does not mutate the original value"]
-    pub fn sin_cos(self) -> (UnguardedF64, UnguardedF64) {
-        let (sin, cos) = self.0.sin_cos();
-        (UnguardedF64::new(sin), UnguardedF64::new(cos))
-    }
-}
+math!(
+    (GuardedF64, UnguardedF64),
+    fn sin_cos(value: f64) -> (UnguardedF64, UnguardedF64) {
+        let (sin, cos) = value.sin_cos();
+        (UnguardedF64(sin), UnguardedF64(cos))
+    },
+    r"
+        Simultaneously computes the sine and cosine of a number, `x`. Returns (sin(x), cos(x)).
 
-impl UnguardedF64 {
-    /// Simultaneously computes the sine and cosine of the number, `x`. Returns (sin(x), cos(x)).
-    ///
-    /// See: [`f64::sin_cos`]
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use floatguard::GuardedF64;
-    ///
-    /// let x = GuardedF64::FRAC_PI_4;
-    /// let f = x.sin_cos();
-    ///
-    /// let abs_difference_0 = (f.0 - x.sin()).abs().check().unwrap();
-    /// let abs_difference_1 = (f.1 - x.cos()).abs().check().unwrap();
-    ///
-    /// assert!(abs_difference_0 < 1e-10);
-    /// assert!(abs_difference_1 < 1e-10);
-    /// ```
-    #[must_use = "method returns a new instance and does not mutate the original value"]
-    pub fn sin_cos(self) -> (Self, Self) {
-        let (sin, cos) = self.0.sin_cos();
-        (Self::new(sin), Self::new(cos))
-    }
-}
+        See: [`f64::sin_cos`]
+
+        # Examples
+
+        ```rust
+        use floatguard::GuardedF64;
+
+        let x = GuardedF64::FRAC_PI_4;
+        let f = x.sin_cos();
+
+        let abs_difference_0 = (f.0 - x.sin()).abs().check().unwrap();
+        let abs_difference_1 = (f.1 - x.cos()).abs().check().unwrap();
+
+        assert!(abs_difference_0 < 1e-10);
+        assert!(abs_difference_1 < 1e-10);
+        ```
+    "
+);
 
 math!(
-    tan,
+    (GuardedF64, UnguardedF64),
+    fn tan(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.tan())
+    },
     r"
         Computes the tangent of a number (in radians).
 
@@ -608,7 +546,10 @@ math!(
 );
 
 math!(
-    atan,
+    (GuardedF64, UnguardedF64),
+    fn atan(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.atan())
+    },
     r"
         Computes the arctangent of a number. Return value is in radians in the range [-&pi;/2, &pi;/2].
 
@@ -630,7 +571,10 @@ math!(
 );
 
 math!(
-    tanh,
+    (GuardedF64, UnguardedF64),
+    fn tanh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.tanh())
+    },
     r"
         Computes the hyperbolic tangent of a number.
 
@@ -653,7 +597,10 @@ math!(
 );
 
 math!(
-    atanh,
+    (GuardedF64, UnguardedF64),
+    fn atanh(value: f64) -> UnguardedF64 {
+        UnguardedF64(value.atanh())
+    },
     r"
         Computes the inverse hyperbolic tangent of a number. Return value is in the range (-∞, ∞)
         for inputs in the range (-1, 1).
@@ -676,8 +623,8 @@ math!(
 );
 
 math!(
-    atan2,
-    fn (base: f64, other: impl Into<UnguardedF64>) -> UnguardedF64 {
+    (GuardedF64, UnguardedF64),
+    fn atan2(base: f64, other: impl Into<UnguardedF64>) -> UnguardedF64 {
         let UnguardedF64(other) = other.into();
         UnguardedF64::new(base.atan2(other))
     },
