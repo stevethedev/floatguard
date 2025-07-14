@@ -1,70 +1,9 @@
+use std::ops::Neg;
 use super::{GuardedF64, UnguardedF64};
-
-/// Macro to implement unary operations for `GuardedF64` and `UnguardedF64`.
-///
-/// This macro generates implementations for unary operations like negation, ensuring that the operation
-/// returns a `UnguardedF64`. It handles both `GuardedF64` and `UnguardedF64` types, allowing for
-/// safe operations on floating-point numbers while checking for invalid values like NaN or Infinity.
-///
-/// # Arguments
-///
-/// - `$op_trait`: The trait for the unary operation (e.g., `Neg`).
-/// - `$op_method`: The method name for the operation (e.g., `neg`).
-/// - `$implementation`: The implementation function that defines how the operation is performed.
-/// - `$doc`: A documentation string that describes the operation and its behavior.
-macro_rules! unary_operation {
-    (
-        $op_trait:ident :: $op_method:ident,
-        $doc:literal
-    ) => {
-        unary_operation!(
-            $op_trait :: $op_method,
-            fn (lhs: GuardedF64) -> GuardedF64 {
-                let GuardedF64(lhs) = lhs;
-                GuardedF64(lhs.$op_method())
-            },
-            $doc
-        );
-
-        unary_operation!(
-            $op_trait :: $op_method,
-            fn (lhs: UnguardedF64) -> UnguardedF64 {
-                let UnguardedF64(lhs) = lhs;
-                UnguardedF64(lhs.$op_method())
-            },
-            $doc
-        );
-    };
-
-    (
-        $op_trait:ident :: $op_method:ident,
-        fn ($lhs:ident : $LHS:ty) -> $RET:ty $implementation:block,
-        $doc:literal
-    ) => {
-        impl std::ops::$op_trait for $LHS {
-            type Output = $RET;
-
-            #[doc = $doc]
-            #[inline(always)]
-            fn $op_method(self) -> Self::Output {
-                let $lhs: $LHS = self;
-                $implementation
-            }
-        }
-
-        impl std::ops::$op_trait for &$LHS {
-            type Output = $RET;
-
-            #[doc = $doc]
-            fn $op_method(self) -> Self::Output {
-                (*self).$op_method()
-            }
-        }
-    };
-}
+use crate::unary_operation;
 
 unary_operation!(
-    Neg::neg,
+    (GuardedF64, UnguardedF64)
     r"
         Negates the `GuardedF64` or `UnguardedF64` value.
 
@@ -92,6 +31,9 @@ unary_operation!(
         assert_eq!((-infinity_value).check(), Err(FloatError::Infinity));
         ```
     "
+    fn Neg::neg(base: f64) -> Self::Output {
+        Self(base.neg())
+    }
 );
 
 #[cfg(test)]
