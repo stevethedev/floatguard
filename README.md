@@ -66,21 +66,20 @@ Error: The floating-point value is poisoned
 
 ## Features
 
-- Finite guarantees: `GuardedF64` never contains NaN or infinities
-- Deferred validation: `UnguardedF64` allows efficient math, checked only when needed
+- Finite guarantees: `GuardedF64` and `GuardedF32` never contain NaN or infinities.
+- Deferred validation: `UnguardedF64` and `UnguardedF32` allow efficient math, checked only when needed.
 - Drop-in operators: Full support for `+`, `-`, `*`, `/`, `+=`, `-=`, etc.
-- Conversions: `TryFrom<f64>`, `Into<f64>`, and more
-- `#![no_std]` compatible
+- Conversions: `TryFrom<f64>`, `Into<f64>`, and more.
+- `#![no_std]` compatible.
 
 ### Crate Features
 
-- `std` (default) — Enables std-based functionality (currently unused but reserved for future expansion)
+- `std` (default) — Enables std-based functionality (currently unused but reserved for future expansion).
 
 ## Safety and Limitations
 
-- Only `f64` is supported; `f32` is not yet implemented.
-- Any operation that may result in an invalid value returns an `UnguardedF64`.
-- Use `.check()` to convert an `UnguardedF64` into a `GuardedF64`, or catch an error if the value is invalid.
+- Any operation that may result in an invalid value returns an "unguarded" value.
+- Use `.check()` to convert an "unguarded" value into a "guarded" one, or catch an error if the value is invalid.
 
 ## MSRV
 
@@ -88,4 +87,7 @@ Minimum Supported Rust Version: 1.85.1
 
 ## License
 
-MIT OR Apache-2.0
+You may choose between the following licenses for this crate:
+
+* [Apache-2.0](https://raw.githubusercontent.com/stevethedev/floatguard/refs/heads/main/LICENSE.Apache-2.0.md)
+* [MIT](https://raw.githubusercontent.com/stevethedev/floatguard/refs/heads/main/LICENSE.MIT.md)
