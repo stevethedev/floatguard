@@ -1,3 +1,9 @@
+## 0.1.3 (2025-07-14)
+
+### Fixes
+
+- Hide internal macros from exported code.
+
 ## 0.1.2 (2025-07-14)
 
 ### Fixes
