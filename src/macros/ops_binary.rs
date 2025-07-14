@@ -9,7 +9,6 @@
 /// * `$op_method` - The method name for the operation (e.g., `add`, `sub`, etc.).
 /// * `$implementation` - A block of code that defines how the operation is performed.
 /// * `$doc` - A documentation string that describes the operation and its usage.
-#[macro_export]
 macro_rules! binary_operation {
     (
         impl $op_trait:ident for ...($TGuarded:ty, $TUnguarded:ty) {
@@ -142,3 +141,5 @@ macro_rules! binary_operation {
         }
     };
 }
+
+pub(crate) use binary_operation;

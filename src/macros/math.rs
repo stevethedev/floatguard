@@ -1,4 +1,3 @@
-#[macro_export]
 macro_rules! math {
     (
         ($( $T:ty ),* )
@@ -54,3 +53,5 @@ macro_rules! math {
         )*
     };
 }
+
+pub(crate) use math;

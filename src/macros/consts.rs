@@ -10,7 +10,6 @@
 /// - `$t`: The type of the constant (e.g., `f64`, `u32`, etc.).
 /// - `$value`: The value of the constant, which can be a direct reference to an `f64` constant or a specific value.
 /// - `$doc`: A documentation string that describes the constant and its purpose.
-#[macro_export]
 macro_rules! copy_const_value {
     (
         ( $( $T:ty ),* )
@@ -25,3 +24,5 @@ macro_rules! copy_const_value {
         )*
     };
 }
+
+pub(crate) use copy_const_value;

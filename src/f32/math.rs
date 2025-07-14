@@ -1,5 +1,5 @@
 use super::{GuardedF32, UnguardedF32};
-use crate::math;
+use crate::macros::math;
 
 math!(
     (GuardedF32, UnguardedF32)
