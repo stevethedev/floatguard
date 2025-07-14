@@ -337,13 +337,27 @@ binary_operation!(
         # Example
 
         ```rust
-        use floatguard::{GuardedF64, FloatError};
+        use floatguard::{GuardedF64, UnguardedF64, FloatError};
 
         let value1 = GuardedF64::new(6.0).unwrap();
         let value2 = GuardedF64::new(3.0).unwrap();
         assert_eq!(f64::try_from(value1 / value2), Ok(2.0));
 
+        let value1 = UnguardedF64::new(6.0);
         assert_eq!((value1 / 0.0).check(), Err(FloatError::Infinity));
+
+        let value1 = UnguardedF64::new(6.0);
+        assert_eq!((value1 / f64::NAN).check(), Err(FloatError::NaN));
+        assert_eq!((f64::NAN / value1).check(), Err(FloatError::NaN));
+
+        let value1 = UnguardedF64::new(6.0);
+        assert_eq!((f64::INFINITY / value1).check(), Err(FloatError::Infinity));
+        assert_eq!((value1 / f64::INFINITY).check(), Err(FloatError::Infinity));
+
+        let value1 = UnguardedF64::new(f64::INFINITY);
+        let value2 = UnguardedF64::new(f64::NAN);
+        assert_eq!((value1 / value2).check(), Err(FloatError::NaN));
+        assert_eq!((value2 / value1).check(), Err(FloatError::NaN));
         ```
     "
 );
@@ -368,13 +382,29 @@ binary_operation!(
         # Example
 
         ```rust
-        use floatguard::{GuardedF64, FloatError};
+        use floatguard::{GuardedF64, UnguardedF64, FloatError};
 
         let value1 = GuardedF64::new(5.0).unwrap();
         let value2 = GuardedF64::new(3.0).unwrap();
         assert_eq!(f64::try_from(value1 % value2), Ok(2.0));
 
         assert_eq!((value1 % 0.0).check(), Err(FloatError::NaN));
+
+        let value1 = UnguardedF64::new(6.0);
+        assert_eq!((value1 % 0.0).check(), Err(FloatError::NaN));
+
+        let value1 = UnguardedF64::new(6.0);
+        assert_eq!((value1 % f64::NAN).check(), Err(FloatError::NaN));
+        assert_eq!((f64::NAN % value1).check(), Err(FloatError::NaN));
+
+        let value1 = UnguardedF64::new(6.0);
+        assert_eq!((f64::INFINITY % value1).check(), Err(FloatError::Infinity));
+        assert_eq!((value1 % f64::INFINITY).check(), Err(FloatError::Infinity));
+
+        let value1 = UnguardedF64::new(f64::INFINITY);
+        let value2 = UnguardedF64::new(f64::NAN);
+        assert_eq!((value1 % value2).check(), Err(FloatError::NaN));
+        assert_eq!((value2 % value1).check(), Err(FloatError::NaN));
         ```
     "
 );
