@@ -3,7 +3,7 @@ use super::{GuardedF64, UnguardedF64};
 use crate::unary_operation;
 
 unary_operation!(
-    impl Neg for (GuardedF64, UnguardedF64) {
+    impl Neg for ...(GuardedF64, UnguardedF64) {
         r"
             Negates the `GuardedF64` or `UnguardedF64` value.
     

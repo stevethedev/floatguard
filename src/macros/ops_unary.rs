@@ -13,7 +13,7 @@
 #[macro_export]
 macro_rules! unary_operation {
     (
-        impl $op_trait:ident for ($( $T:ty ),*) {
+        impl $op_trait:ident for ...($( $T:ty ),*) {
             $doc:literal
             fn $op_method:ident ($base:ident : $base_ty:ty) -> Self::Output
             $implementation:block
