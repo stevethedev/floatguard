@@ -709,6 +709,38 @@ mod tests {
             }
             prop_assert_eq!(UnguardedF32::new(a).exp().check(), expected);
         }
+
+        #[test]
+        fn test_log2(a in any::<f32>()) {
+            let expected = GuardedF32::new(a.log2());
+            if a.is_finite() {
+                prop_assert_eq!(GuardedF32::new(a).unwrap().log2().check(), expected);
+            }
+            prop_assert_eq!(UnguardedF32::new(a).log2().check(), expected);
+        }
+
+        #[test]
+        fn test_log10(a in any::<f32>()) {
+            let expected = GuardedF32::new(a.log10());
+            if a.is_finite() {
+                prop_assert_eq!(GuardedF32::new(a).unwrap().log10().check(), expected);
+            }
+            prop_assert_eq!(UnguardedF32::new(a).log10().check(), expected);
+        }
+
+        #[test]
+        fn test_log(a in any::<f32>(), b in any::<f32>()) {
+            let expected = GuardedF32::new(a.log(b));
+            if a.is_finite() && b.is_finite() {
+                prop_assert_eq!(GuardedF32::new(a).unwrap().log(b).check(), expected);
+                prop_assert_eq!(GuardedF32::new(a).unwrap().log(GuardedF32::new(b).unwrap()).check(), expected);
+                prop_assert_eq!(GuardedF32::new(a).unwrap().log(UnguardedF32::new(b)).check(), expected);
+                prop_assert_eq!(UnguardedF32::new(a).log(GuardedF32::new(b).unwrap()).check(), expected);
+            }
+            prop_assert_eq!(UnguardedF32::new(a).log(b).check(), expected);
+            prop_assert_eq!(UnguardedF32::new(a).log(UnguardedF32::new(b)).check(), expected);
+        }
+
         #[test]
         fn test_ln_valid(a in any::<f32>()) {
             let expected = GuardedF32::new(a.ln());

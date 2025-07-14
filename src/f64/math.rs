@@ -709,6 +709,38 @@ mod tests {
             }
             prop_assert_eq!(UnguardedF64::new(a).exp().check(), expected);
         }
+
+        #[test]
+        fn test_log2(a in any::<f64>()) {
+            let expected = GuardedF64::new(a.log2());
+            if a.is_finite() {
+                prop_assert_eq!(GuardedF64::new(a).unwrap().log2().check(), expected);
+            }
+            prop_assert_eq!(UnguardedF64::new(a).log2().check(), expected);
+        }
+
+        #[test]
+        fn test_log10(a in any::<f64>()) {
+            let expected = GuardedF64::new(a.log10());
+            if a.is_finite() {
+                prop_assert_eq!(GuardedF64::new(a).unwrap().log10().check(), expected);
+            }
+            prop_assert_eq!(UnguardedF64::new(a).log10().check(), expected);
+        }
+
+        #[test]
+        fn test_log(a in any::<f64>(), b in any::<f64>()) {
+            let expected = GuardedF64::new(a.log(b));
+            if a.is_finite() && b.is_finite() {
+                prop_assert_eq!(GuardedF64::new(a).unwrap().log(b).check(), expected);
+                prop_assert_eq!(GuardedF64::new(a).unwrap().log(GuardedF64::new(b).unwrap()).check(), expected);
+                prop_assert_eq!(GuardedF64::new(a).unwrap().log(UnguardedF64::new(b)).check(), expected);
+                prop_assert_eq!(UnguardedF64::new(a).log(GuardedF64::new(b).unwrap()).check(), expected);
+            }
+            prop_assert_eq!(UnguardedF64::new(a).log(b).check(), expected);
+            prop_assert_eq!(UnguardedF64::new(a).log(UnguardedF64::new(b)).check(), expected);
+        }
+
         #[test]
         fn test_ln_valid(a in any::<f64>()) {
             let expected = GuardedF64::new(a.ln());
