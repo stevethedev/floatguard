@@ -1,5 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use floatguard::GuardedF64;
+use floatguard::{GuardedF32, GuardedF64};
 
 macro_rules! bench {
     ($id:ident, $group:literal, $( ($bench:literal, $expr:expr) ),* ) => {
@@ -27,6 +27,16 @@ bench!(
         let lhs = GuardedF64::new(std::hint::black_box(42.0)).unwrap();
         let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
         b.iter(|| lhs < rhs)
+    }),
+    ("f32", |b| {
+        let lhs: f32 = std::hint::black_box(42.0);
+        let rhs: f32 = std::hint::black_box(2.0);
+        b.iter(|| lhs < rhs)
+    }),
+    ("GuardedF32", |b| {
+        let lhs = GuardedF32::new(std::hint::black_box(42.0)).unwrap();
+        let rhs = GuardedF32::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs < rhs)
     })
 );
 
@@ -41,6 +51,16 @@ bench!(
     ("GuardedF64::eq", |b| {
         let lhs = GuardedF64::new(std::hint::black_box(42.0)).unwrap();
         let rhs = GuardedF64::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs == rhs)
+    }),
+    ("f32::eq", |b| {
+        let lhs: f32 = std::hint::black_box(42.0);
+        let rhs: f32 = std::hint::black_box(2.0);
+        b.iter(|| lhs == rhs)
+    }),
+    ("GuardedF32::eq", |b| {
+        let lhs = GuardedF32::new(std::hint::black_box(42.0)).unwrap();
+        let rhs = GuardedF32::new(std::hint::black_box(2.0)).unwrap();
         b.iter(|| lhs == rhs)
     })
 );
