@@ -100,12 +100,6 @@ macro_rules! binary_operation {
         $doc:literal
         fn ($lhs:ident : $LHS:ty, $rhs:ident : $RHS:ty) -> $ret:ty $implementation:block
     ) => {
-        // | X | LHS   | RHS   | Result Type  |
-        // |---|-------|-------|--------------|
-        // | X | $LHS  | $RHS  | UnguardedF64 |
-        // |   | $LHS  | &$RHS | UnguardedF64 |
-        // |   | &$LHS | $RHS  | UnguardedF64 |
-        // |   | &$LHS | &$RHS | UnguardedF64 |
         impl $op_trait<$RHS> for $LHS {
             type Output = $ret;
 
@@ -117,12 +111,6 @@ macro_rules! binary_operation {
             }
         }
 
-        // | X | LHS   | RHS   | Result Type  |
-        // |---|-------|-------|--------------|
-        // |   | $LHS  | $RHS  | UnguardedF64 |
-        // | X | $LHS  | &$RHS | UnguardedF64 |
-        // |   | &$LHS | $RHS  | UnguardedF64 |
-        // |   | &$LHS | &$RHS | UnguardedF64 |
         impl $op_trait<&$RHS> for $LHS {
             type Output = $ret;
 
@@ -133,12 +121,6 @@ macro_rules! binary_operation {
             }
         }
 
-        // | X | LHS   | RHS   | Result Type  |
-        // |---|-------|-------|--------------|
-        // |   | $LHS  | $RHS  | UnguardedF64 |
-        // |   | $LHS  | &$RHS | UnguardedF64 |
-        // | X | &$LHS | $RHS  | UnguardedF64 |
-        // |   | &$LHS | &$RHS | UnguardedF64 |
         impl $op_trait<$RHS> for &$LHS {
             type Output = $ret;
 
@@ -149,12 +131,6 @@ macro_rules! binary_operation {
             }
         }
 
-        // | X | LHS   | RHS   | Result Type  |
-        // |---|-------|-------|--------------|
-        // |   | $LHS  | $RHS  | UnguardedF64 |
-        // |   | $LHS  | &$RHS | UnguardedF64 |
-        // |   | &$LHS | $RHS  | UnguardedF64 |
-        // | X | &$LHS | &$RHS | UnguardedF64 |
         impl $op_trait<&$RHS> for &$LHS {
             type Output = $ret;
 
