@@ -19,7 +19,7 @@ binary_operation!(
             assert_eq!((value1 + f64::NAN).check(), Err(FloatError::NaN));
             ```
         "
-        fn add (lhs: f64, rhs: f64) -> UnguardedF64 {
+        fn add(lhs: f64, rhs: f64) -> UnguardedF64 {
             UnguardedF64::new(lhs + rhs)
         }
     }
