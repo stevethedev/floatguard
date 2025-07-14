@@ -55,11 +55,8 @@ impl GuardedF64 {
         } else {
             Err(if value.is_nan() {
                 FloatError::NaN
-            } else if value.is_infinite() {
-                FloatError::Infinity
             } else {
-                // This case should not happen, but we handle it for completeness.
-                unreachable!()
+                FloatError::Infinity
             })
         }
     }
