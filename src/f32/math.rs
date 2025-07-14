@@ -168,10 +168,11 @@ math!(
         use floatguard::UnguardedF32;
 
         let two = UnguardedF32::new(2.0_f32);
-
-        // log2(2) == 1
         let abs_difference = (two.log2() - 1.0).abs().check().unwrap();
+        assert!(abs_difference < 1.0e-7);
 
+        let two = two.check().unwrap();
+        let abs_difference = (two.log2() - 1.0).abs().check().unwrap();
         assert!(abs_difference < 1.0e-7);
         ```
     "
@@ -193,10 +194,11 @@ math!(
         use floatguard::UnguardedF32;
 
         let ten = UnguardedF32::new(10.0_f32);
-
-        // log10(10) == 1
         let abs_difference = (ten.log10() - 1.0).abs().check().unwrap();
+        assert!(abs_difference < 1.0e-7);
 
+        let ten = ten.check().unwrap();
+        let abs_difference = (ten.log10() - 1.0).abs().check().unwrap();
         assert!(abs_difference < 1.0e-7);
         ```
     "
