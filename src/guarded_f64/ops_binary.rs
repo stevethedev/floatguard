@@ -13,20 +13,6 @@ use super::{GuardedF64, UnguardedF64};
 /// * `$doc` - A documentation string that describes the operation and its usage.
 macro_rules! binary_operation {
     (
-        $op_trait:ident :: $op_method:ident,
-        $doc:literal
-    ) => {
-        binary_operation!(
-            $op_trait :: $op_method,
-            fn (lhs: f64, rhs: f64) -> UnguardedF64 {
-                let result = std::ops::$op_trait::<f64>::$op_method(lhs, rhs);
-                UnguardedF64::new(result)
-            },
-            $doc
-        );
-    };
-
-    (
         $op_trait:ident::$op_method:ident,
         fn ($lhs:ident : f64, $rhs:ident : f64) -> UnguardedF64 $implementation:block,
         $doc:literal
@@ -263,6 +249,9 @@ macro_rules! binary_operation {
 
 binary_operation!(
     Add::add,
+    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
+        UnguardedF64::new(lhs + rhs)
+    },
     r"
         Adds two `GuardedF64` values or a `GuardedF64` and a `f64`.
 
@@ -282,6 +271,9 @@ binary_operation!(
 
 binary_operation!(
     Sub::sub,
+    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
+        UnguardedF64::new(lhs - rhs)
+    },
     r"
         Subtracts one `GuardedF64` value from another or a `f64` from a `GuardedF64`.
 
@@ -301,6 +293,9 @@ binary_operation!(
 
 binary_operation!(
     Mul::mul,
+    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
+        UnguardedF64::new(lhs * rhs)
+    },
     r"
         Multiplies two `GuardedF64` values or a `GuardedF64` and a `f64`.
 
