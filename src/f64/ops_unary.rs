@@ -1,32 +1,32 @@
 use super::{GuardedF64, UnguardedF64};
-use crate::unary_operation;
+use crate::macros::ops_unary::unary_operation;
 use std::ops::Neg;
 
 unary_operation!(
     impl Neg for ...(GuardedF64, UnguardedF64) {
         r"
             Negates the `GuardedF64` or `UnguardedF64` value.
-    
+
             # Returns
-    
+
             Returns a new `Self` instance with the negated value. Unlike other operations, this does not
             default to creating an `UnguardedF64` for `GuardedF64`, as `-x` is always valid for finite
             and non-NaN values.
-    
+
             # Example
-    
+
             ```rust
             use floatguard::{GuardedF64, FloatError, UnguardedF64};
-    
+
             let value = GuardedF64::new(2.0).unwrap();
             assert_eq!(-value, -2.0);
-    
+
             let value = UnguardedF64::new(2.0);
             assert_eq!(f64::try_from(-value), Ok(-2.0));
-    
+
             let invalid_value = UnguardedF64::new(f64::NAN);
             assert_eq!((-invalid_value).check(), Err(FloatError::NaN));
-    
+
             let infinity_value = UnguardedF64::new(f64::INFINITY);
             assert_eq!((-infinity_value).check(), Err(FloatError::Infinity));
             ```

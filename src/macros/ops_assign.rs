@@ -1,4 +1,3 @@
-#[macro_export]
 macro_rules! assign_operation {
     (
         use $OpTrait:ident :: $op:ident impl $AssignTrait:ident :: $assign_op:ident for ...($($TSelf:ty),*)
@@ -19,3 +18,5 @@ macro_rules! assign_operation {
         )*
     };
 }
+
+pub(crate) use assign_operation;

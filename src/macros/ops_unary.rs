@@ -10,7 +10,6 @@
 /// - `$op_method`: The method name for the operation (e.g., `neg`).
 /// - `$implementation`: The implementation function that defines how the operation is performed.
 /// - `$doc`: A documentation string that describes the operation and its behavior.
-#[macro_export]
 macro_rules! unary_operation {
     (
         impl $op_trait:ident for ...($( $T:ty ),*) {
@@ -43,3 +42,5 @@ macro_rules! unary_operation {
         )*
     };
 }
+
+pub(crate) use unary_operation;

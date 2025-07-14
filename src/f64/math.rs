@@ -1,5 +1,5 @@
 use super::{GuardedF64, UnguardedF64};
-use crate::math;
+use crate::macros::math::math;
 
 math!(
     (GuardedF64, UnguardedF64)

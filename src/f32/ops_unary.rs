@@ -1,5 +1,5 @@
 use super::{GuardedF32, UnguardedF32};
-use crate::unary_operation;
+use crate::macros::ops_unary::unary_operation;
 use std::ops::Neg;
 
 unary_operation!(
