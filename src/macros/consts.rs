@@ -12,7 +12,11 @@
 /// - `$doc`: A documentation string that describes the constant and its purpose.
 #[macro_export]
 macro_rules! copy_const_value {
-    ( ( $( $T:ty $(,)? )* ), $name:ident : $name_t:ty = $value:expr, $doc:expr) => {
+    (
+        ( $( $T:ty $(,)? )* )
+        $doc:literal
+        $name:ident : $name_t:ty = $value:expr
+    ) => {
         $(
             impl $T {
                 #[doc = $doc]
