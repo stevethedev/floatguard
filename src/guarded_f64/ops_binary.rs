@@ -1,6 +1,6 @@
-use std::ops::{Add, Div, Mul, Rem, Sub};
 use super::{GuardedF64, UnguardedF64};
 use crate::binary_operation;
+use std::ops::{Add, Div, Mul, Rem, Sub};
 
 binary_operation!(
     impl Add for ...(GuardedF64, UnguardedF64) {

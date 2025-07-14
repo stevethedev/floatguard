@@ -1,6 +1,6 @@
-use std::ops::Neg;
 use super::{GuardedF64, UnguardedF64};
 use crate::unary_operation;
+use std::ops::Neg;
 
 unary_operation!(
     impl Neg for ...(GuardedF64, UnguardedF64) {

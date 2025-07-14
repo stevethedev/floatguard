@@ -1,4 +1,3 @@
-
 /// Defines a binary operation for `GuardedF64` with the specified trait and method.
 ///
 /// This macro generates implementations for various combinations of `GuardedF64`, `f64`, and `UnguardedF64`
