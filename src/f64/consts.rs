@@ -1,5 +1,5 @@
 use super::{GuardedF64, UnguardedF64};
-use crate::macros::copy_const_value;
+use crate::macros::consts::copy_const_value;
 
 copy_const_value!(
     (GuardedF64, UnguardedF64)

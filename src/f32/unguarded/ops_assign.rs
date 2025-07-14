@@ -1,5 +1,5 @@
 use super::UnguardedF32;
-use crate::macros::assign_operation;
+use crate::macros::ops_assign::assign_operation;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign};
 
 assign_operation!(

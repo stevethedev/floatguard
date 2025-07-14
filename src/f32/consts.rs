@@ -1,6 +1,6 @@
 use super::{GuardedF32, UnguardedF32};
 
-use crate::macros::copy_const_value;
+use crate::macros::consts::copy_const_value;
 
 copy_const_value!(
     (GuardedF32, UnguardedF32)

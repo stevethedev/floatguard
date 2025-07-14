@@ -1,5 +1,5 @@
 use super::{GuardedF32, UnguardedF32};
-use crate::macros::binary_operation;
+use crate::macros::ops_binary::binary_operation;
 use std::ops::{Add, Div, Mul, Rem, Sub};
 
 binary_operation!(

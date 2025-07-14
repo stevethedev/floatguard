@@ -1,5 +1,5 @@
 use super::{GuardedF64, UnguardedF64};
-use crate::macros::unary_operation;
+use crate::macros::ops_unary::unary_operation;
 use std::ops::Neg;
 
 unary_operation!(
