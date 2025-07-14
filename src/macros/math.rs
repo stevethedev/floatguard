@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! math {
     (
-        ($( $T:ty $(,)? )* )
+        ($( $T:ty ),* )
         $doc:literal
         const fn $name:ident ($base:ident : $base_ty:ty) -> $returns:ty $implementation:block
     ) => {
