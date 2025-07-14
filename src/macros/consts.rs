@@ -13,7 +13,7 @@
 #[macro_export]
 macro_rules! copy_const_value {
     (
-        ( $( $T:ty $(,)? )* )
+        ( $( $T:ty ),* )
         $doc:literal
         $name:ident : $name_t:ty = $value:expr
     ) => {
