@@ -8,8 +8,8 @@
 [![codecov](https://codecov.io/gh/stevethedev/floatguard/graph/badge.svg?token=9OhzXIlNjL)](https://codecov.io/gh/stevethedev/floatguard)
 [![Release](https://github.com/stevethedev/floatguard/actions/workflows/release.yml/badge.svg)](https://github.com/stevethedev/floatguard/actions/workflows/release.yml)
 
-A low-cost, zero-overhead wrapper around `f64` that eliminates the risk of `NaN` and infinity in floating-point
-computations.
+A low-cost, zero-overhead wrapper around `f64` and `f32` that eliminates the risk of `NaN` and infinity in
+floating-point computations.
 
 ## Why?
 
