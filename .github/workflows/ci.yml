@@ -71,7 +71,7 @@ jobs:
         run: cargo build --all-features --verbose
 
       - name: Run tests
-        run: cargo tarpaulin --all-features --doc --verbose --out Xml --output-dir target/tarpaulin
+        run: cargo tarpaulin --all-features --verbose --out Xml --output-dir target/tarpaulin
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
