@@ -1,8 +1,8 @@
 #[macro_export]
-macro_rules! const_math {
+macro_rules! math {
     (
         ($( $T:ty $(,)? )* ),
-        fn $name:ident ($base:ident : $base_ty:ty) -> $returns:ty $implementation:block,
+        const fn $name:ident ($base:ident : $base_ty:ty) -> $returns:ty $implementation:block,
         $doc:expr
     ) => {
         $(
@@ -17,10 +17,7 @@ macro_rules! const_math {
             }
         )*
     };
-}
 
-#[macro_export]
-macro_rules! math {
     (
         ($( $T:ty ),*),
         fn $name:ident ($base:ident : $base_ty:ty) -> $ret:ty $implementation:block,

@@ -1,9 +1,9 @@
 use super::{GuardedF64, UnguardedF64};
-use crate::{const_math, math};
+use crate::math;
 
-const_math!(
+math!(
     (GuardedF64, UnguardedF64),
-    fn abs(value: f64) -> Self {
+    const fn abs(value: f64) -> Self {
         Self(value.abs())
     },
     r"
@@ -26,9 +26,9 @@ const_math!(
     "
 );
 
-const_math!(
+math!(
     (GuardedF64, UnguardedF64),
-    fn signum(value: f64) -> Self {
+    const fn signum(value: f64) -> Self {
         Self(value.signum())
     },
     r"
@@ -78,9 +78,9 @@ math!(
     "
 );
 
-const_math!(
+math!(
     (GuardedF64, UnguardedF64),
-    fn recip(value: f64) -> UnguardedF64 {
+    const fn recip(value: f64) -> UnguardedF64 {
         UnguardedF64(value.recip())
     },
     r"
