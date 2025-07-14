@@ -62,7 +62,7 @@ impl From<f64> for UnguardedF64 {
 mod tests {
     use super::*;
     use crate::GuardedF64;
-    use crate::guarded_f64::tests::{invalid_f64, valid_f64};
+    use crate::f64::tests::{invalid_f64, valid_f64};
     use proptest::prelude::*;
 
     proptest! {

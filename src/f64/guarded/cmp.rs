@@ -120,6 +120,8 @@ impl Ord for GuardedF64 {
     /// let a = GuardedF64::new(2.0).unwrap();
     /// let b = GuardedF64::new(3.0).unwrap();
     /// assert_eq!(a.cmp(&b), std::cmp::Ordering::Less);
+    /// assert_eq!(b.cmp(&a), std::cmp::Ordering::Greater);
+    /// assert_eq!(a.cmp(&a), std::cmp::Ordering::Equal);
     /// ```
     fn cmp(&self, other: &Self) -> Ordering {
         let lhs = self.0;
@@ -197,7 +199,7 @@ impl PartialOrd<GuardedF64> for f64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{GuardedF64, guarded_f64::tests::valid_f64};
+    use crate::{GuardedF64, f64::tests::valid_f64};
     use proptest::prelude::*;
 
     proptest! {

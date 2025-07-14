@@ -1,8 +1,8 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use floatguard::{GuardedF64, UnguardedF64};
+use floatguard::{GuardedF32, GuardedF64, UnguardedF32, UnguardedF64};
 
 macro_rules! bench {
-    ($id:ident, $group:literal, $( ($bench:literal, $expr:expr) ),* ) => {
+    ($id:ident, $group:literal, $( ($bench:literal, $expr:expr) ),* $(,)?) => {
         fn $id(c: &mut Criterion) {
             let mut group = c.benchmark_group($group);
 
@@ -32,7 +32,22 @@ bench!(
         let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
         let rhs = UnguardedF64::new(std::hint::black_box(2.0));
         b.iter(|| lhs + rhs)
-    })
+    }),
+    ("f32::add", |b| {
+        let lhs = std::hint::black_box(42.0f32);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs + rhs)
+    }),
+    ("GuardedF32::add", |b| {
+        let lhs = GuardedF32::new(std::hint::black_box(42.0f32)).unwrap();
+        let rhs = GuardedF32::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs + rhs)
+    }),
+    ("UnguardedF32::add", |b| {
+        let lhs = UnguardedF32::new(std::hint::black_box(42.0f32));
+        let rhs = UnguardedF32::new(std::hint::black_box(2.0));
+        b.iter(|| lhs + rhs)
+    }),
 );
 
 bench!(
@@ -52,7 +67,22 @@ bench!(
         let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
         let rhs = UnguardedF64::new(std::hint::black_box(2.0));
         b.iter(|| lhs - rhs)
-    })
+    }),
+    ("f32::sub", |b| {
+        let lhs = std::hint::black_box(42.0f32);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs - rhs)
+    }),
+    ("GuardedF32::sub", |b| {
+        let lhs = GuardedF32::new(std::hint::black_box(42.0f32)).unwrap();
+        let rhs = GuardedF32::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs - rhs)
+    }),
+    ("UnguardedF32::sub", |b| {
+        let lhs = UnguardedF32::new(std::hint::black_box(42.0f32));
+        let rhs = UnguardedF32::new(std::hint::black_box(2.0));
+        b.iter(|| lhs - rhs)
+    }),
 );
 
 bench!(
@@ -72,7 +102,22 @@ bench!(
         let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
         let rhs = UnguardedF64::new(std::hint::black_box(2.0));
         b.iter(|| lhs * rhs)
-    })
+    }),
+    ("f32::mul", |b| {
+        let lhs = std::hint::black_box(42.0f32);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs * rhs)
+    }),
+    ("GuardedF32::mul", |b| {
+        let lhs = GuardedF32::new(std::hint::black_box(42.0f32)).unwrap();
+        let rhs = GuardedF32::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs * rhs)
+    }),
+    ("UnguardedF32::mul", |b| {
+        let lhs = UnguardedF32::new(std::hint::black_box(42.0f32));
+        let rhs = UnguardedF32::new(std::hint::black_box(2.0));
+        b.iter(|| lhs * rhs)
+    }),
 );
 
 bench!(
@@ -92,7 +137,22 @@ bench!(
         let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
         let rhs = UnguardedF64::new(std::hint::black_box(2.0));
         b.iter(|| lhs / rhs)
-    })
+    }),
+    ("f32::div", |b| {
+        let lhs = std::hint::black_box(42.0f32);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs / rhs)
+    }),
+    ("GuardedF32::div", |b| {
+        let lhs = GuardedF32::new(std::hint::black_box(42.0f32)).unwrap();
+        let rhs = GuardedF32::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs / rhs)
+    }),
+    ("UnguardedF32::div", |b| {
+        let lhs = UnguardedF32::new(std::hint::black_box(42.0f32));
+        let rhs = UnguardedF32::new(std::hint::black_box(2.0));
+        b.iter(|| lhs / rhs)
+    }),
 );
 
 bench!(
@@ -112,7 +172,22 @@ bench!(
         let lhs = UnguardedF64::new(std::hint::black_box(42.0f64));
         let rhs = UnguardedF64::new(std::hint::black_box(2.0));
         b.iter(|| lhs % rhs)
-    })
+    }),
+    ("f32::rem", |b| {
+        let lhs = std::hint::black_box(42.0f32);
+        let rhs = std::hint::black_box(2.0);
+        b.iter(|| lhs % rhs)
+    }),
+    ("GuardedF32::rem", |b| {
+        let lhs = GuardedF32::new(std::hint::black_box(42.0f32)).unwrap();
+        let rhs = GuardedF32::new(std::hint::black_box(2.0)).unwrap();
+        b.iter(|| lhs % rhs)
+    }),
+    ("UnguardedF32::rem", |b| {
+        let lhs = UnguardedF32::new(std::hint::black_box(42.0f32));
+        let rhs = UnguardedF32::new(std::hint::black_box(2.0));
+        b.iter(|| lhs % rhs)
+    }),
 );
 
 criterion_group!(

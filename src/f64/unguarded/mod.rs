@@ -53,7 +53,7 @@ impl std::fmt::Display for UnguardedF64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::guarded_f64::tests::{invalid_f64, valid_f64};
+    use crate::f64::tests::{invalid_f64, valid_f64};
     use crate::{FloatError, GuardedF64};
     use proptest::prelude::*;
 
