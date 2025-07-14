@@ -41,7 +41,7 @@ unary_operation!(
 mod tests {
     use crate::{
         FloatError, GuardedF64, UnguardedF64,
-        guarded_f64::tests::{invalid_f64, valid_f64},
+        f64::tests::{invalid_f64, valid_f64},
     };
     use proptest::prelude::*;
 

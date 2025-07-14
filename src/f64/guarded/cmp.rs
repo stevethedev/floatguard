@@ -197,7 +197,7 @@ impl PartialOrd<GuardedF64> for f64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{GuardedF64, guarded_f64::tests::valid_f64};
+    use crate::{GuardedF64, f64::tests::valid_f64};
     use proptest::prelude::*;
 
     proptest! {
