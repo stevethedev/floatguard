@@ -1,29 +1,9 @@
 use super::UnguardedF64;
-
-macro_rules! assign_operation {
-    (
-        $AssignTrait:ident :: $assign_op:ident,
-        $OpTrait:ident :: $op:ident,
-        $doc:literal $(,)?
-    ) => {
-        impl<T> std::ops::$AssignTrait<T> for UnguardedF64
-        where
-            T: Into<Self>,
-        {
-            #[doc = $doc]
-            #[allow(clippy::inline_always)]
-            #[inline(always)]
-            fn $assign_op(&mut self, rhs: T) {
-                use std::ops::$OpTrait;
-                *self = self.$op(rhs.into());
-            }
-        }
-    };
-}
+use crate::assign_operation;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign};
 
 assign_operation!(
-    AddAssign::add_assign,
-    Add::add,
+    use Add::add impl AddAssign::add_assign for ...(UnguardedF64)
     r"
         Assigns the result of adding another `UnguardedF64` to this one.
 
@@ -59,8 +39,7 @@ assign_operation!(
 );
 
 assign_operation!(
-    SubAssign::sub_assign,
-    Sub::sub,
+    use Sub::sub impl SubAssign::sub_assign for ...(UnguardedF64)
     r"
         Assigns the result of subtracting another `UnguardedF64` from this one.
 
@@ -96,8 +75,7 @@ assign_operation!(
 );
 
 assign_operation!(
-    MulAssign::mul_assign,
-    Mul::mul,
+    use Mul::mul impl MulAssign::mul_assign for ...(UnguardedF64)
     r"
         Assigns the result of multiplying this `UnguardedF64` by another.
 
@@ -133,8 +111,7 @@ assign_operation!(
 );
 
 assign_operation!(
-    DivAssign::div_assign,
-    Div::div,
+    use Div::div impl DivAssign::div_assign for ...(UnguardedF64)
     r"
         Assigns the result of dividing this `UnguardedF64` by another.
 
@@ -170,8 +147,7 @@ assign_operation!(
 );
 
 assign_operation!(
-    RemAssign::rem_assign,
-    Rem::rem,
+    use Rem::rem impl RemAssign::rem_assign for ...(UnguardedF64)
     r"
         Assigns the result of taking the remainder of this `UnguardedF64` divided by another.
 
