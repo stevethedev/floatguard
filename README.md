@@ -26,6 +26,11 @@ causing unexpected or confusing results. They're the numerical equivalent of a n
 - **`UnguardedF64`**: A lightweight wrapper that may contain invalid states like `NaN` or infinities. It allows chained
   operations without incurring a validity check at every step. Before use, the value must be validated with `.check()`,
   which either returns a valid `GuardedF64` or an error.
+- **`GuardedF32`**: A wrapper around `f32` that guarantees the value is _finite_ — it will never contain `NaN`,
+  `INFINITY`, or `-INFINITY`. Any operation that could produce an invalid value returns an `UnguardedF64` instead.
+- **`UnguardedF32`**: A lightweight wrapper that may contain invalid states like `NaN` or infinities. It allows chained
+  operations without incurring a validity check at every step. Before use, the value must be validated with `.check()`,
+  which either returns a valid `GuardedF32` or an error.
 
 This model provides both safety and performance, by enabling deferred validation and avoiding silent propagation of
 invalid values.
