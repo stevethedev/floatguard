@@ -1,42 +1,10 @@
 use super::{GuardedF64, UnguardedF64};
 
-/// Macro to define constants in `GuardedF64` that mirror the constants in `f64`.
-///
-/// This macro allows you to define constants with a specific type and documentation.
-/// It simplifies the process of creating constants that are directly related to the `f64` type,
-/// ensuring that they are accessible through the `GuardedF64` type.
-///
-/// # Arguments
-///
-/// - `$name`: The name of the constant to define.
-/// - `$t`: The type of the constant (e.g., `f64`, `u32`, etc.).
-/// - `$value`: The value of the constant, which can be a direct reference to an `f64` constant or a specific value.
-/// - `$doc`: A documentation string that describes the constant and its purpose.
-macro_rules! copy_const_value {
-    ($name:ident, f64, $doc:expr) => {
-        copy_const_value!($name, GuardedF64, GuardedF64(f64::$name), $doc);
-    };
-
-    ($name:ident, $t:ty, $doc:expr) => {
-        copy_const_value!($name, $t, f64::$name, $doc);
-    };
-
-    ($name:ident, $t:ty, $value:expr, $doc:expr) => {
-        impl GuardedF64 {
-            #[doc = $doc]
-            pub const $name: $t = $value;
-        }
-
-        impl UnguardedF64 {
-            #[doc = $doc]
-            pub const $name: $t = $value;
-        }
-    };
-}
+use crate::copy_const_value;
 
 copy_const_value!(
-    RADIX,
-    u32,
+    (GuardedF64, UnguardedF64),
+    RADIX: u32 = f64::RADIX,
     r"
         The radix or base of the internal representation of `f64`.
 
@@ -45,8 +13,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    MANTISSA_DIGITS,
-    u32,
+    (GuardedF64, UnguardedF64),
+    MANTISSA_DIGITS: u32 = f64::MANTISSA_DIGITS,
     r"
         Number of significant digits in base 2.
 
@@ -55,8 +23,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    DIGITS,
-    u32,
+    (GuardedF64, UnguardedF64),
+    DIGITS: u32 = f64::DIGITS,
     r"
         Approximate number of significant digits in base 10.
 
@@ -65,8 +33,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    EPSILON,
-    f64,
+    (GuardedF64, UnguardedF64),
+    EPSILON: GuardedF64 = GuardedF64(f64::EPSILON),
     r"
         The difference between `1.0` and the next larger representable number. Equal to
         2<sup>1&nbsp;&minus;&nbsp;[`MANTISSA_DIGITS`]</sup>.
@@ -78,8 +46,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    MIN,
-    f64,
+    (GuardedF64, UnguardedF64),
+    MIN: GuardedF64 = GuardedF64(f64::MIN),
     r"
         Smallest finite `f64` value.
 
@@ -88,8 +56,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    MIN_POSITIVE,
-    f64,
+    (GuardedF64, UnguardedF64),
+    MIN_POSITIVE: GuardedF64 = GuardedF64(f64::MIN_POSITIVE),
     r"
         Smallest positive normal `f64` value.
 
@@ -98,8 +66,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    MAX,
-    f64,
+    (GuardedF64, UnguardedF64),
+    MAX: GuardedF64 = GuardedF64(f64::MAX),
     r"
         Largest finite `f64` value.
 
@@ -108,8 +76,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    MIN_EXP,
-    i32,
+    (GuardedF64, UnguardedF64),
+    MIN_EXP: i32 = f64::MIN_EXP,
     r"
         Minimum possible normal power of 2 exponent.
 
@@ -118,8 +86,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    MAX_EXP,
-    i32,
+    (GuardedF64, UnguardedF64),
+    MAX_EXP: i32 = f64::MAX_EXP,
     r"
         Maximum possible normal power of 2 exponent.
 
@@ -128,8 +96,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    MIN_10_EXP,
-    i32,
+    (GuardedF64, UnguardedF64),
+    MIN_10_EXP: i32 = f64::MIN_10_EXP,
     r"
         Minimum possible normal power of 10 exponent.
 
@@ -138,8 +106,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    MAX_10_EXP,
-    i32,
+    (GuardedF64, UnguardedF64),
+    MAX_10_EXP: i32 = f64::MAX_10_EXP,
     r"
         Maximum possible normal power of 10 exponent.
 
@@ -148,9 +116,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    PI,
-    f64,
-    std::f64::consts::PI,
+    (GuardedF64, UnguardedF64),
+    PI: GuardedF64 = GuardedF64(std::f64::consts::PI),
     r"
         Archimedes' constant (&pi;)
 
@@ -159,9 +126,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    TAU,
-    f64,
-    std::f64::consts::TAU,
+    (GuardedF64, UnguardedF64),
+    TAU: GuardedF64 = GuardedF64(std::f64::consts::TAU),
     r"
         The full circle constant (&tau; = 2&pi;)
 
@@ -170,9 +136,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    FRAC_PI_2,
-    f64,
-    std::f64::consts::FRAC_PI_2,
+    (GuardedF64, UnguardedF64),
+    FRAC_PI_2: GuardedF64 = GuardedF64(std::f64::consts::FRAC_PI_2),
     r"
         &pi;/2
 
@@ -181,9 +146,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    FRAC_PI_3,
-    f64,
-    std::f64::consts::FRAC_PI_3,
+    (GuardedF64, UnguardedF64),
+    FRAC_PI_3: GuardedF64 = GuardedF64(std::f64::consts::FRAC_PI_3),
     r"
         &pi;/3
 
@@ -192,9 +156,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    FRAC_PI_4,
-    f64,
-    std::f64::consts::FRAC_PI_4,
+    (GuardedF64, UnguardedF64),
+    FRAC_PI_4: GuardedF64 = GuardedF64(std::f64::consts::FRAC_PI_4),
     r"
         &pi;/4
 
@@ -203,9 +166,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    FRAC_PI_6,
-    f64,
-    std::f64::consts::FRAC_PI_6,
+    (GuardedF64, UnguardedF64),
+    FRAC_PI_6: GuardedF64 = GuardedF64(std::f64::consts::FRAC_PI_6),
     r"
         &pi;/6
 
@@ -214,9 +176,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    FRAC_PI_8,
-    f64,
-    std::f64::consts::FRAC_PI_8,
+    (GuardedF64, UnguardedF64),
+    FRAC_PI_8: GuardedF64 = GuardedF64(std::f64::consts::FRAC_PI_8),
     r"
         &pi;/8
 
@@ -225,9 +186,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    FRAC_1_PI,
-    f64,
-    std::f64::consts::FRAC_1_PI,
+    (GuardedF64, UnguardedF64),
+    FRAC_1_PI: GuardedF64 = GuardedF64(std::f64::consts::FRAC_1_PI),
     r"
         1/&pi;
 
@@ -236,9 +196,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    FRAC_2_PI,
-    f64,
-    std::f64::consts::FRAC_2_PI,
+    (GuardedF64, UnguardedF64),
+    FRAC_2_PI: GuardedF64 = GuardedF64(std::f64::consts::FRAC_2_PI),
     r"
         2/&pi;
 
@@ -247,9 +206,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    FRAC_2_SQRT_PI,
-    f64,
-    std::f64::consts::FRAC_2_SQRT_PI,
+    (GuardedF64, UnguardedF64),
+    FRAC_2_SQRT_PI: GuardedF64 = GuardedF64(std::f64::consts::FRAC_2_SQRT_PI),
     r"
         1/√&pi;
 
@@ -258,9 +216,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    SQRT_2,
-    f64,
-    std::f64::consts::SQRT_2,
+    (GuardedF64, UnguardedF64),
+    SQRT_2: GuardedF64 = GuardedF64(std::f64::consts::SQRT_2),
     r"
         √2
 
@@ -269,9 +226,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    FRAC_1_SQRT_2,
-    f64,
-    std::f64::consts::FRAC_1_SQRT_2,
+    (GuardedF64, UnguardedF64),
+    FRAC_1_SQRT_2: GuardedF64 = GuardedF64(std::f64::consts::FRAC_1_SQRT_2),
     r"
         1/√2
 
@@ -280,9 +236,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    E,
-    f64,
-    std::f64::consts::E,
+    (GuardedF64, UnguardedF64),
+    E: GuardedF64 = GuardedF64(std::f64::consts::E),
     r"
         Euler's number (e)
 
@@ -291,9 +246,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    LOG2_E,
-    f64,
-    std::f64::consts::LOG2_E,
+    (GuardedF64, UnguardedF64),
+    LOG2_E: GuardedF64 = GuardedF64(std::f64::consts::LOG2_E),
     r"
         log<sub>2</sub>(e)
 
@@ -302,9 +256,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    LOG2_10,
-    f64,
-    std::f64::consts::LOG2_10,
+    (GuardedF64, UnguardedF64),
+    LOG2_10: GuardedF64 = GuardedF64(std::f64::consts::LOG2_10),
     r"
         log<sub>2</sub>(10)
 
@@ -313,9 +266,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    LOG10_2,
-    f64,
-    std::f64::consts::LOG10_2,
+    (GuardedF64, UnguardedF64),
+    LOG10_2: GuardedF64 = GuardedF64(std::f64::consts::LOG10_2),
     r"
         log<sub>10</sub>(2)
 
@@ -323,9 +275,8 @@ copy_const_value!(
     "
 );
 copy_const_value!(
-    LOG10_E,
-    f64,
-    std::f64::consts::LOG10_E,
+    (GuardedF64, UnguardedF64),
+    LOG10_E: GuardedF64 = GuardedF64(std::f64::consts::LOG10_E),
     r"
         log<sub>10</sub>(e)
 
@@ -334,9 +285,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    LN_2,
-    f64,
-    std::f64::consts::LN_2,
+    (GuardedF64, UnguardedF64),
+    LN_2: GuardedF64 = GuardedF64(std::f64::consts::LN_2),
     r"
         ln(2)
 
@@ -345,9 +295,8 @@ copy_const_value!(
 );
 
 copy_const_value!(
-    LN_10,
-    f64,
-    std::f64::consts::LN_10,
+    (GuardedF64, UnguardedF64),
+    LN_10: GuardedF64 = GuardedF64(std::f64::consts::LN_10),
     r"
         ln(10)
 
@@ -369,6 +318,15 @@ mod tests {
     }
 
     #[test]
+    fn test_radix() {
+        assert_eq!(GuardedF64::RADIX, f64::RADIX);
+        assert_type_eq!(GuardedF64::RADIX, u32);
+
+        assert_eq!(UnguardedF64::RADIX, f64::RADIX);
+        assert_type_eq!(UnguardedF64::RADIX, u32);
+    }
+
+    #[test]
     fn test_digits() {
         assert_eq!(GuardedF64::DIGITS, f64::DIGITS);
         assert_type_eq!(GuardedF64::DIGITS, u32);
@@ -384,6 +342,15 @@ mod tests {
 
         assert_eq!(UnguardedF64::MANTISSA_DIGITS, f64::MANTISSA_DIGITS);
         assert_type_eq!(UnguardedF64::MANTISSA_DIGITS, u32);
+    }
+
+    #[test]
+    fn test_epsilon() {
+        assert_eq!(GuardedF64::EPSILON, f64::EPSILON);
+        assert_type_eq!(GuardedF64::EPSILON, GuardedF64);
+
+        assert_eq!(UnguardedF64::EPSILON, f64::EPSILON);
+        assert_type_eq!(UnguardedF64::EPSILON, GuardedF64);
     }
 
     #[test]

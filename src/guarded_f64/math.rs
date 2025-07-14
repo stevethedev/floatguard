@@ -416,7 +416,7 @@ math!(
         let f = GuardedF64::FRAC_PI_2;
 
         // asin(sin(pi/2))
-        let abs_difference = (f.sin().asin() - GuardedF64::FRAC_PI_2).abs();
+        let abs_difference = (f.sin().asin() - GuardedF64::FRAC_PI_2).abs().check().unwrap();
 
         assert!(abs_difference < 1e-10);
         ```
@@ -441,7 +441,7 @@ math!(
         let f = x.sinh();
         // Solving sinh() at 1 gives `(e^2-1)/(2e)`
         let g = ((e * e) - 1.0) / (2.0 * e);
-        let abs_difference = (f - g).abs();
+        let abs_difference = (f - g).abs().check().unwrap();
 
         assert!(abs_difference < 1e-10);
         ```
@@ -484,7 +484,7 @@ math!(
 
         let x = 2.0 * GuardedF64::PI;
 
-        let abs_difference = (x.cos() - 1.0).abs();
+        let abs_difference = (x.cos() - 1.0).abs().check().unwrap();
 
         assert!(abs_difference < 1e-10);
         ```
@@ -507,7 +507,7 @@ math!(
         let f = GuardedF64::FRAC_PI_4;
 
         // acos(cos(pi/4))
-        let abs_difference = (f.cos().acos() - GuardedF64::FRAC_PI_4).abs();
+        let abs_difference = (f.cos().acos() - GuardedF64::FRAC_PI_4).abs().check().unwrap();
 
         assert!(abs_difference < 1e-10);
         ```
@@ -575,8 +575,8 @@ impl GuardedF64 {
     /// let x = GuardedF64::FRAC_PI_4;
     /// let f = x.sin_cos();
     ///
-    /// let abs_difference_0 = (f.0 - x.sin()).abs();
-    /// let abs_difference_1 = (f.1 - x.cos()).abs();
+    /// let abs_difference_0 = (f.0 - x.sin()).abs().check().unwrap();
+    /// let abs_difference_1 = (f.1 - x.cos()).abs().check().unwrap();
     ///
     /// assert!(abs_difference_0 < 1e-10);
     /// assert!(abs_difference_1 < 1e-10);
@@ -601,8 +601,8 @@ impl UnguardedF64 {
     /// let x = GuardedF64::FRAC_PI_4;
     /// let f = x.sin_cos();
     ///
-    /// let abs_difference_0 = (f.0 - x.sin()).abs();
-    /// let abs_difference_1 = (f.1 - x.cos()).abs();
+    /// let abs_difference_0 = (f.0 - x.sin()).abs().check().unwrap();
+    /// let abs_difference_1 = (f.1 - x.cos()).abs().check().unwrap();
     ///
     /// assert!(abs_difference_0 < 1e-10);
     /// assert!(abs_difference_1 < 1e-10);
@@ -627,7 +627,7 @@ math!(
         use floatguard::GuardedF64;
 
         let x = GuardedF64::FRAC_PI_4;
-        let abs_difference = (x.tan() - 1.0).abs();
+        let abs_difference = (x.tan() - 1.0).abs().check().unwrap();
 
         assert!(abs_difference < 1e-14);
         ```
