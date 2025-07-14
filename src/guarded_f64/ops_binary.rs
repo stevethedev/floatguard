@@ -13,9 +13,10 @@ use super::{GuardedF64, UnguardedF64};
 /// * `$doc` - A documentation string that describes the operation and its usage.
 macro_rules! binary_operation {
     (
-        $op_trait:ident::$op_method:ident,
-        fn ($lhs:ident : f64, $rhs:ident : f64) -> UnguardedF64 $implementation:block,
+        $op_trait:ident::$op_method:ident
         $doc:literal
+        fn ($lhs:ident : f64, $rhs:ident : f64) -> UnguardedF64
+        $implementation:block
     ) => {
         // | X | LHS             | RHS            | Result Type    | Note                |
         // |---|-----------------|----------------|----------------|---------------------|
@@ -248,10 +249,7 @@ macro_rules! binary_operation {
 }
 
 binary_operation!(
-    Add::add,
-    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
-        UnguardedF64::new(lhs + rhs)
-    },
+    Add::add
     r"
         Adds two `GuardedF64` values or a `GuardedF64` and a `f64`.
 
@@ -267,13 +265,13 @@ binary_operation!(
         assert_eq!((value1 + f64::NAN).check(), Err(FloatError::NaN));
         ```
     "
+    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
+        UnguardedF64::new(lhs + rhs)
+    }
 );
 
 binary_operation!(
-    Sub::sub,
-    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
-        UnguardedF64::new(lhs - rhs)
-    },
+    Sub::sub
     r"
         Subtracts one `GuardedF64` value from another or a `f64` from a `GuardedF64`.
 
@@ -289,13 +287,13 @@ binary_operation!(
         assert_eq!((value1 - f64::NAN).check(), Err(FloatError::NaN));
         ```
     "
+    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
+        UnguardedF64::new(lhs - rhs)
+    }
 );
 
 binary_operation!(
-    Mul::mul,
-    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
-        UnguardedF64::new(lhs * rhs)
-    },
+    Mul::mul
     r"
         Multiplies two `GuardedF64` values or a `GuardedF64` and a `f64`.
 
@@ -311,21 +309,13 @@ binary_operation!(
         assert_eq!((value1 * f64::NAN).check(), Err(FloatError::NaN));
         ```
     "
+    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
+        UnguardedF64::new(lhs * rhs)
+    }
 );
 
 binary_operation!(
-    Div::div,
-    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
-        UnguardedF64::new({
-            if lhs.is_finite() && rhs.is_finite() {
-                lhs / rhs
-            } else if rhs.is_nan() || lhs.is_nan() {
-                f64::NAN
-            } else {
-                f64::INFINITY
-            }
-        })
-    },
+    Div::div
     r"
         Divides one `GuardedF64` value by another or a `f64` by a `GuardedF64`.
 
@@ -355,21 +345,21 @@ binary_operation!(
         assert_eq!((value2 / value1).check(), Err(FloatError::NaN));
         ```
     "
-);
-
-binary_operation!(
-    Rem::rem,
     fn (lhs: f64, rhs: f64) -> UnguardedF64 {
         UnguardedF64::new({
             if lhs.is_finite() && rhs.is_finite() {
-                lhs % rhs
+                lhs / rhs
             } else if rhs.is_nan() || lhs.is_nan() {
                 f64::NAN
             } else {
                 f64::INFINITY
             }
         })
-    },
+    }
+);
+
+binary_operation!(
+    Rem::rem
     r"
         Computes the remainder of division between two `GuardedF64` values or a `GuardedF64` and
         a `f64`.
@@ -402,6 +392,17 @@ binary_operation!(
         assert_eq!((value2 % value1).check(), Err(FloatError::NaN));
         ```
     "
+    fn (lhs: f64, rhs: f64) -> UnguardedF64 {
+        UnguardedF64::new({
+            if lhs.is_finite() && rhs.is_finite() {
+                lhs % rhs
+            } else if rhs.is_nan() || lhs.is_nan() {
+                f64::NAN
+            } else {
+                f64::INFINITY
+            }
+        })
+    }
 );
 
 #[cfg(test)]
