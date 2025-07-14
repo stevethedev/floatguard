@@ -182,7 +182,7 @@ math!(
         let negative_zero = UnguardedF64::new(-0.0_f64);
 
         assert_eq!(positive.sqrt().check(), GuardedF64::new(2.0));
-        assert_eq!(negative.sqrt().check(), Err(FloatError));
+        assert_eq!(negative.sqrt().check(), Err(FloatError::NaN));
         assert_eq!(negative_zero.sqrt().check(), GuardedF64::new(-0.0));
         ```
     "

@@ -1,6 +1,12 @@
 /// An error occurred while processing a floating-point value, indicating that
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd)]
-pub struct Error;
+pub enum Error {
+    /// Indicates that the floating-point value is NaN (Not a Number).
+    NaN,
+
+    /// Indicates that the floating-point value is an infinity.
+    Infinity,
+}
 
 impl std::error::Error for Error {}
 
